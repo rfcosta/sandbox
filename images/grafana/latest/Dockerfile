@@ -1,0 +1,3 @@
+ARG GRAFANA_TAG
+FROM grafana/grafana:$GRAFANA_TAG
+

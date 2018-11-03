@@ -20,28 +20,12 @@ sandbox () {
   # Enter attaches users to a shell in the desired container
   enter () {
     case $2 in
-      influxdb)
-        echo "Entering /bin/bash session in the influxdb container..."
-        docker-compose exec influxdb /bin/bash
-        ;;
-      chronograf)
-        echo "Entering /bin/sh session in the chronograf container..."
-        docker-compose exec chronograf /bin/sh
-        ;;
-      kapacitor)
-        echo "Entering /bin/bash session in the kapacitor container..."
-        docker-compose exec kapacitor /bin/bash
-        ;;
-      telegraf)
-        echo "Entering /bin/bash session in the telegraf container..."
-        docker-compose exec telegraf /bin/bash
-        ;;
-      flux)
-        echo "Entering /bin/bash session in the flux container..."
-        docker-compose exec flux /bin/sh
+      influxdb | chronograf | kapacitor | telegraf | flux | grafana)
+        echo "Entering /bin/bash session in the $2 container..."
+        docker-compose exec $2 /bin/bash
         ;;
       *)
-        echo "sandbox enter (influxdb||chronograf||kapacitor||telegraf||flux)"
+        echo "sandbox enter (influxdb||chronograf||kapacitor||telegraf||flux||grafana)"
         ;;
     esac
   }
@@ -49,21 +33,9 @@ sandbox () {
   # Logs streams the logs from the container to the shell
   logs () {
     case $2 in
-      influxdb)
-        echo "Following the logs from the influxdb container..."
-        docker-compose logs -f influxdb
-        ;;
-      chronograf)
-        echo "Following the logs from the chronograf container..."
-        docker-compose logs -f chronograf
-        ;;
-      kapacitor)
-        echo "Following the logs from the kapacitor container..."
-        docker-compose logs -f kapacitor
-        ;;
-      telegraf)
-        echo "Following the logs from the telegraf container..."
-        docker-compose logs -f telegraf
+      influxdb | chronograf | kapacitor | telegraf | grafana)
+        echo "Following the logs from the $2 container..."
+        docker-compose logs $3 $2
         ;;
       *)
         echo "sandbox logs (influxdb||chronograf||kapacitor||telegraf)"
@@ -135,8 +107,8 @@ sandbox commands:
   restart (-nightly) -> restart the sandbox
   influxdb           -> attach to the influx cli
 
-  enter (influxdb||kapacitor||chronograf||telegraf) -> enter the specified container
-  logs  (influxdb||kapacitor||chronograf||telegraf) -> stream logs for the specified container
+  enter (influxdb||kapacitor||chronograf||telegraf|flux) -> enter the specified container
+  logs  (influxdb||kapacitor||chronograf||telegraf) [-f] -> stream logs for the specified container
 
   delete-data  -> delete all data created by the TICK Stack
   docker-clean -> stop and remove all running docker containers and images

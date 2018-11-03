@@ -91,3 +91,29 @@ services:
       context: ./documentation
     ports:
       - "3010:3000"
+
+
+  grafana:
+    # Full tag list: https://hub.docker.com/r/library/chronograf/tags/
+    build:
+      context: ./images/grafana
+      dockerfile: ./${TYPE}/Dockerfile
+      args:
+        GRAFANA_TAG: ${GRAFANA_TAG}
+    image: "grafana"
+    environment:
+      RESOURCES_PATH: "/usr/share/grafana/resources"
+    volumes:
+      # Mount for chronograf database
+      - ./grafana/data/:/var/lib/grafana/
+    links:
+      # Grafana requires network access to InfluxDB and Kapacitor
+      - influxdb
+      - kapacitor
+    ports:
+      # The WebUI for Chronograf is served on port 8888
+      - "3000:3000"
+    depends_on:
+      - influxdb
+      - kapacitor
+      - telegraf
