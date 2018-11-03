@@ -53,9 +53,11 @@ sandbox () {
       if [ $(uname) == "Darwin" ]; then
         open http://localhost:3010
         open http://localhost:8888
+        open http://localhost:3000
       elif [ $(uname) == "Linux" ]; then
         sensible-browser http://localhost:8888
         sensible-browser http://localhost:3010
+        sensible-browser http://localhost:3000
       else
         echo "no browser detected..."
       fi
