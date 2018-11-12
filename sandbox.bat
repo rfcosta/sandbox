@@ -33,6 +33,11 @@ IF "%1"=="enter" (
         docker-compose exec telegraf /bin/bash
         GOTO End
     )
+    IF "%2"=="grafana" (
+        ECHO Entering ^/bin^/bash session in the telegraf container...
+        docker-compose exec telegraf /bin/bash
+        GOTO End
+    )
 )
 
 REM Logs streams the logs from the container to the shell
@@ -61,6 +66,11 @@ IF "%1"=="logs" (
         docker-compose logs -f telegraf
         GOTO End
     )
+    IF "%2"=="grafana" (
+        ECHO Following the logs from the telegraf container...
+        docker-compose logs -f telegraf
+        GOTO End
+    )
 )
 
 IF "%1"=="up" (
@@ -71,6 +81,7 @@ IF "%1"=="up" (
     timeout /t 3 /nobreak > NUL
     START "" http://localhost:3010
     START "" http://localhost:8888
+    START "" http://localhost:3000
     GOTO End
 )
 
@@ -124,8 +135,8 @@ ECHO   down         -^> tear down the sandbox environment
 ECHO   restart      -^> restart the sandbox
 ECHO   influxdb     -^> attach to the influx cli
 ECHO.
-ECHO   enter ^(influxdb^|^|kapacitor^|^|chronograf^|^|telegraf^) -^> enter the specified container
-ECHO   logs  ^(influxdb^|^|kapacitor^|^|chronograf^|^|telegraf^) -^> stream logs for the specified container
+ECHO   enter ^(influxdb^|^|kapacitor^|^|chronograf^|^|telegraf^|^|grafana^) -^> enter the specified container
+ECHO   logs  ^(influxdb^|^|kapacitor^|^|chronograf^|^|telegraf^|^|grafana^) -^> stream logs for the specified container
 ECHO.
 ECHO   delete-data  -^> delete all data created by the TICK Stack
 ECHO   docker-clean -^> stop and remove all running docker containers and images
