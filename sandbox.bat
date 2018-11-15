@@ -35,7 +35,7 @@ IF "%1"=="enter" (
     )
     IF "%2"=="grafana" (
         ECHO Entering ^/bin^/bash session in the telegraf container...
-        docker-compose exec telegraf /bin/bash
+        docker-compose exec grafana /bin/bash
         GOTO End
     )
 )
@@ -68,7 +68,7 @@ IF "%1"=="logs" (
     )
     IF "%2"=="grafana" (
         ECHO Following the logs from the telegraf container...
-        docker-compose logs -f telegraf
+        docker-compose logs -f grafana
         GOTO End
     )
 )
