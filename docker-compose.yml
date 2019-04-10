@@ -106,6 +106,8 @@ services:
     volumes:
       # Mount for chronograf database
       - ./grafana/data/:/var/lib/grafana/
+      - ~/__shp/grafana.east/opt/aed:/opt/aed
+      - ~/__shp/grafana.east/home:/opt/home
     links:
       # Grafana requires network access to InfluxDB and Kapacitor
       - influxdb
