@@ -7,15 +7,18 @@ RUN apt-get update
 RUN apt-get install -y vim
 RUN apt-get install -y nano
 
-RUN apt-get install python
-RUN apt-get install python-pip
+RUN apt-get install -y python
+RUN apt-get install -y python-pip
 RUN pip install requests
 
 
 RUN mkdir /home/grafana
+RUN mkdir /var/log/shp
 RUN chown grafana:grafana /home/grafana
+RUN chown grafana:grafana /var/log/shp
 
 USER grafana
+RUN touch /var/log/shp/shp.log
 #
 #RUN apt-get install -y openssh-server
 #RUN mkdir /var/run/sshd
