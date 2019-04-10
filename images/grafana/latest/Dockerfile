@@ -7,6 +7,11 @@ RUN apt-get update
 RUN apt-get install -y vim
 RUN apt-get install -y nano
 
+RUN apt-get install python
+RUN apt-get install python-pip
+RUN pip install requests
+
+
 RUN mkdir /home/grafana
 RUN chown grafana:grafana /home/grafana
 
