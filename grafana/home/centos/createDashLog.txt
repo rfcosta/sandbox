@@ -1,0 +1,398 @@
+Creating dashboard for Sabre Links Processor in org 2 folder=Platform
+service_name=Sabre Links Processor,  folder_id=8
+Creating dashboard: f74796566f533140c423884f8e3ee418
+Creating dashboard for SHS ECRS Synxis Mobile BE in org 1 folder=Hospitality Services
+service_name=SHS ECRS Synxis Mobile BE,  folder_id=1185
+Creating dashboard: 4860cca54f913ecc8b0ecf5d0210c789
+Creating dashboard for SHS ECRS Control Center in org 1 folder=Hospitality Services
+service_name=SHS ECRS Control Center,  folder_id=1185
+Creating dashboard: c860cca54f913ecc8b0ecf5d0210c788
+Creating dashboard for SHS CCRS Notification Manager in org 1 folder=Hospitality Services
+service_name=SHS CCRS Notification Manager,  folder_id=1185
+Creating dashboard: ff50cca54f913ecc8b0ecf5d0210c786
+Creating dashboard for Second Generation USG in org 2 folder=Platform
+service_name=Second Generation USG,  folder_id=8
+Creating dashboard: 445796566f533140c423884f8e3ee41c
+Creating dashboard for T2 Electronic Tktng HUB in org 1 folder=General
+service_name=T2 Electronic Tktng HUB,  folder_id=0
+Creating dashboard: cc5796566f533140c423884f8e3ee41d
+Creating dashboard for GT Traveler Experience Services in org 2 folder=Travel Network
+service_name=GT Traveler Experience Services,  folder_id=17
+Creating dashboard: 46567e0d6fcd220039dc93d31c3ee492
+Creating dashboard for SSW Kiosk Check In in org 2 folder=General
+service_name=SSW Kiosk Check In,  folder_id=0
+Creating dashboard: 95a7551c6f8d53c493741ecbbb3ee461
+Creating dashboard for Sabre Web Services in org 2 folder=Platform
+service_name=Sabre Web Services,  folder_id=8
+Creating dashboard: c05796566f533140c423884f8e3ee41c
+Creating dashboard for Ticketing - Open Systems in org 1 folder=General
+service_name=Ticketing - Open Systems,  folder_id=0
+Creating dashboard: c45796566f533140c423884f8e3ee41d
+Creating dashboard for Red App Center in org 2 folder=Travel Network
+service_name=Red App Center,  folder_id=17
+Creating dashboard: a34796566f533140c423884f8e3ee414
+Creating dashboard for CKI Host Event Handler in org 1 folder=General
+service_name=CKI Host Event Handler,  folder_id=0
+Creating dashboard: 55ec9deb4f1cdf80a7712ae6f110c7fb
+Creating dashboard for SRW_CITRIX_PROD in org 2 folder=General
+service_name=SRW_CITRIX_PROD,  folder_id=0
+Creating dashboard: 3f6165924f87b2c08b0ecf5d0210c782
+Creating dashboard for Air Availability in org 2 folder=General
+service_name=Air Availability,  folder_id=0
+Creating dashboard: 360a4dc76f454e00e81af00dba3ee4a3
+Creating dashboard for SHS ECRS Notification Manager in org 1 folder=Hospitality Services
+service_name=SHS ECRS Notification Manager,  folder_id=1185
+Creating dashboard: 716080e54f913ecc8b0ecf5d0210c737
+Creating dashboard for SHS ECRS Property Connect in org 1 folder=Hospitality Services
+service_name=SHS ECRS Property Connect,  folder_id=1185
+Creating dashboard: d06000e54f913ecc8b0ecf5d0210c783
+Creating dashboard for T2 Agent Sales Report in org 1 folder=General
+service_name=T2 Agent Sales Report,  folder_id=0
+Creating dashboard: 485796566f533140c423884f8e3ee41d
+Creating dashboard for SHS ECRS Channel Connect in org 1 folder=Hospitality Services
+service_name=SHS ECRS Channel Connect,  folder_id=1185
+Creating dashboard: 0c6000e54f913ecc8b0ecf5d0210c782
+Creating dashboard for Liberty in org 1 folder=Platform
+service_name=Liberty,  folder_id=15
+Creating dashboard: 4b4796566f533140c423884f8e3ee40d
+Creating dashboard for SHS CCRS Profile Manager V2 in org 1 folder=Hospitality Services
+service_name=SHS CCRS Profile Manager V2,  folder_id=1185
+Creating dashboard: 7f50cca54f913ecc8b0ecf5d0210c787
+Creating dashboard for Supplier Orchestration Engine in org 1 folder=Platform
+service_name=Supplier Orchestration Engine,  folder_id=15
+Creating dashboard: 574796566f533140c423884f8e3ee40e
+Creating dashboard for Throttle Manager in org 2 folder=Platform
+service_name=Throttle Manager,  folder_id=8
+Creating dashboard: 405796566f533140c423884f8e3ee41d
+Creating dashboard for ATSE High Performance Shopping-DXC-Tulsa in org 1 folder=General
+service_name=ATSE High Performance Shopping-DXC-Tulsa,  folder_id=0
+Creating dashboard: 4d5351bc4f7c0b088b0ecf5d0210c7ea
+Creating dashboard for SHS CCRS Property Connect in org 1 folder=Hospitality Services
+service_name=SHS CCRS Property Connect,  folder_id=1185
+Creating dashboard: 4a508ca54f913ecc8b0ecf5d0210c7e4
+Creating dashboard for Load Manager in org 2 folder=Airline Solutions
+service_name=Load Manager,  folder_id=3
+Creating dashboard: 147174d16fdcc200c423884f8e3ee4d6
+Creating dashboard for SHS ECRS Ideas in org 2 folder=Hospitality Services
+service_name=SHS ECRS Ideas,  folder_id=6
+Creating dashboard: dd6000e54f913ecc8b0ecf5d0210c78b
+Creating dashboard for TPNR PNR Services in org 2 folder=General
+service_name=TPNR PNR Services,  folder_id=0
+Creating dashboard: c05796566f533140c423884f8e3ee41f
+Creating dashboard for GetThere US Government in org 2 folder=Travel Network
+service_name=GetThere US Government,  folder_id=17
+Creating dashboard: 1381b4d16fdcc200c423884f8e3ee4a0
+Creating dashboard for SHS ECRS SynXis Booking Engine in org 1 folder=Hospitality Services
+service_name=SHS ECRS SynXis Booking Engine,  folder_id=1185
+Creating dashboard: 8060cca54f913ecc8b0ecf5d0210c789
+Creating dashboard for Intellisell AS in org 2 folder=General
+service_name=Intellisell AS,  folder_id=0
+Creating dashboard: b781b4d16fdcc200c423884f8e3ee4a6
+Creating dashboard for SHS CCRS Amadeus DCX in org 1 folder=Hospitality Services
+service_name=SHS CCRS Amadeus DCX,  folder_id=1185
+Creating dashboard: 1e508ca54f913ecc8b0ecf5d0210c7e6
+Creating dashboard for Event Notification System in org 1 folder=Platform
+service_name=Event Notification System,  folder_id=15
+Creating dashboard: c34756566f533140c423884f8e3ee4f0
+Creating dashboard for eServices in org 2 folder=Travel Network
+service_name=eServices,  folder_id=17
+Creating dashboard: 474756566f533140c423884f8e3ee4f0
+Creating dashboard for SHS CCRS SynXis Booking Engine in org 1 folder=Hospitality Services
+service_name=SHS CCRS SynXis Booking Engine,  folder_id=1185
+Creating dashboard: 06508ca54f913ecc8b0ecf5d0210c7e3
+Creating dashboard for SHS CCRS Synxis Mobile BE in org 1 folder=Hospitality Services
+service_name=SHS CCRS Synxis Mobile BE,  folder_id=1185
+Creating dashboard: ca508ca54f913ecc8b0ecf5d0210c7e3
+Creating dashboard for T2 Ticketing Domain Services in org 2 folder=General
+service_name=T2 Ticketing Domain Services,  folder_id=0
+Creating dashboard: 1834e5ec4f41f2c48b0ecf5d0210c7c2
+Creating dashboard for Single Sign On Services in org 1 folder=Platform
+service_name=Single Sign On Services,  folder_id=15
+Creating dashboard: fa91b4d16fdcc200c423884f8e3ee4fc
+Creating dashboard for Sabre Customer Virtual Private Network Services in org 1 folder=General
+service_name=Sabre Customer Virtual Private Network Services,  folder_id=0
+Creating dashboard: 69452fce4f7fc3c08b0ecf5d0210c72b
+Creating dashboard for Enterprise Viewership Services in org 1 folder=Platform
+service_name=Enterprise Viewership Services,  folder_id=15
+Creating dashboard: bab644684f50c3008b0ecf5d0210c73e
+Creating dashboard for Community Portal in org 1 folder=Airline Solutions
+service_name=Community Portal,  folder_id=28
+Creating dashboard: fa4756566f533140c423884f8e3ee4ea
+Creating dashboard for Content Services/Travel Protection in org 2 folder=Travel Network
+service_name=Content Services/Travel Protection,  folder_id=17
+Creating dashboard: 7e4756566f533140c423884f8e3ee4ee
+Creating dashboard for SRW Sabre Red Workspace in org 2 folder=Travel Network
+service_name=SRW Sabre Red Workspace,  folder_id=17
+Creating dashboard: 5f4796566f533140c423884f8e3ee40f
+Creating dashboard for ATSE Ancillary Services-Sabre-ATX/LTX in org 2 folder=General
+service_name=ATSE Ancillary Services-Sabre-ATX/LTX,  folder_id=0
+Creating dashboard: c790bd410f74c7002e4fc7dce1050e8b
+Creating dashboard for Universal Services Gateway in org 2 folder=Platform
+service_name=Universal Services Gateway,  folder_id=8
+Creating dashboard: 445796566f533140c423884f8e3ee41d
+Creating dashboard for SHS CCRS Payment/Loyalty Services in org 2 folder=Hospitality Services
+service_name=SHS CCRS Payment/Loyalty Services,  folder_id=6
+Creating dashboard: 0460cca54f913ecc8b0ecf5d0210c788
+Creating dashboard for SHS ECRS Property Connect Async in org 1 folder=Hospitality Services
+service_name=SHS ECRS Property Connect Async,  folder_id=1185
+Creating dashboard: 986000e54f913ecc8b0ecf5d0210c783
+Creating dashboard for SHS ECRS Integration in org 1 folder=Hospitality Services
+service_name=SHS ECRS Integration,  folder_id=1185
+Creating dashboard: c16000e54f913ecc8b0ecf5d0210c78a
+Creating dashboard for ESSM Shared Cache App Blob in org 1 folder=Platform
+service_name=ESSM Shared Cache App Blob,  folder_id=15
+Creating dashboard: 4f4796566f533140c423884f8e3ee409
+Creating dashboard for CKI Check-In Services in org 1 folder=General
+service_name=CKI Check-In Services,  folder_id=0
+Creating dashboard: ae91b4d16fdcc200c423884f8e3ee4ea
+Creating dashboard for TKN:PROXY in org 1 folder=Platform
+service_name=TKN:PROXY,  folder_id=15
+Creating dashboard: af6ac6946f780200e81af00dba3ee45b
+Creating dashboard for Check-In - Open Systems in org 2 folder=General
+service_name=Check-In - Open Systems,  folder_id=0
+Creating dashboard: 7f4796566f533140c423884f8e3ee418
+Creating dashboard for SHS ECRS Travelport DCX in org 1 folder=Hospitality Services
+service_name=SHS ECRS Travelport DCX,  folder_id=1185
+Creating dashboard: dc6000e54f913ecc8b0ecf5d0210c784
+Creating dashboard for Dynamic Schedules Service V2 in org 1 folder=General
+service_name=Dynamic Schedules Service V2,  folder_id=0
+Creating dashboard: 0681b4d16fdcc200c423884f8e3ee471
+Creating dashboard for ATSE Shopping MIP-DXC-Tulsa in org 1 folder=General
+service_name=ATSE Shopping MIP-DXC-Tulsa,  folder_id=0
+Creating dashboard: a96d4df44f3c0b088b0ecf5d0210c7d4
+Creating dashboard for TPFC2 in org 2 folder=Platform
+service_name=TPFC2,  folder_id=8
+Creating dashboard: c05796566f533140c423884f8e3ee41d
+Creating dashboard for ANCS Ancillaries Baggage in org 1 folder=General
+service_name=ANCS Ancillaries Baggage,  folder_id=0
+Creating dashboard: a3a32be10fafaa002e4fc7dce1050e46
+Creating dashboard for Sabre Multi Access in org 1 folder=Platform
+service_name=Sabre Multi Access,  folder_id=15
+Creating dashboard: ba856b680f399ac0f64a22d8b1050ee2
+Creating dashboard for SHS ECRS Product Manager V2 in org 1 folder=Hospitality Services
+service_name=SHS ECRS Product Manager V2,  folder_id=1185
+Creating dashboard: 396080e54f913ecc8b0ecf5d0210c737
+Creating dashboard for SSW Digital Experience AWS in org 1 folder=Airline Solutions
+service_name=SSW Digital Experience AWS,  folder_id=28
+Creating dashboard: ef4f2c524f1b36c08b0ecf5d0210c704
+Creating dashboard for SHS CCRS Communication Utiliy in org 1 folder=Hospitality Services
+service_name=SHS CCRS Communication Utiliy,  folder_id=1185
+Creating dashboard: ab50cca54f913ecc8b0ecf5d0210c785
+Creating dashboard for CKI Event Manager in org 1 folder=General
+service_name=CKI Event Manager,  folder_id=0
+Creating dashboard: 8ac7d16f4f98df80a7712ae6f110c7b0
+Creating dashboard for SHS ECRS ARI in org 1 folder=Hospitality Services
+service_name=SHS ECRS ARI,  folder_id=1185
+Creating dashboard: 456000e54f913ecc8b0ecf5d0210c789
+Creating dashboard for PPP Travel Network in org 2 folder=General
+service_name=PPP Travel Network,  folder_id=0
+Creating dashboard: 9f4796566f533140c423884f8e3ee411
+Creating dashboard for Sabre common Translator in org 2 folder=Platform
+service_name=Sabre common Translator,  folder_id=8
+Creating dashboard: 774796566f533140c423884f8e3ee417
+Creating dashboard for SHS CCRS Itinerary Manager in org 1 folder=Hospitality Services
+service_name=SHS CCRS Itinerary Manager,  folder_id=1185
+Creating dashboard: 3b50cca54f913ecc8b0ecf5d0210c786
+Creating dashboard for Dedicated New Open Front End Processor in org 1 folder=Platform
+service_name=Dedicated New Open Front End Processor,  folder_id=15
+Creating dashboard: 764756566f533140c423884f8e3ee4ef
+Creating dashboard for PPP Airline Solutions in org 2 folder=General
+service_name=PPP Airline Solutions,  folder_id=0
+Creating dashboard: 174796566f533140c423884f8e3ee411
+Creating dashboard for AirVision Planning and Scheduling AWS in org 2 folder=Airline Solutions
+service_name=AirVision Planning and Scheduling AWS,  folder_id=3
+Creating dashboard: 76041b9b4f6083c0a7712ae6f110c7b5
+Creating dashboard for SHS CCRS ADS/IDS in org 2 folder=Hospitality Services
+service_name=SHS CCRS ADS/IDS,  folder_id=6
+Creating dashboard: cb50cca54f913ecc8b0ecf5d0210c781
+Creating dashboard for Service Health Portal in org 2 folder=General
+service_name=Service Health Portal,  folder_id=0
+Creating dashboard: 5ccbcc176f064b0c1f0c1cccbb3ee404
+Creating dashboard for SHS ECRS ADS/IDS in org 2 folder=Hospitality Services
+service_name=SHS ECRS ADS/IDS,  folder_id=6
+Creating dashboard: 516000e54f913ecc8b0ecf5d0210c78b
+Creating dashboard for TPNR PNR Data Store in org 2 folder=General
+service_name=TPNR PNR Data Store,  folder_id=0
+Creating dashboard: 405796566f533140c423884f8e3ee41f
+Creating dashboard for SHS ECRS Communication Utiliy in org 1 folder=Hospitality Services
+service_name=SHS ECRS Communication Utiliy,  folder_id=1185
+Creating dashboard: bd6000e54f913ecc8b0ecf5d0210c78e
+Creating dashboard for ATSE Air Travel Shopping Engine in org 2 folder=General
+service_name=ATSE Air Travel Shopping Engine,  folder_id=0
+Creating dashboard: 2a4756566f533140c423884f8e3ee4e6
+Creating dashboard for T2 Data Management Services in org 2 folder=General
+service_name=T2 Data Management Services,  folder_id=0
+Creating dashboard: 4c5796566f533140c423884f8e3ee41d
+Creating dashboard for SPM Database in org 2 folder=Hospitality Services
+service_name=SPM Database,  folder_id=6
+Creating dashboard: 022700bb0f2372482e4fc7dce1050e68
+Creating dashboard for SHS CCRS Ideas in org 2 folder=Hospitality Services
+service_name=SHS CCRS Ideas,  folder_id=6
+Creating dashboard: 5b50cca54f913ecc8b0ecf5d0210c782
+Creating dashboard for ATSE Shopping MIP-Sabre-CTX/PTX in org 1 folder=General
+service_name=ATSE Shopping MIP-Sabre-CTX/PTX,  folder_id=0
+Creating dashboard: 851c7cb44f380b088b0ecf5d0210c754
+Creating dashboard for Centiva in org 2 folder=Airline Solutions
+service_name=Centiva,  folder_id=3
+Creating dashboard: ae4756566f533140c423884f8e3ee4e9
+Creating dashboard for Infini Multi Access in org 1 folder=Platform
+service_name=Infini Multi Access,  folder_id=15
+Creating dashboard: d34796566f533140c423884f8e3ee40e
+Creating dashboard for SHS CCRS Sabre DCX in org 1 folder=Hospitality Services
+service_name=SHS CCRS Sabre DCX,  folder_id=1185
+Creating dashboard: 9e508ca54f913ecc8b0ecf5d0210c7e5
+Creating dashboard for ATSE Shopping Itinerary Selector-DXC-Tulsa in org 1 folder=General
+service_name=ATSE Shopping Itinerary Selector-DXC-Tulsa,  folder_id=0
+Creating dashboard: ea56b9890ff4c7002e4fc7dce1050e48
+Creating dashboard for Services Platform in org 1 folder=Platform
+service_name=Services Platform,  folder_id=15
+Creating dashboard: 6ab1c5a60ff74f802e4fc7dce1050e51
+Creating dashboard for SSW Digital Experience Check In in org 2 folder=Airline Solutions
+service_name=SSW Digital Experience Check In,  folder_id=3
+Creating dashboard: 7da1d4870ff436c02e4fc7dce1050e0d
+Creating dashboard for ABSO/Sterling Background in org 1 folder=General
+service_name=ABSO/Sterling Background,  folder_id=0
+Creating dashboard: 5e1edb026f9ecf0c7c58cccc5d3ee4da
+Creating dashboard for SAC_Direct_Fare_Filing in org 2 folder=General
+service_name=SAC_Direct_Fare_Filing,  folder_id=0
+Creating dashboard: eb4796566f533140c423884f8e3ee415
+Creating dashboard for SHS CCRS Product Manager V2 in org 1 folder=Hospitality Services
+service_name=SHS CCRS Product Manager V2,  folder_id=1185
+Creating dashboard: b750cca54f913ecc8b0ecf5d0210c787
+Creating dashboard for SHS CCRS Control Center in org 1 folder=Hospitality Services
+service_name=SHS CCRS Control Center,  folder_id=1185
+Creating dashboard: 7d508ca54f913ecc8b0ecf5d0210c7e2
+Creating dashboard for Payment Web Services Database in org 2 folder=General
+service_name=Payment Web Services Database,  folder_id=0
+Creating dashboard: 0191b4d16fdcc200c423884f8e3ee4b8
+Creating dashboard for Blackbeard in org 2 folder=Platform
+service_name=Blackbeard,  folder_id=8
+Creating dashboard: 264756566f533140c423884f8e3ee4e9
+Creating dashboard for T2 Web Services in org 1 folder=General
+service_name=T2 Web Services,  folder_id=0
+Creating dashboard: 445796566f533140c423884f8e3ee41e
+Creating dashboard for SHS ECRS Profile Manager in org 1 folder=Hospitality Services
+service_name=SHS ECRS Profile Manager,  folder_id=1185
+Creating dashboard: ce6080e54f913ecc8b0ecf5d0210c737
+Creating dashboard for Enterprise Security Manager in org 1 folder=Platform
+service_name=Enterprise Security Manager,  folder_id=15
+Creating dashboard: cb4796566f533140c423884f8e3ee409
+Creating dashboard for Crew Connection in org 2 folder=Airline Solutions
+service_name=Crew Connection,  folder_id=3
+Creating dashboard: 2ebf30c64f83ba40a7712ae6f110c7e0
+Creating dashboard for SHS ECRS Payment/Loyalty Services in org 2 folder=Hospitality Services
+service_name=SHS ECRS Payment/Loyalty Services,  folder_id=6
+Creating dashboard: 866080e54f913ecc8b0ecf5d0210c738
+Creating dashboard for TPFC in org 1 folder=Platform
+service_name=TPFC,  folder_id=15
+Creating dashboard: df91f4d16fdcc200c423884f8e3ee416
+Creating dashboard for SHS CCRS Property Connect Async in org 1 folder=Hospitality Services
+service_name=SHS CCRS Property Connect Async,  folder_id=1185
+Creating dashboard: 12508ca54f913ecc8b0ecf5d0210c7e5
+Creating dashboard for SHS CCRS Voice Agent in org 1 folder=Hospitality Services
+service_name=SHS CCRS Voice Agent,  folder_id=1185
+Creating dashboard: d6508ca54f913ecc8b0ecf5d0210c7e5
+Creating dashboard for SHS ECRS Itinerary Manager in org 1 folder=Hospitality Services
+service_name=SHS ECRS Itinerary Manager,  folder_id=1185
+Creating dashboard: b96080e54f913ecc8b0ecf5d0210c736
+Creating dashboard for TPNR Trip Record in org 2 folder=General
+service_name=TPNR Trip Record,  folder_id=0
+Creating dashboard: 485796566f533140c423884f8e3ee41f
+Creating dashboard for SHS CCRS Universal Message Broker in org 1 folder=Hospitality Services
+service_name=SHS CCRS Universal Message Broker,  folder_id=1185
+Creating dashboard: 8750cca54f913ecc8b0ecf5d0210c780
+Creating dashboard for ATSE Shopping Itinerary Selector-Sabre-CTX/PTX in org 2 folder=General
+service_name=ATSE Shopping Itinerary Selector-Sabre-CTX/PTX,  folder_id=0
+Creating dashboard: 001782050f3cc7002e4fc7dce1050eec
+Creating dashboard for SHS CCRS Channel Connect in org 1 folder=Hospitality Services
+service_name=SHS CCRS Channel Connect,  folder_id=1185
+Creating dashboard: 82508ca54f913ecc8b0ecf5d0210c7e4
+Creating dashboard for FLICA Web Services in org 1 folder=Airline Solutions
+service_name=FLICA Web Services,  folder_id=28
+Creating dashboard: 5a74699837dc6600d65a65e2b3990e9a
+Creating dashboard for Payment Internet Payment Engine in org 1 folder=General
+service_name=Payment Internet Payment Engine,  folder_id=0
+Creating dashboard: 7091b4d16fdcc200c423884f8e3ee4b7
+Creating dashboard for Web Access Manager External in org 1 folder=Platform
+service_name=Web Access Manager External,  folder_id=15
+Creating dashboard: b9a2a6e837159240d65a65e2b3990e9a
+Creating dashboard for Sabre Red Services v2 in org 1 folder=Travel Network
+service_name=Sabre Red Services v2,  folder_id=852
+Creating dashboard: fafcfb984f10c3008b0ecf5d0210c7c4
+Creating dashboard for Teletype Message Gateway in org 1 folder=Platform
+service_name=Teletype Message Gateway,  folder_id=15
+Creating dashboard: 097174d16fdcc200c423884f8e3ee4e1
+Creating dashboard for SHS CCRS Integration in org 1 folder=Hospitality Services
+service_name=SHS CCRS Integration,  folder_id=1185
+Creating dashboard: 4f50cca54f913ecc8b0ecf5d0210c780
+Creating dashboard for GetThere GTX2 in org 1 folder=Travel Network
+service_name=GetThere GTX2,  folder_id=852
+Creating dashboard: 1a6aad170f006a8070787d4ce1050eae
+Creating dashboard for Offhost Session Manager in org 1 folder=Platform
+service_name=Offhost Session Manager,  folder_id=15
+Creating dashboard: ab4d222b4f2e7a808b0ecf5d0210c75d
+Creating dashboard for Direct Access Platform in org 2 folder=Platform
+service_name=Direct Access Platform,  folder_id=8
+Creating dashboard: 534796566f533140c423884f8e3ee40e
+Creating dashboard for Supplier Message Management in org 1 folder=Platform
+service_name=Supplier Message Management,  folder_id=15
+Creating dashboard: 0d7174d16fdcc200c423884f8e3ee4e0
+Creating dashboard for ATSE Protocol Converter in org 1 folder=General
+service_name=ATSE Protocol Converter,  folder_id=0
+Creating dashboard: 224756566f533140c423884f8e3ee4e8
+Creating dashboard for SSW Digital Connect in org 2 folder=Airline Solutions
+service_name=SSW Digital Connect,  folder_id=3
+Creating dashboard: c4d08f346f28b6807c58cccc5d3ee4fb
+Creating dashboard for Dynamic Schedules Service EA in org 1 folder=General
+service_name=Dynamic Schedules Service EA,  folder_id=0
+Creating dashboard: 8e81b4d16fdcc200c423884f8e3ee470
+Creating dashboard for SHS ECRS Amadeus DCX in org 1 folder=Hospitality Services
+service_name=SHS ECRS Amadeus DCX,  folder_id=1185
+Creating dashboard: a46000e54f913ecc8b0ecf5d0210c785
+Creating dashboard for SHS CCRS White Label in org 1 folder=Hospitality Services
+service_name=SHS CCRS White Label,  folder_id=1185
+Creating dashboard: e2508ca54f913ecc8b0ecf5d0210c7e7
+Creating dashboard for SHS CCRS ARI in org 1 folder=Hospitality Services
+service_name=SHS CCRS ARI,  folder_id=1185
+Creating dashboard: fe50cca54f913ecc8b0ecf5d0210c77f
+Creating dashboard for SAC_Agency_Retailer in org 1 folder=General
+service_name=SAC_Agency_Retailer,  folder_id=0
+Creating dashboard: ef4796566f533140c423884f8e3ee415
+Creating dashboard for SHS ECRS Universal Message Broker in org 1 folder=Hospitality Services
+service_name=SHS ECRS Universal Message Broker,  folder_id=1185
+Creating dashboard: 0d6000e54f913ecc8b0ecf5d0210c789
+Creating dashboard for SHS ECRS Sabre DCX in org 1 folder=Hospitality Services
+service_name=SHS ECRS Sabre DCX,  folder_id=1185
+Creating dashboard: 186000e54f913ecc8b0ecf5d0210c784
+Creating dashboard for Graphical Seat Maps in org 2 folder=Travel Network
+service_name=Graphical Seat Maps,  folder_id=17
+Creating dashboard: 5891b4d16fdcc200c423884f8e3ee4af
+Creating dashboard for Intellisell TN in org 2 folder=General
+service_name=Intellisell TN,  folder_id=0
+Creating dashboard: 6381b4d16fdcc200c423884f8e3ee4a5
+Creating dashboard for SHS CCRS Travelport DCX in org 1 folder=Hospitality Services
+service_name=SHS CCRS Travelport DCX,  folder_id=1185
+Creating dashboard: 56508ca54f913ecc8b0ecf5d0210c7e6
+Creating dashboard for T2 EMD Comp Voucher in org 1 folder=General
+service_name=T2 EMD Comp Voucher,  folder_id=0
+Creating dashboard: 9391f4d16fdcc200c423884f8e3ee41a
+Creating dashboard for SHS ECRS White Label in org 2 folder=Hospitality Services
+service_name=SHS ECRS White Label,  folder_id=6
+Creating dashboard: 6c6000e54f913ecc8b0ecf5d0210c785
+Creating dashboard for SSW Service Engine in org 2 folder=Airline Solutions
+service_name=SSW Service Engine,  folder_id=3
+Creating dashboard: f74796566f533140c423884f8e3ee41a
+Creating dashboard for ANCS Ancillaries Seats in org 1 folder=General
+service_name=ANCS Ancillaries Seats,  folder_id=0
+Creating dashboard: 460723610fefaa002e4fc7dce1050e8b
+Creating dashboard for Supplier Side Gateway in org 1 folder=Platform
+service_name=Supplier Side Gateway,  folder_id=15
+Creating dashboard: 734796566f533140c423884f8e3ee419
+Creating dashboard for Connectivity Gateway in org 2 folder=Platform
+service_name=Connectivity Gateway,  folder_id=8
+Creating dashboard: df4796566f533140c423884f8e3ee40d
+Creating dashboard for ATSE High Performance Shopping-Sabre-CTX/PTX in org 1 folder=General
+service_name=ATSE High Performance Shopping-Sabre-CTX/PTX,  folder_id=0
+Creating dashboard: 0a9c428d0f7cc7002e4fc7dce1050eb3
+Used folders: {0: 1, 1185: 1, 3: 2, 6: 2, 8: 2, 15: 1, 17: 2, 852: 1, 28: 1}
+Used folders: {0: 1, 1185: 1, 3: 2, 6: 2, 8: 2, 15: 1, 17: 2, 852: 1, 28: 1}

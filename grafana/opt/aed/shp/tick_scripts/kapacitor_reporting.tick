@@ -1,0 +1,7 @@
+stream
+    |from()
+        .database('_kapacitor')
+        .retentionPolicy('monitor')
+    |influxDBOut()
+        .create()
+        .database('_kapacitor')

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run at shutdown
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/true
+ExecStop=/opt/aed/shp/init/run-at-shutdown.sh
+
+[Install]
+WantedBy=multi-user.target

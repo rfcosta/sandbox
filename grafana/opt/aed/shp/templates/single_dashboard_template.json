@@ -1,0 +1,55 @@
+{
+  "dashboard": {
+    "editable": false,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "hideControls": true,
+    "id": null,
+    "uid" : "<<DASHBOARD_UID>>",
+    "tags": [ "<<FOLDER_NAME>>" ],
+    "links": [],
+    "panels": [
+      <<PANELS>>
+    ],
+    "refresh": "30s",
+    "schemaVersion": 16,
+    "style": "dark",
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-3h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "timezone": "browser",
+    "title": "<<SERVICE_NAME>>",
+    "version": 115
+  },
+  "folderId": <<FOLDER_ID>>,
+  "overwrite": true
+}

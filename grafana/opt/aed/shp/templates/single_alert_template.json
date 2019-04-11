@@ -1,0 +1,58 @@
+{
+  "alias": "",
+  "groupBy": [
+    {
+      "params": [
+        "2m"
+      ],
+      "type": "time"
+    }
+  ],
+  "hide": true,
+  "measurement": "alert",
+  "orderByTime": "ASC",
+  "policy": "days",
+  "query": "SELECT count(\"dash\") FROM \"days\".\"alert\" WHERE (<<CIWHERE>> AND \"type\" = 'transaction_count' AND \"level\" = '<<ALERTLEVEL>>' AND \"overall_service_metric\" = 'True') AND $timeFilter GROUP BY time(2m)",
+  "rawQuery": true,
+  "refId": "<<ALERTLETTER>>",
+  "resultFormat": "time_series",
+  "select": [
+    [
+      {
+        "params": [
+          "dash"
+        ],
+        "type": "field"
+      },
+      {
+        "params": [],
+        "type": "count"
+      }
+    ]
+  ],
+  "tags": [
+    {
+      "key": "ci",
+      "operator": "=",
+      "value": "Service Health Portal"
+    },
+    {
+      "condition": "AND",
+      "key": "key",
+      "operator": "=",
+      "value": "transaction_count"
+    },
+    {
+      "condition": "AND",
+      "key": "level",
+      "operator": "=",
+      "value": "CRITICAL"
+    },
+    {
+      "condition": "AND",
+      "key": "type",
+      "operator": "=",
+      "value": "transaction_count"
+    }
+  ]
+}

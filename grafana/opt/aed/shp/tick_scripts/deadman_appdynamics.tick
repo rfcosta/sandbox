@@ -1,0 +1,17 @@
+var logLocation = '/var/log/shp/deadman_alerts.log'
+
+var execScript = '/opt/aed/shp/bin/GenerateDeadmanEvent.py'
+
+var metric = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('metric')
+    |where(lambda: "source" == 'AppDynamics')
+
+metric
+    |deadman(1.0, 3m)
+        .id('AppD_Deadman')
+        .message('AppDynamics Deadman')
+        .details('{{ .Level }}: AppDynamics metrics deadman')
+        .log(logLocation)

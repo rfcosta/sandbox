@@ -1,0 +1,665 @@
+{
+  "alert": {
+    "conditions": [
+      {
+        "evaluator": {
+          "params": [
+            0
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "and"
+        },
+        "query": {
+          "params": [
+            "C",
+            "8m",
+            "now"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "count"
+        },
+        "type": "query"
+      },
+      {
+        "evaluator": {
+          "params": [
+            0
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "or"
+        },
+        "query": {
+          "params": [
+            "I",
+            "8m",
+            "now"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "count"
+        },
+        "type": "query"
+      }
+    ],
+    "executionErrorState": "keep_state",
+    "frequency": "10s",
+    "handler": 1,
+    "name": "<<BASE_METRIC_NAME>> alert",
+    "noDataState": "ok",
+    "notifications": []
+  },
+  "aliasColors": {},
+  "bars": false,
+  "dashLength": 10,
+  "dashes": false,
+  "datasource": "kpi",
+  "fill": 0,
+  "gridPos": {
+    "h": 7,
+    "w": 8,
+    "x": <<GRID_X>>,
+    "y": <<GRID_Y>>
+  },
+  "hideTimeOverride": false,
+  "id": <<PANEL_ID>>,
+  "interval": "60s",
+  "legend": {
+    "avg": false,
+    "current": false,
+    "max": false,
+    "min": false,
+    "show": true,
+    "total": false,
+    "values": false
+  },
+  "lines": true,
+  "linewidth": 3,
+  "links": [],
+  "nullPointMode": "null",
+  "percentage": false,
+  "pointradius": 5,
+  "points": false,
+  "renderer": "flot",
+  "seriesOverrides": [
+    {
+      "alias": "<<BASE_METRIC_NAME>>",
+      "color": "#c15c17",
+      "linewidth": 3,
+      "zindex": 3
+    },
+    {
+      "alias": "<<BASE_METRIC_NAME>> months",
+      "color": "#c15c17",
+      "legend": false,
+      "linewidth": 3,
+      "zindex": 3
+    },
+    {
+      "alias": "<<BASE_METRIC_NAME>> years",
+      "color": "#c15c17",
+      "legend": false,
+      "linewidth": 3,
+      "zindex": 3
+    },
+    {
+      "alias": "Upper Threshold",
+      "color": "rgb(255, 242, 0)",
+      "linewidth": 2,
+      "zindex": 2
+    },
+    {
+      "alias": "Lower Trend",
+      "color": "#0a437c",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Upper Trend",
+      "color": "#1f78c1",
+      "fillBelowTo": "Lower Trend",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Lower Threshold",
+      "lines": true,
+      "color": "#f4d598",
+      "linewidth": 2,
+      "zindex": 2
+    }
+  ],
+  "spaceLength": 10,
+  "stack": false,
+  "steppedLine": false,
+  "targets": [
+    {
+      "alias": "<<BASE_METRIC_NAME>>",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "null"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "A",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "<<METRIC_TYPE>>"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [
+              95
+            ],
+            "type": "percentile"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": ">",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        }
+      ]
+    },
+    {
+      "alias": "<<BASE_METRIC_NAME>> months",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "none"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
+      "orderByTime": "ASC",
+      "policy": "months",
+      "refId": "F",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "<<METRIC_TYPE>>"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [
+              95
+            ],
+            "type": "percentile"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": ">",
+          "value": "now() - 360d"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        }
+      ]
+    },
+    {
+      "alias": "<<BASE_METRIC_NAME>> years",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "none"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
+      "orderByTime": "ASC",
+      "policy": "years",
+      "refId": "H",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "<<METRIC_TYPE>>"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [
+              95
+            ],
+            "type": "percentile"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 360d"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        }
+      ]
+    },
+    {
+      "alias": "",
+      "groupBy": [
+        {
+          "params": [
+            "2m"
+          ],
+          "type": "time"
+        }
+      ],
+      "hide": true,
+      "measurement": "<<INFLUXDB_ALERT_MEASURE>>",
+      "orderByTime": "ASC",
+      "policy": "<<INFLUXDB_ALERT_POLICY>>",
+      "refId": "C",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "dash"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "count"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        },
+        {
+          "condition": "AND",
+          "key": "level",
+          "operator": "=",
+          "value": "CRITICAL"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        }
+      ]
+    },
+    {
+      "alias": "",
+      "groupBy": [
+        {
+          "params": [
+            "2m"
+          ],
+          "type": "time"
+        }
+      ],
+      "hide": true,
+      "measurement": "<<INFLUXDB_ALERT_MEASURE>>",
+      "orderByTime": "ASC",
+      "policy": "<<INFLUXDB_ALERT_POLICY>>",
+      "refId": "I",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "dash"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "count"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        },
+        {
+          "condition": "AND",
+          "key": "level",
+          "operator": "=",
+          "value": "WARNING"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        }
+      ]
+    },
+    {
+      "alias": "Upper Threshold",
+      "groupBy": [],
+      "measurement": "thresholds",
+      "orderByTime": "ASC",
+      "policy": "<<INFLUXDB_METRIC_POLICY>>",
+      "refId": "D",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "<<METRIC_TYPE>>_crit_upper"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "static"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        },
+        {
+          "condition": "AND",
+          "key": "metric",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        }
+      ]
+    },
+    {
+      "alias": "Lower Trend",
+      "groupBy": [],
+      "measurement": "thresholds",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "B",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "<<METRIC_TYPE>>_crit_lower"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "dynamic"
+        }
+      ]
+    },
+    {
+      "alias": "Upper Trend",
+      "groupBy": [],
+      "hide": false,
+      "measurement": "thresholds",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "E",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "<<METRIC_TYPE>>_crit_upper"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "dynamic"
+        }
+      ]
+    },
+    {
+      "alias": "Lower Threshold",
+      "groupBy": [],
+      "measurement": "thresholds",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "G",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "type": "field",
+            "params": [
+              "<<METRIC_TYPE>>_crit_lower"
+            ]
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "<<SERVICE_NAME>>"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "static"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "<<PANEL_KEY>>"
+        },
+        {
+          "condition": "AND",
+          "key": "metric",
+          "operator": "=",
+          "value": "<<METRIC_TYPE>>"
+        }
+      ],
+      "hide": false
+    }
+  ],
+  "thresholds": [
+    {
+      "colorMode": "critical",
+      "fill": false,
+      "line": false,
+      "op": "gt",
+      "value": 1
+    }
+  ],
+  "timeFrom": null,
+  "timeShift": null,
+  "title": "<<TITLE>>",
+  "tooltip": {
+    "shared": true,
+    "sort": 0,
+    "value_type": "individual"
+  },
+  "transparent": true,
+  "type": "graph",
+  "xaxis": {
+    "buckets": null,
+    "mode": "time",
+    "name": null,
+    "show": true,
+    "values": []
+  },
+  "yaxes": [
+    {
+      "format": "<<FORMAT>>",
+      "label": null,
+      "logBase": 1,
+      "max": null,
+      "min": 0,
+      "show": true
+    },
+    {
+      "format": "short",
+      "label": null,
+      "logBase": 1,
+      "max": null,
+      "min": null,
+      "show": true
+    }
+  ]
+}

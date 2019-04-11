@@ -1,0 +1,49 @@
+var logLocation = '/var/log/shp/gen_alerts.log'
+
+var execScript = '/opt/aed/shp/bin/GenerateEvent.py'
+
+var metric = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('metric')
+        .groupBy('ci', 'key')
+    |where(lambda: "type" == 'transaction_count' AND "need_to_alert_dynamic" == 'True')
+    |log()
+        .prefix('dynamic_data')
+
+var thresholds = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('thresholds')
+        .groupBy('ci', 'key')
+    |where(lambda: "type" == 'dynamic' AND "metric" == 'transaction_count' AND "need_to_alert" == 'True')
+    |log()
+        .prefix('dynamic_trend')
+
+metric
+    |join(thresholds)
+        .as('metric', 'thresholds')
+        .tolerance(15s)
+    |log()
+        .prefix('dynamic_join')
+    |alert()
+        .id('kpi_Dynamic_Transaction_Count_Upper_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
+        .message('Transaction Count')
+        .details('{{ .Level }}: {{ index .Tags "ci" }} transaction count is {{ index .Fields "metric.transaction_count" }}')
+        .warn(lambda: "thresholds.transaction_count_crit_upper" != -1 AND float("metric.transaction_count") > "thresholds.transaction_count_crit_upper")
+        .log(logLocation)
+        .exec('python', execScript)
+
+metric
+    |join(thresholds)
+        .as('metric', 'thresholds')
+        .tolerance(15s)
+    |alert()
+        .id('kpi_Dynamic_Transaction_Count_Lower_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
+        .message('Transaction Count')
+        .details('{{ .Level }}: {{ index .Tags "ci" }} transaction count is {{ index .Fields "metric.transaction_count" }}')
+        .warn(lambda: "thresholds.transaction_count_crit_lower" != -1 AND float("metric.transaction_count") < "thresholds.transaction_count_crit_lower")
+        .log(logLocation)
+        .exec('python', execScript)

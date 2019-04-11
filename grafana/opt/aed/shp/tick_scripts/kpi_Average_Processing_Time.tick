@@ -1,0 +1,61 @@
+var logLocation = '/var/log/shp/gen_alerts.log'
+
+var deadLocation = '/var/log/shp/deadman_alerts.log'
+
+var execScript = '/opt/aed/shp/bin/GenerateEvent.py'
+
+var deadScript = '/opt/aed/shp/bin/GenerateDeadmanEvent.py'
+
+
+var metric = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('metric')
+        .groupBy('ci', 'key')
+    |where(lambda: "type" == 'avg_processing_time' AND "need_to_alert_static" == 'True')
+    |log()
+        .prefix('metrics')
+
+var thresholds = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('thresholds')
+        .groupBy('ci', 'key')
+    |where(lambda: "type" == 'static' AND "metric" == 'avg_processing_time' AND "need_to_alert" == 'True')
+    |log()
+        .prefix('thresholds')
+
+metric
+    |join(thresholds)
+        .as('metric', 'thresholds')
+        .tolerance(15s)
+    |log()
+        .prefix('joined')
+    |alert()
+        .id('kpi_Average_Processing_Time_Upper_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
+        .message('Processing Time')
+        .details('{{ .Level }}: {{ index .Tags "ci" }} average processing time is {{ index .Fields "metric.avg_processing_time" }}ms')
+        .crit(lambda: "thresholds.avg_processing_time_crit_upper" != -1 AND "metric.avg_processing_time" > "thresholds.avg_processing_time_crit_upper")
+        .log(logLocation)
+        .exec('python', execScript)
+
+metric
+    |join(thresholds)
+        .as('metric', 'thresholds')
+        .tolerance(15s)
+    |alert()
+        .id('kpi_Average_Processing_Time_Lower_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
+        .message('Processing Time')
+        .details('{{ .Level }}: {{ index .Tags "ci" }} average processing time is {{ index .Fields "metric.avg_processing_time" }}ms')
+        .crit(lambda: "thresholds.avg_processing_time_crit_lower" != -1 AND "metric.avg_processing_time" < "thresholds.avg_processing_time_crit_lower")
+        .log(logLocation)
+        .exec('python', execScript)
+
+metric
+    |deadman(1.0, 4m)
+        .id('avg_processing_time_deadman_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
+        .message('Metrics Deadman')
+        .details('{{ .Level }}: Metrics deadman for {{ index .Tags "ci" }} - {{ index .Tags "key" }}')
+        .log(deadLocation)

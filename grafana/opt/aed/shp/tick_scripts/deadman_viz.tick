@@ -1,0 +1,17 @@
+var logLocation = '/var/log/shp/deadman_alerts.log'
+
+var execScript = '/opt/aed/shp/bin/GenerateDeadmanEvent.py'
+
+var metric = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('metric')
+    |where(lambda: "source" == 'Viz')
+
+metric
+    |deadman(1.0, 4m)
+        .id('Viz_Deadman')
+        .message('Viz Deadman')
+        .details('{{ .Level }}: Viz metrics deadman')
+        .log(logLocation)

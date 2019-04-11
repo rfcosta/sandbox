@@ -1,0 +1,64 @@
+{
+  "alias": "<<ALIAS>>",
+  "dsType": "influxdb",
+  "groupBy": [
+    {
+      "params": [
+        "$__interval"
+      ],
+      "type": "time"
+    },
+    {
+      "params": [
+        "null"
+      ],
+      "type": "fill"
+    }
+  ],
+  "measurement": "metric",
+  "orderByTime": "ASC",
+  "policy": "days",
+  "query": "SELECT sum(\"transaction_count\") FROM \"days\".\"metric\" WHERE (<<CIWHERE>> AND \"type\" = 'transaction_count' AND \"time\" > now() - 30d AND \"overall_service_metric\" = 'True') AND $timeFilter GROUP BY time(1m) fill(null)\n",
+  "rawQuery": true,
+  "refId": "<<refId>>",
+  "resultFormat": "time_series",
+  "select": [
+    [
+      {
+        "params": [
+          "transaction_count"
+        ],
+        "type": "field"
+      },
+      {
+        "params": [],
+        "type": "mean"
+      }
+    ]
+  ],
+  "tags": [
+    {
+      "key": "ci",
+      "operator": "=",
+      "value": "Service Health Portal"
+    },
+    {
+      "condition": "AND",
+      "key": "type",
+      "operator": "=",
+      "value": "transaction_count"
+    },
+    {
+      "condition": "AND",
+      "key": "time",
+      "operator": ">",
+      "value": "now() - 30d"
+    },
+    {
+      "condition": "AND",
+      "key": "key",
+      "operator": "=",
+      "value": "transaction_count"
+    }
+  ]
+}
