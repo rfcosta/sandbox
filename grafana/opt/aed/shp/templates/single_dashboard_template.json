@@ -2,7 +2,7 @@
   "dashboard": {
     "editable": false,
     "gnetId": null,
-    "graphTooltip": 0,
+    "graphTooltip": 2,
     "hideControls": true,
     "id": null,
     "uid" : "<<DASHBOARD_UID>>",
