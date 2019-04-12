@@ -12,7 +12,7 @@ RUN apt-get install -y python-pip
 RUN pip install requests
 
 
-RUN mkdir /home/grafana
+RUN [ ! -d /home/grafana ] && mkdir /home/grafana
 RUN mkdir /var/log/shp
 RUN chown grafana:grafana /home/grafana
 RUN chown grafana:grafana /var/log/shp
