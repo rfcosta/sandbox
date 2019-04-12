@@ -1,0 +1,9 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =7
+let g:netrw_dirhist_1='/usr/local/lib/node_modules/npm/node_modules/npmlog/node_modules/set-blocking'
+let g:netrw_dirhist_2='/usr/local/lib/node_modules/npm/node_modules/npmlog/node_modules/are-we-there-yet'
+let g:netrw_dirhist_3='/Users/regi/OneDrive - Sabre/_javascript/node_modules'
+let g:netrw_dirhist_4='/Users/regi/OneDrive/bin'
+let g:netrw_dirhist_5='/Users/regi/OneDrive/eclipse-workspace/JSHello/.settings'
+let g:netrw_dirhist_6='/Users/sg0549743/__shp/grafana.east/opt/aed/shp/bin'
+let g:netrw_dirhist_7='/Users/sg0549743/__github/influxdata/grafana/config'

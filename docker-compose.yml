@@ -104,8 +104,9 @@ services:
     environment:
       RESOURCES_PATH: "/usr/share/grafana/resources"
     volumes:
-      # Mount for chronograf database
+      # Mount for chronograf database and others
       - ./grafana/data/:/var/lib/grafana/
+      - ./grafana/config/:/usr/share/grafana/conf
       - ./grafana/opt/aed:/opt/aed
       - ./grafana/home:/opt/home
     links:
