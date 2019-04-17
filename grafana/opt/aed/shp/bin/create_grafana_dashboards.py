@@ -197,7 +197,7 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
 
         # Generate and add dashboard links
         all_links = create_links(service)
-        dash_text = dash_text.replace("<<LINKS>>", all_links))
+        dash_text = dash_text.replace("<<LINKS>>", all_links)
 
 
         if service.is_validated():

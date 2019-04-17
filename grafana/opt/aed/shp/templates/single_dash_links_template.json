@@ -1,20 +1,18 @@
-[
-    {
-        "title": "Service Health Dashboard",
-        "url": "https://<<SERVICENOW_INSTANCE>>.sabre.service-now.com/servicehealth",
-        "tags": [],
-        "tooltip": "Service Health dashboard in ServiceNow",
-        "targetBlank": true,
-        "type": "link",
-        "icon": "external link"
-    },
-    {
-        "title": "Incidents",
-        "url": "https://<<SERVICENOW_INSTANCE>>.service-now.com/incident_list.do?sysparm_query=sys_created_onRELATIVEGE@dayofweek@ago@3%5Eu_alert_sources%3DService%20Health%20Portal%5Ecmdb_ci%3D<<DASHBOARD_UID>>%5EORDERBYDESCnumber",
-        "tags": [],
-        "tooltip": "Recent ServiceNow Incidents",
-        "targetBlank": true,
-        "type": "link",
-        "icon": "external link"
-    }
-]
+{
+    "title": "Service Health Dashboard",
+    "url": "https://<<SERVICENOW_INSTANCE>>.sabre.service-now.com/servicehealth",
+    "tags": [],
+    "tooltip": "Service Health dashboard in ServiceNow",
+    "targetBlank": true,
+    "type": "link",
+    "icon": "external link"
+},
+{
+    "title": "Incidents",
+    "url": "https://<<SERVICENOW_INSTANCE>>.service-now.com/incident_list.do?sysparm_query=sys_created_onRELATIVEGE@dayofweek@ago@3%5Eu_alert_sources%3DService%20Health%20Portal%5Ecmdb_ci%3D<<DASHBOARD_UID>>%5EORDERBYDESCnumber",
+    "tags": [],
+    "tooltip": "Recent ServiceNow Incidents",
+    "targetBlank": true,
+    "type": "link",
+    "icon": "external link"
+}
