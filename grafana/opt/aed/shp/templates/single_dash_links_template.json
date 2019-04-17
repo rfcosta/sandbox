@@ -1,6 +1,6 @@
 {
     "title": "Service Health Dashboard",
-    "url": "https://<<SERVICENOW_INSTANCE>>.sabre.service-now.com/servicehealth",
+    "url": "https://<<SERVICENOW_INSTANCE>>.service-now.com/servicehealth",
     "tags": [],
     "tooltip": "Service Health dashboard in ServiceNow",
     "targetBlank": true,
