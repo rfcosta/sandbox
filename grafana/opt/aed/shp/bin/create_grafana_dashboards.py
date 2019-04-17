@@ -29,6 +29,22 @@ def load_template(fname):
         data = myfile.read()
     return data
 
+def create_links(service):
+
+     # Template contains multiple links with multiple variables
+     # so for new variables, _PARAMS incremented with new vars
+    _PARAMS = dict(servicenow_instance=config["servicenow_instance"],
+                   dashboard_uid=service.dashboard_uid
+                   )
+
+    _links_text = load_template("single_dash_links_template.json")
+    for _keyName in _PARAMS.keys():
+        _target     = '<<' + _keyName.upper() + '>>'
+        _value      = _PARAMS.get(_keyName)
+        _links_text = _links_text.replace(_target, _value)
+
+    return _links_text
+
 
 def populate_panel(text, service, panel, grid_x, grid_y):
     text = text.replace("<<SERVICE_NAME>>", service.name)
@@ -179,6 +195,11 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
         dash_text = dash_text.replace("<<DASHBOARD_UID>>", dash_uid)
         dash_text = dash_text.replace("<<PANELS>>", all_panels)
 
+        # Generate and add dashboard links
+        all_links = create_links(service)
+        dash_text = dash_text.replace("<<LINKS>>", all_links))
+
+
         if service.is_validated():
             org_id = main_org
         else:
@@ -271,6 +292,8 @@ def create_aggregated_dashboards(service_cfg, agg_org_id):
         dash_text = dash_text.replace("<<SERVICE_NAME>>", "Aggregate " + topLevelService.name)
         dash_text = dash_text.replace("<<DASHBOARD_UID>>", dash_uid)
         dash_text = dash_text.replace("<<PANELS>>", panel_text)
+
+        dash_text = dash_text.replace("<<LINKS>>", "")  # No links for aggregated dashboards
 
         folder_name = topLevelService.report_grouping
 

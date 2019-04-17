@@ -7,7 +7,9 @@
     "id": null,
     "uid" : "<<DASHBOARD_UID>>",
     "tags": [ "<<FOLDER_NAME>>" ],
-    "links": [],
+    "links": [
+      <<LINKS>>
+    ],
     "panels": [
       <<PANELS>>
     ],

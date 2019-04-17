@@ -3,7 +3,7 @@
   "appdynamics_user" : "",
   "appdynamics_pass" : "",
   "appdynamics_domain" : "",
-  "servicenow_instance" : "",
+  "servicenow_instance" : "sabredev2",
   "servicenow_user" : "",
   "servicenow_pass" : "",
   "servicenow_group_validated" : "Global_OCC",
