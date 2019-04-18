@@ -20,6 +20,7 @@ class Panel():
     self.kpi = panel['kpi']
     self.panel_id = self.get_panel_id(panel)
     self.load_thresholds(panel)
+    self.graph_panel_sys_id = panel["graph_panel_sys_id"] if "graph_panel_sys_id" in panel else ''
 
 
   def get_panel_id(self, panel):
@@ -50,6 +51,7 @@ class Panel():
     s = ("    panel: " + '\n' +
          "      display_state:            " + self.display_state + '\n' +
          "      panel_id:                 " + self.panel_id + '\n' +
+         "      graph_panel_sys_id:       " + self.graph_panel_sys_id + '\n' +
          "      overall_service_metric:   " + self.overall_service_metric + '\n' +
          "      deep_link:                " + self.deep_link + '\n' +
          "      title:                    " + self.title + '\n' +

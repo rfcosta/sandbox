@@ -1,0 +1,6 @@
+{
+    "title": "ServiceNow Configuration",
+    "url": "https://<<SERVICENOW_INSTANCE>>.service-now.com/x_sahr_health_port_graph_panels.do?sys_id=<<GRAPH_PANEL_SYS_ID>>",
+    "targetBlank": true,
+    "type": "absolute"
+}

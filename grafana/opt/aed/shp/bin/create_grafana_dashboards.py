@@ -29,6 +29,14 @@ def load_template(fname):
         data = myfile.read()
     return data
 
+def apply_parameters(objstr, parameters):
+    for _keyName in parameters.keys():
+        _target = '<<' + _keyName.upper() + '>>'
+        _value = parameters.get(_keyName)
+        objstr = objstr.replace(_target, _value)
+
+    return objstr
+
 def create_links(service):
 
      # Template contains multiple links with multiple variables
@@ -38,10 +46,29 @@ def create_links(service):
                    )
 
     _links_text = load_template("single_dash_links_template.json")
-    for _keyName in _PARAMS.keys():
-        _target     = '<<' + _keyName.upper() + '>>'
-        _value      = _PARAMS.get(_keyName)
-        _links_text = _links_text.replace(_target, _value)
+    _links_text = apply_parameters(_links_text, _PARAMS)
+
+    return _links_text
+
+
+def create_panel_links(panel):
+
+
+    # Template contains multiple links with multiple variables
+    # so for new variables, _PARAMS incremented with new vars
+    _PARAMS = dict(servicenow_instance = config["servicenow_instance"],
+                   graph_panel_sys_id  = panel.graph_panel_sys_id
+                   )
+
+    _links_text = load_template("single_panel_links_template.json")
+    _links_text = apply_parameters(_links_text, _PARAMS)
+
+    deep_link=panel.deep_link
+    if deep_link != '':
+        _deep_link_text  = load_template("single_panel_deep_link_template.json")
+        _DEEP_PARMS      = dict(deep_link=deep_link)
+        _deep_link_text  = apply_parameters(_deep_link_text, _DEEP_PARMS)
+        _links_text      = _links_text + ", " + _deep_link_text
 
     return _links_text
 
@@ -61,6 +88,11 @@ def populate_panel(text, service, panel, grid_x, grid_y):
     text = text.replace("<<FORMAT>>", panel.format)
     text = text.replace("<<GRID_X>>", str(grid_x))
     text = text.replace("<<GRID_Y>>", str(grid_y))
+
+    # Generate and add panel links
+    panel_links = create_panel_links(panel)
+    text = text.replace("<<LINKS>>", panel_links)
+
     return text
 
 

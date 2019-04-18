@@ -81,7 +81,9 @@
   },
   "lines": true,
   "linewidth": 3,
-  "links": [],
+  "links": [
+    <<LINKS>>
+  ],
   "nullPointMode": "null",
   "percentage": false,
   "pointradius": 5,

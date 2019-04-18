@@ -1,0 +1,6 @@
+{
+    "title": "Monitoring Source",
+    "url": "<<DEEP_LINK>>",
+    "targetBlank": true,
+    "type": "absolute"
+}
