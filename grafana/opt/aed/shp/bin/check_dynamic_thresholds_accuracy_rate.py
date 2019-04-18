@@ -22,8 +22,14 @@ from predictor import Predictor
 MINUTES_IN_HOUR = 60
 MINUTES_IN_DAY = MINUTES_IN_HOUR * 24
 
-DAYS_TO_SCAN = 14
-MIN_POINTS =  (DAYS_TO_SCAN * MINUTES_IN_DAY) * .9
+DAYS_TO_SCAN = 5
+MIN_POINTS =  (DAYS_TO_SCAN * MINUTES_IN_DAY) * .5
+
+total_panels = 0
+panels_not_validated = 0
+panels_lacking_data = 0
+already_enabled = 0
+ready_to_enable = 0
 
 def get_db_connection():
     influx_host = config['influxdb_host']
@@ -62,6 +68,9 @@ def get_recent_metrics(metric, key, service_name, timestamp):
 
 
 def count_alerts(service_name, metric_name, key, when, panel):
+    global panels_lacking_data
+    global ready_to_enable
+
     then = when - ((MINUTES_IN_DAY * DAYS_TO_SCAN) * 60)
     timestamp = get_formatted_timestamp(then)
 
@@ -103,7 +112,9 @@ def count_alerts(service_name, metric_name, key, when, panel):
 #    print "TOTAL:", service_name, ":", key, ":", metric_name, " = ", i, " Compared: ", total_compared, "Min Points Required:", MIN_POINTS
 
     if (i < MIN_POINTS):
-       print service_name, ':', key, ':', metric_name, "Total Alerts: Insufficient Data"
+#       panels_lacking_data += 1
+       panels_lacking_data = panels_lacking_data + 1
+       print service_name, ':', key, ':', metric_name, i, MIN_POINTS, "Total Alerts: Insufficient Data"
        return
 
     position = 0
@@ -133,6 +144,9 @@ def count_alerts(service_name, metric_name, key, when, panel):
 
     print service_name, ':', key, ':', metric_name, "Total Alerts: ", alerted
 
+    if (alerted == 0):
+       ready_to_enable = ready_to_enable + 1
+
 
 
 def get_formatted_timestamp(when):
@@ -140,6 +154,11 @@ def get_formatted_timestamp(when):
     t = datetime.datetime.fromtimestamp(float(when))
     return t.strftime(fmt)
 
+def format_percentage(a, b):
+    x = (float(a) / float(b)) * 100
+    y = int(x * 100)
+    x = float(y) / 100
+    return x
 
 config = shputil.get_config()
 
@@ -152,27 +171,45 @@ service_config = ServiceConfiguration()
 metric_db = config['influxdb_metric_policy'] + '.' + config['influxdb_metric_measure']
 threshold_db = config['influxdb_threshold_policy'] + '.' + config['influxdb_threshold_measure']
 
+
 for service in service_config.get_services():
     state = service.state
     service_name = service.name
 
-#    if "Connectivity Gateway" not in service.name:
+#    if "Interline" not in service.name:
 #        continue
 
     for panel in service.panels:
+        total_panels += 1
+        if service.is_validated() == False:
+            panels_not_validated += 1
+            print service_name, panel.panelKey, "Not validated"
+            continue
         try:
             if str(panel.dynamic_alerting_enabled) == 'true':
-               print "already done:", service_name, panel.dynamic_alerting_enabled
+               already_enabled = already_enabled + 1
+               print "already done:", service_name, panel.panelKey, panel.dynamic_alerting_enabled
                continue
 
             metric = panel.metric_type
             key = panel.panelKey
-#            if "error" not in metric:
-#                continue
-#            if "Gen_MIP_TUL_tps" not in key:
-#                continue
             count_alerts(service_name, metric, key, when, panel)
         except Exception, e:
             print str(e)
 
 db_connection.close()
+
+
+print "\nTotal Panels:  ", total_panels
+print "Not Validated: ", panels_not_validated
+print "Lacking Data:  ", panels_lacking_data
+
+total_panels_to_analyze = total_panels - (panels_not_validated + panels_lacking_data)
+print "\nTotal Panels to Analyze:  ", total_panels_to_analyze
+
+x = format_percentage(already_enabled, total_panels_to_analyze)
+y = format_percentage(ready_to_enable, total_panels_to_analyze)
+
+print "Alerting Already Enabled: ", already_enabled, '(', x, ')'
+print "Ready to Enable Alerting:", ready_to_enable, '(', y, ')'
+print "Grand Total:              ", x+y

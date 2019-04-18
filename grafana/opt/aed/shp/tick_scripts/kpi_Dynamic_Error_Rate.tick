@@ -35,15 +35,3 @@ metric
         .warn(lambda: "thresholds.error_rate_crit_upper" != float(-1) AND float("metric.error_rate") > "thresholds.error_rate_crit_upper")
         .log(logLocation)
         .exec('python', execScript)
-
-metric
-    |join(thresholds)
-        .as('metric', 'thresholds')
-        .tolerance(15s)
-    |alert()
-        .id('kpi_Dynamic_Error_Rate_Lower_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
-        .message('Error Rate')
-        .details('{{ .Level }}: {{ index .Tags "ci" }} error rate is {{ index .Fields "metric.error_rate" }}')
-        .warn(lambda: "thresholds.error_rate_crit_lower" != float(-1) AND float("metric.error_rate") < "thresholds.error_rate_crit_lower")
-        .log(logLocation)
-        .exec('python', execScript)

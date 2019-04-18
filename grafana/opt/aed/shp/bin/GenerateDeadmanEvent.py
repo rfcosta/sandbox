@@ -28,7 +28,7 @@ STAGING_ORG_ID = 2
 def processDeadmanAlert():
     alertData = ""
     # Defaulting fields so we don't have to keep checking in other functions
-    singleAlert = {"alertSource": "kapacitor", "level": "", "id": "", "ci": "Service Health Portal", "panelKey": ""}
+    singleAlert = {"alertSource": "kapacitor", "level": "", "id": "", "ci": "Service Health Portal", "panelKey": "", "details": ""}
     kapacitorColumns = []
 
     # We don't want to block
@@ -67,8 +67,13 @@ def processDeadmanAlert():
             if "tags" in kapacitorAlerts["data"]["series"][0]:
                 if "ci" in kapacitorAlerts["data"]["series"][0]["tags"]:
                     singleAlert["ci"] = str(kapacitorAlerts["data"]["series"][0]["tags"]["ci"])
+                    # Since we have "ci", we know this isn't a Source specific deadman
+                    global_source_deadman = False
                 if "key" in kapacitorAlerts["data"]["series"][0]["tags"]:
                     singleAlert["panelKey"] = str(kapacitorAlerts["data"]["series"][0]["tags"]["key"])
+
+    if "details" in kapacitorAlerts:
+        singleAlert["details"] = str(kapacitorAlerts["details"])
 
     logging.debug("SingleAlert: " + str(singleAlert))
     createServiceNowDeadmanEvent(singleAlert)
@@ -95,29 +100,26 @@ def createServiceNowDeadmanEvent(kapacitorAlert):
 
     panelKey = str(kapacitorAlert["panelKey"])
 
-    if (snowConfigService.is_alerting()):
-        # For now, we want assigned to staging
-        assignment_group = str(servicenow_group_staging)
+    if snowConfigService.is_validated() or global_source_deadman:
+      org_id = MAIN_ORG_ID
+      assignment_group = str(servicenow_group_validated)
     else:
-        logging.debug("Service is not set to alerting")
-        return
-
-
-    #if (snowConfigService.is_validated()):
-    #  org_id = MAIN_ORG_ID
-    #  assignment_group = str(servicenow_group_validated)
-    #else:
-    #  org_id = STAGING_ORG_ID
-    #  assignment_group = str(servicenow_group_staging)
+      org_id = STAGING_ORG_ID
+      assignment_group = str(servicenow_group_staging)
 
     event_class = str(config['servicenow_event_class'])
 
     #baseURL = "https://" + str(config['service_health_portal_host']) + "/grafana/d/"
 
     if kapacitorAlert["level"] == "OK":
-        message = "Service Health Portal: " + kapacitorAlert["level"] + ": " + "Again receiving " + panelKey + " metrics for " + ci
+        message = "Service Health Portal: " + kapacitorAlert["level"] + ": " + "Again receiving "
     else:
-        message = "Service Health Portal: " + kapacitorAlert["level"] + ": " + "Not receiving " + panelKey + " metrics for " + ci
+        message = "Service Health Portal: " + kapacitorAlert["level"] + ": " + "Not receiving "
+
+    if global_source_deadman:
+        message = message + " metrics from " + kapacitorAlert["details"]
+    else:
+        message = message + panelKey + " metrics for " + ci
 
     alertMessage = str(kapacitorAlert["message"])
 
@@ -144,6 +146,7 @@ try:
     config = shputil.get_config()
     shputil.configure_logging(config["logging_configuration_file"])
     service_config = ServiceConfiguration()
+    global_source_deadman = True
 
     processDeadmanAlert()
 except Exception, e:

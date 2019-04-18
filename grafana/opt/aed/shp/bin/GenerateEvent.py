@@ -194,10 +194,14 @@ def createServiceNowEvent(kapacitorAlert):
     d = dateutil.parser.parse(str(kapacitorAlert["time"]))
     snow_alertTime = d.strftime('%Y-%m-%d %H:%M:%S')
 
+    # Show 3 hours before to 1 hour after
+    grafanaBeginTime = global_grafanaTime - (180 * 60 * 1000)
+    grafanaEndTime = global_grafanaTime + (60 * 60 * 1000)
+
     kapacitorAlert["u_urgency"] = "1"
     kapacitorAlert["u_assignment_group"] = str(assignment_group)
     kapacitorAlert["u_kb_article"] = str(global_snowConfigService.knowledge_article.split(' ')[0] )
-    kapacitorAlert["u_monitoringlink"] = str(baseURL + dashboard_uid + "/" + service_name + '?orgId=' + str(org_id))
+    kapacitorAlert["u_monitoringlink"] = str(baseURL + dashboard_uid + "/" + service_name + '?orgId=' + str(org_id) + '&from=' + str(grafanaBeginTime) + '&to=' + str(grafanaEndTime))
     kapacitorAlert["type"] = str(alertMessage)
     kapacitorAlert["u_short_description"] = str(message)
 
@@ -349,7 +353,8 @@ try:
 # Do we need to drop seconds from the time (or maybe round) so we only have one breach per minute?
     alert_time = str(global_singleKapAlert["time"])
     pattern = "%Y-%m-%dT%H:%M:%SZ"
-    global_alertTime = int(time.mktime(time.strptime(alert_time, pattern))) * 1000000000
+    global_grafanaTime = int(time.mktime(time.strptime(alert_time, pattern))) * 1000
+    global_alertTime = global_grafanaTime * 1000000
 
     global_influx_db = str(global_config["influxdb_db"])
 

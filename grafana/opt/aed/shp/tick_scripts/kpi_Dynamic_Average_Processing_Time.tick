@@ -36,15 +36,3 @@ metric
         .warn(lambda: "thresholds.avg_processing_time_crit_upper" != float(-1) AND float("metric.avg_processing_time") > "thresholds.avg_processing_time_crit_upper")
         .log(logLocation)
         .exec('python', execScript)
-
-metric
-    |join(thresholds)
-        .as('metric', 'thresholds')
-        .tolerance(15s)
-    |alert()
-        .id('kpi_Dynamic_Average_Processing_Time_Lower_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
-        .message('Processing Time')
-        .details('{{ .Level }}: {{ index .Tags "ci" }} average processing time is {{ index .Fields "metric.avg_processing_time" }}ms')
-        .warn(lambda: "thresholds.avg_processing_time_crit_lower" != float(-1) AND float("metric.avg_processing_time") < "thresholds.avg_processing_time_crit_lower")
-        .log(logLocation)
-        .exec('python', execScript)

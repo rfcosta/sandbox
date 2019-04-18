@@ -13,5 +13,6 @@ metric
     |deadman(1.0, 4m)
         .id('Viz_Deadman')
         .message('Viz Deadman')
-        .details('{{ .Level }}: Viz metrics deadman')
+        .details('Source: Viz')
         .log(logLocation)
+        .exec('python', execScript)

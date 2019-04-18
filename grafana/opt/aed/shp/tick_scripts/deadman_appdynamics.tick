@@ -10,8 +10,9 @@ var metric = stream
     |where(lambda: "source" == 'AppDynamics')
 
 metric
-    |deadman(1.0, 3m)
+    |deadman(1.0, 4m)
         .id('AppD_Deadman')
         .message('AppDynamics Deadman')
-        .details('{{ .Level }}: AppDynamics metrics deadman')
+        .details('Source: AppDynamics')
         .log(logLocation)
+        .exec('python', execScript)

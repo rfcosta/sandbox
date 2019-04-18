@@ -27,7 +27,7 @@ def task(service_name):
     log_file = log_file.replace(' ', '-')
     log_file = log_file.replace('/', '-')
 
-    cmd = "/opt/aed/shp/bin/compute_dynamic_thresholds.py --service_name \"" + service_name + "\"" + " > " + log_dir + log_file + " 2>&1"
+    cmd = "/opt/aed/shp/bin/compute_dynamic_thresholds.py --service_name \"" + service_name + "\"" + " > \"" + log_dir + log_file + "\" 2>&1"
 
 #    print cmd
     os.system(cmd)

@@ -29,18 +29,6 @@ metric
     |log()
         .prefix('dynamic_join')
     |alert()
-        .id('kpi_Dynamic_Transaction_Count_Upper_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
-        .message('Transaction Count')
-        .details('{{ .Level }}: {{ index .Tags "ci" }} transaction count is {{ index .Fields "metric.transaction_count" }}')
-        .warn(lambda: "thresholds.transaction_count_crit_upper" != -1 AND float("metric.transaction_count") > "thresholds.transaction_count_crit_upper")
-        .log(logLocation)
-        .exec('python', execScript)
-
-metric
-    |join(thresholds)
-        .as('metric', 'thresholds')
-        .tolerance(15s)
-    |alert()
         .id('kpi_Dynamic_Transaction_Count_Lower_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
         .message('Transaction Count')
         .details('{{ .Level }}: {{ index .Tags "ci" }} transaction count is {{ index .Fields "metric.transaction_count" }}')

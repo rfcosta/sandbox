@@ -58,9 +58,6 @@ class Helper():
     headers = {'content-type': 'application/json'}
 
     resp = requests.post(self.base_url + function, data=json.dumps(payload), auth=self.credentials, headers=headers)
-
     if resp.status_code != 200:
-      #print("Payload: '" + self.base_url + function + "' "  + json.dumps(payload, indent=4) )
-      #print "Error in api_post_with_data for function: " + function + " - " + resp.text
       raise IOError("Error in api_post_with_data for function: " + function + " - " + resp.text)
     return resp

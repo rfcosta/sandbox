@@ -35,15 +35,3 @@ metric
         .warn(lambda: "thresholds.error_count_crit_upper" != float(-1) AND float("metric.error_count") > "thresholds.error_count_crit_upper")
         .log(logLocation)
         .exec('python', execScript)
-
-metric
-    |join(thresholds)
-        .as('metric', 'thresholds')
-        .tolerance(15s)
-    |alert()
-        .id('kpi_Dynamic_Error_Count_Lower_{{ index .Tags "ci" }}_{{ index .Tags "key" }}')
-        .message('Error Count')
-        .details('{{ .Level }}: {{ index .Tags "ci" }} error count is {{ index .Fields "metric.error_count" }}')
-        .warn(lambda: "thresholds.error_count_crit_lower" != float(-1) AND float("metric.error_count") < "thresholds.error_count_crit_lower")
-        .log(logLocation)
-        .exec('python', execScript)

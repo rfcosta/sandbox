@@ -6,6 +6,12 @@ import sys
 
 import requests
 
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote    # Python3
+
+
 sys.path.append('/opt/aed/shp/lib')
 sys.path.append('/opt/aed/shp/lib/grafana')
 
@@ -44,9 +50,13 @@ def create_links(service):
     _PARAMS = dict(servicenow_instance=config["servicenow_instance"],
                    dashboard_uid=service.dashboard_uid
                    )
-
-    _links_text = load_template("single_dash_links_template.json")
-    _links_text = apply_parameters(_links_text, _PARAMS)
+    _links_text = ''
+    try:
+        _links_text = load_template("single_dash_links_template.json")
+        _links_text = apply_parameters(_links_text, _PARAMS)
+    except Exception as e:
+        logging.error("Dashboard Links creation error: " + e.message)
+        print("Dashboard Links creation error: " + e.message)
 
     return _links_text
 
@@ -60,15 +70,27 @@ def create_panel_links(panel):
                    graph_panel_sys_id  = panel.graph_panel_sys_id
                    )
 
-    _links_text = load_template("single_panel_links_template.json")
-    _links_text = apply_parameters(_links_text, _PARAMS)
+    _links_text = ''
+    try:
+        _links_text = load_template("single_panel_links_template.json")
+        _links_text = apply_parameters(_links_text, _PARAMS)
+    except Exception as e:
+        logging.error("Dashboard Panel Links creation error: " + e.message)
+        print("Dashboard Panel Links creation error: " + e.message)
 
     deep_link=panel.deep_link
     if deep_link != '':
-        _deep_link_text  = load_template("single_panel_deep_link_template.json")
-        _DEEP_PARMS      = dict(deep_link=deep_link)
-        _deep_link_text  = apply_parameters(_deep_link_text, _DEEP_PARMS)
-        _links_text      = _links_text + ", " + _deep_link_text
+        try:
+            _deep_link_text  = load_template("single_panel_deep_link_template.json")
+            _DEEP_PARMS      = dict(deep_link=quote(deep_link, safe=':/?&'))
+            _deep_link_text  = apply_parameters(_deep_link_text, _DEEP_PARMS)
+            if _links_text != '':
+                _links_text = _links_text + ", " + _deep_link_text
+            else:
+                _links_text = _deep_link_text
+        except Exception as e:
+            logging.error("Dashboard Panel Deep Link creation error: " + e.message)
+            print("Dashboard Panel Deep Link creation error: " + e.message)
 
     return _links_text
 
