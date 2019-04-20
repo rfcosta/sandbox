@@ -26,15 +26,9 @@ def listGLBL(svconfig):
         print("_create_change_requests    " + str(_create_change_requests    ))
         print("_global_stale_data_minutes " + str(_global_stale_data_minutes ))
 
-
-
-
-
-
-
-
-
-
+        return True
+    else:
+        return False
 
 svccfg = ServiceConfiguration()
 result = listGLBL(svccfg)
