@@ -5,11 +5,12 @@ from rpy2.robjects import pandas2ri
 
 class Predictor:
 
-    def __init__(self, metric, historical_values, deviations):
+    def __init__(self, metric, historical_values, deviations, minutes_to_predict):
         self.metric = metric
         self.historical_values = historical_values
         self.deviations = deviations
         self.time_series_columns = list()
+        self.minutes_to_predict = minutes_to_predict
         self.load_training_data()
 
 
@@ -24,6 +25,7 @@ class Predictor:
         pandas2ri.activate()
 
         ro.globalenv['r_time_series'] = np.array(self.time_series_columns)
+        ro.globalenv['r_minutes_to_predict'] = self.minutes_to_predict
 
         ro.r('library(forecast)')
 
@@ -44,7 +46,7 @@ class Predictor:
 
         ro.r('data.ts<-ts(as.numeric(y),start=1,frequency=f1)')
 
-        ro.r('stlf_out<-stlf(data.ts,h=60,s.window="periodic")')
+        ro.r('stlf_out<-stlf(data.ts,h=r_minutes_to_predict,s.window="periodic")')
 
         ro.r('out2.ts<-ts((exp(stlf_out$mean)-1),start=1,frequency=f1)')
 

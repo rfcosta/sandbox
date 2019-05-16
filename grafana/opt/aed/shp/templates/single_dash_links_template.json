@@ -15,4 +15,13 @@
     "targetBlank": true,
     "type": "link",
     "icon": "external link"
+},
+{
+    "title": "Runbooks",
+    "url": "https://<<SERVICENOW_INSTANCE>>.service-now.com/kb_knowledge_list.do?sysparm_query=cmdb_ci%3D<<DASHBOARD_UID>>%5Ekb_knowledge_base=bc74bb910f3e120470787d4ce1050e73%5Eworkflow_state%3Dpublished",
+    "tags": [],
+    "tooltip": "Knowledge Articles in ServiceNow",
+    "targetBlank": true,
+    "type": "link",
+    "icon": "external link"
 }

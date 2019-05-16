@@ -16,7 +16,7 @@ class Dashboards():
   def __init__(self, org_id):
     self.org_id = org_id
     self.dashboards = dict()
-    self.helper = Helper()
+    self.helper = Helper(org_id)
     self.load_all()
 
 
@@ -25,7 +25,6 @@ class Dashboards():
 
 
   def load_all(self):
-    self.helper.switch_org(self.org_id);
     resp = self.helper.api_get_with_params("search", { 'type': 'dash-db' })
     dashboards = json.loads(resp.content)
     for dashboard in dashboards:
@@ -38,12 +37,10 @@ class Dashboards():
 
   def create_dashboard(self, uid, json):
     print "Creating dashboard: " + uid
-    self.helper.switch_org(self.org_id);
     id = self.helper.api_post_with_data('dashboards/db', json)
     return id
 
 
   def delete_dashboard(self, uid):
     print "Deleting dashboard: " + uid
-    self.helper.switch_org(self.org_id);
     resp = self.helper.api_delete('dashboards/uid/' + uid)

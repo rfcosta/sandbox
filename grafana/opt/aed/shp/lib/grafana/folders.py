@@ -17,7 +17,7 @@ class Folders():
     self.org_id = org_id
     self.folders = dict()
     self.folder_uids = dict()
-    self.helper = Helper()
+    self.helper = Helper(org_id)
     self.load_all()
 
 
@@ -27,7 +27,6 @@ class Folders():
 
 
   def load_all(self):
-    self.helper.switch_org(self.org_id);
     resp = self.helper.api_get_with_params("search", { 'type': 'dash-folder' })
     folders = json.loads(resp.content)
     for folder in folders:
@@ -41,7 +40,6 @@ class Folders():
 
 
   def create_folder(self, folder_name):
-    self.helper.switch_org(self.org_id);
     resp = self.helper.api_post_with_data('folders', { 'title': folder_name })
     folder = json.loads(resp.content)
     self.add_folder_to_list(folder)
@@ -59,6 +57,5 @@ class Folders():
 
   def delete_folder(self, id):
     print "Deleting folder: " + str(id)
-    self.helper.switch_org(self.org_id);
     uid = self.folder_uids[id]
     resp = self.helper.api_delete('folders/' + str(uid))

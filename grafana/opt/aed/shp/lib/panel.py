@@ -12,7 +12,15 @@ class Panel():
     self.format = panel['format']
     self.alerting_enabled = panel['alerting_enabled']
     self.dynamic_alerting_enabled = panel['dynamic_alerting_enabled'] if 'dynamic_alerting_enabled' in panel else 'false'
+    self.static_alerting_enabled_high = panel['static_alerting_enabled_high'] if 'static_alerting_enabled_high' in panel else 'false'
+    self.static_alerting_enabled_low = panel['static_alerting_enabled_low'] if 'static_alerting_enabled_low' in panel else 'false'
+    self.dynamic_alerting_enabled_high = panel['dynamic_alerting_enabled_high'] if 'dynamic_alerting_enabled_high' in panel else 'false'
+    self.dynamic_alerting_enabled_low = panel['dynamic_alerting_enabled_low'] if 'dynamic_alerting_enabled_low' in panel else 'false'
     self.overall_service_metric = panel['overall_service_metric'] if 'overall_service_metric' in panel else 'false'
+    self.static_threshold_violation_window = panel['static_threshold_violation_window'] if 'static_threshold_violation_window' in panel else 2
+    self.static_threshold_violation_occurrences = panel['static_threshold_violation_occurrences'] if 'static_threshold_violation_occurrences' in panel else 2
+    self.dynamic_threshold_violation_window = panel['dynamic_threshold_violation_window'] if 'dynamic_threshold_violation_window' in panel else 2
+    self.dynamic_threshold_violation_occurrences = panel['dynamic_threshold_violation_occurrences'] if 'dynamic_threshold_violation_occurrences' in panel else 2
     self.threshold_violation_window = panel['threshold_violation_window'] if 'threshold_violation_window' in panel else 2
     self.threshold_violation_occurrences = panel['threshold_violation_occurrences'] if 'threshold_violation_occurrences' in panel else 2
     self.metric_type = panel['metric_type']
@@ -49,20 +57,26 @@ class Panel():
 
   def __str__(self):
     s = ("    panel: " + '\n' +
-         "      display_state:            " + self.display_state + '\n' +
-         "      panel_id:                 " + self.panel_id + '\n' +
-         "      graph_panel_sys_id:       " + self.graph_panel_sys_id + '\n' +
-         "      overall_service_metric:   " + self.overall_service_metric + '\n' +
-         "      deep_link:                " + self.deep_link + '\n' +
-         "      title:                    " + self.title + '\n' +
-         "      base_metric_name:         " + self.base_metric_name + '\n' +
-         "      format:                   " + self.format + '\n' +
-         "      alerting_enabled:         " + self.alerting_enabled + '\n' +
-         "      dynamic_alerting_enabled: " + self.dynamic_alerting_enabled + '\n' +
-         "      alert_window:             " + str(self.threshold_violation_window) + '\n' +
-         "      alert_tolerance:          " + str(self.threshold_violation_occurrences) + '\n' +
-         "      metric_type:              " + self.metric_type + '\n' +
-         "      panelKey:                 " + self.panelKey + '\n' +
-         "      kpi:                      " + self.kpi + '\n')
+         "      display_state:                  " + self.display_state + '\n' +
+         "      panel_id:                       " + self.panel_id + '\n' +
+         "      graph_panel_sys_id:             " + self.graph_panel_sys_id + '\n' +
+         "      overall_service_metric:         " + self.overall_service_metric + '\n' +
+         "      deep_link:                      " + self.deep_link + '\n' +
+         "      title:                          " + self.title + '\n' +
+         "      base_metric_name:               " + self.base_metric_name + '\n' +
+         "      format:                         " + self.format + '\n' +
+         "      alerting_enabled:               " + self.alerting_enabled + '\n' +
+         "      dynamic_alerting_enabled:       " + self.dynamic_alerting_enabled + '\n' +
+         "      static_alerting_enabled_high:   " + self.static_alerting_enabled_high + '\n' +
+         "      static_alerting_enabled_low:    " + self.static_alerting_enabled_low + '\n' +
+         "      dynamic_alerting_enabled_high:  " + self.dynamic_alerting_enabled_high + '\n' +
+         "      dynamic_alerting_enabled_low:   " + self.dynamic_alerting_enabled_low + '\n' +
+         "      alert_window:                   " + str(self.static_threshold_violation_window) + '\n' +
+         "      alert_tolerance:                " + str(self.static_threshold_violation_occurrences) + '\n' +
+         "      dynamic_alert_window:           " + str(self.dynamic_threshold_violation_window) + '\n' +
+         "      dynamic_alert_tolerance:        " + str(self.dynamic_threshold_violation_occurrences) + '\n' +
+         "      metric_type:                    " + self.metric_type + '\n' +
+         "      panelKey:                       " + self.panelKey + '\n' +
+         "      kpi:                            " + self.kpi + '\n')
     s = s + self.thresholds.to_string()
     return s

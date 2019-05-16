@@ -355,11 +355,11 @@ class ShpAnnotations():
         for keyword in ['from','to','dashboardId','limit','panelId','type','tags']:
             _parm = kwargs.get(keyword.upper())
             if _parm:
-            	_search_url = _search_url + _char + keyword + '=' + str(_parm)
+                _search_url = _search_url + _char + keyword + '=' + str(_parm)
                 _char = '&'
    
 
-	self.debug("#grafanaAPI URL: " + _search_url)
+        self.debug("#grafanaAPI URL: " + _search_url)
 
         _headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -369,7 +369,7 @@ class ShpAnnotations():
 
         for _try in range(1,_maxTries + 1):
             try:
-                _search      = getattr(self, '_' + OPTION)(_search_url, DATA, auth=(self._user, self._password), headers=_headers)
+                _search = getattr(self, '_' + OPTION)(_search_url, DATA, auth=(self._user, self._password), headers=_headers, timeout=(5.0, 10.0))
                 break
 
             except requests.ConnectionError as CONERR:

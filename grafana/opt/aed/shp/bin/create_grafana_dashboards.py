@@ -118,11 +118,6 @@ def populate_panel(text, service, panel, grid_x, grid_y):
     return text
 
 
-def switch_org(org_id):
-    helper = Helper()
-    helper.switch_org(org_id)
-
-
 def remove_obsolete_dashboards(org_id_array):
     for org_id in org_id_array:
         all_dashboards = dashboards[org_id].get_dashboards()
@@ -138,7 +133,6 @@ def remove_obsolete_dashboards(org_id_array):
                         dashboards[org_id].delete_dashboard(uid)
             except:
                 print("Something went wrong trying to delete dashboard with uid: " + str(uid) + " from org: " + str(org_id))
-
 
 
 def remove_obsolete_folders(org_id_array):
@@ -182,7 +176,6 @@ def add_to_used_folders(org_id, folder_uid):
 def create_single_dashboard(dashboard_json, service_name, org_id, dash_uid, folder_name):
     print("Creating dashboard for " + service_name + " in org " + str(org_id) + " folder=" + folder_name)
 
-    switch_org(org_id)
 
     folders_for_organization = folders[org_id]
 
@@ -233,6 +226,7 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
         grid_y = 0
         counter = 0
         panel_count = 0
+
         for panel in service.panels:
             if panel.display_state == 'Active':
                 panel_count += 1
@@ -394,7 +388,5 @@ try:
 except Exception, e:
     print(str(e))
     logging.error("Failure: Fatal error when creating dashboards", exc_info=True)
-finally:
-    switch_org(str(main_org_id))
 
 sys.exit(0)

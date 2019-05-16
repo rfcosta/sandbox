@@ -63,8 +63,10 @@ def execute():
     if options.eventClass == "":
         options.eventClass = options.source
 
-    if options.messageKey == "":
-        options.messageKey = options.source +"__" + options.node +"__" + options.type + "__" + options.resource
+    # US600640 - Brad doesn't want us sending message_key in the event ever
+    options.messageKey = ""
+    #if options.messageKey == "":
+    #    options.messageKey = options.source +"__" + options.node +"__" + options.type + "__" + options.resource
 
     data = {"source" : options.source, "node" : options.node , "type" : options.type,
             "resource" : options.resource, "severity" : options.severity,

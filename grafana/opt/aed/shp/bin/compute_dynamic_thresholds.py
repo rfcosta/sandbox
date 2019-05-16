@@ -22,8 +22,10 @@ State_Staging_No_Alert = 'staging-no-alerting'
 State_Staging_Alert = 'staging-alerting'
 State_Staging_Validated = 'validated'
 
-MINUTES_TO_KEEP = 240
-
+SECONDS_IN_MINUTE = 60
+MINUTES_TO_KEEP = 4 * SECONDS_IN_MINUTE
+MINUTES_TO_CALCULATE = 90
+TWO_WEEKS = 60 * 24 * 14
 
 def load_previous_thresholds(cache_id):
     fname = local_thresholds_data_dir + '/' + cache_id + '.json'
@@ -56,13 +58,9 @@ def merge_thresholds(previous, new):
 
     timestamps_list = []
 
-    for t in sorted(previous_timestamps):
-        t = t.encode('ascii', 'ignore')
-        timestamps_list.append(remove_seconds(t))
+    add_timestamps_to_list(previous_timestamps, timestamps_list)
 
-    for t in sorted(new_timestamps):
-        t = t.encode('ascii', 'ignore')
-        timestamps_list.append(remove_seconds(t))
+    add_timestamps_to_list(new_timestamps, timestamps_list)
 
     list_len = len(timestamps_list)
 
@@ -80,13 +78,18 @@ def merge_thresholds(previous, new):
         if time_str in ordered_keys:
             continue
 
-        if time_str in previous_timestamps:
+        if time_str in new_timestamps:
+            ordered_keys[time_str] = new[time_str]
+        else:
             ordered_keys[time_str] = previous[time_str]
 
-        if time_str in new:
-            ordered_keys[time_str] = new[time_str]
-
     return ordered_keys
+
+
+def add_timestamps_to_list(timestamps, timestamps_list):
+    for t in sorted(timestamps):
+        t = t.encode('ascii', 'ignore')
+        timestamps_list.append(remove_seconds(t))
 
 
 def process_thresholds(service_name, metric, key, thresholds, cache_id, need_to_alert):
@@ -136,10 +139,10 @@ def get_predictor(service_name, metric, key, standard_deviations, when):
             single_tuple = (time, value)
             historical_data.append(single_tuple)
 
-    if len(historical_data) == 0:
-        raise Exception("No data to analyze for: ", service_name, '-', key)
+    if len(historical_data) < TWO_WEEKS:
+        raise Exception("Not enough data to analyze for: ", service_name, '-', key)
 
-    predictor = Predictor(metric, historical_data, standard_deviations)
+    predictor = Predictor(metric, historical_data, standard_deviations, MINUTES_TO_CALCULATE)
 
     return predictor
 
@@ -178,7 +181,7 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
                 limits['lower'] = thresholds[0]
                 limits['upper'] = thresholds[1]
                 computed_thresholds[str(remove_seconds(when + i))] = limits
-                i += 60
+                i += SECONDS_IN_MINUTE
 
             process_thresholds(service_name, metric, key, computed_thresholds, cache_id, need_to_alert)
         except Exception as e:
@@ -208,9 +211,6 @@ db_connection = get_db_connection()
 service_config = ServiceConfiguration()
 
 metric_db = config['influxdb_metric_policy'] + '.' + config['influxdb_metric_measure']
-
-s3_data_dir = config['s3_dynamic_thresholds_dir']
-s3_thresholds_data_dir = s3_data_dir + '/thresholds_history'
 
 local_data_dir = config['local_dynamic_thresholds_dir']
 local_thresholds_data_dir = local_data_dir + '/threshold_history'

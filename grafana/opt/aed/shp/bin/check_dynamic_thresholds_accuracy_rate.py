@@ -1,14 +1,8 @@
 #!/bin/env python
 
-import boto3
-import botocore
-
 import datetime
-import os
-import pickle
 import sys
 import time
-import json
 
 from influxdb import InfluxDBClient
 
@@ -114,7 +108,7 @@ def count_alerts(service_name, metric_name, key, when, panel):
     if (i < MIN_POINTS):
 #       panels_lacking_data += 1
        panels_lacking_data = panels_lacking_data + 1
-       print service_name, ':', key, ':', metric_name, i, MIN_POINTS, "Total Alerts: Insufficient Data"
+       print service_name, ':', key, ':', metric_name, i, MIN_POINTS, ": Total Alerts: Insufficient Data"
        return
 
     position = 0
@@ -142,7 +136,7 @@ def count_alerts(service_name, metric_name, key, when, panel):
             last_time_breached = False
         position += 1
 
-    print service_name, ':', key, ':', metric_name, "Total Alerts: ", alerted
+    print service_name, ':', key, ':', metric_name, ": Total Alerts: ", alerted
 
     if (alerted == 0):
        ready_to_enable = ready_to_enable + 1
