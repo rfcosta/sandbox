@@ -1,0 +1,58 @@
+var logLocation = '/var/log/shp/andrew_gen_alerts.log'
+
+var deadLocation = '/var/log/shp/deadman_alerts.log'
+
+var execScript = '/opt/aed/shp/bin/GenerateEvent.py'
+
+var deadScript = '/opt/aed/shp/bin/GenerateDeadmanEvent.py'
+
+var metric = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('metric')
+        .groupBy('ci', 'key', 'customer_code')
+    //|where(lambda: "need_to_alert_static" == 'True')
+
+metric
+    |alert()
+        .id('kpi_{{ index .Tags "ci" }}_{{ index .Tags "customer_code" }}_{{ index .Tags "key" }}_static_upper')
+        .message('Static Breach')
+        .details('{{ index .Fields "threshold_static_upper" }}')
+        //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
+        .crit(lambda: "threshold_static_breach_upper" == 'True')
+        .log(logLocation)
+
+metric
+    |alert()
+        .id('kpi_{{ index .Tags "ci" }}_{{ index .Tags "customer_code" }}_{{ index .Tags "key" }}_static_lower')
+        .message('Static Breach')
+        .details('{{ index .Fields "threshold_static_lower" }}')
+        //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
+        .crit(lambda: "threshold_static_breach_lower" == 'True')
+        .log(logLocation)
+
+metric
+    |alert()
+        .id('kpi_{{ index .Tags "ci" }}_{{ index .Tags "customer_code" }}_{{ index .Tags "key" }}_dynamic_upper')
+        .message('Dynamic Breach')
+        .details('{{ index .Fields "threshold_dynamic_upper" }}')
+        //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
+        .crit(lambda: "threshold_dynamic_breach_upper" == 'True')
+        .log(logLocation)
+
+metric
+    |alert()
+        .id('kpi_{{ index .Tags "ci" }}_{{ index .Tags "customer_code" }}_{{ index .Tags "key" }}_dynamic_lower')
+        .message('Dynamic Breach')
+        .details('{{ index .Fields "threshold_dynamic_lower" }}')
+        //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
+        .crit(lambda: "threshold_dynamic_breach_lower" == 'True')
+        .log(logLocation)
+
+metric
+    |deadman(1.0, 4m)
+        .id('service_data_deadman_{{ index .Tags "ci" }}_{{ index .Tags "customer_code" }}_{{ index .Tags "key" }}')
+        .message('Metrics Deadman')
+        .details('{{ .Level }}: Metrics deadman for {{ index .Tags "ci" }} - {{ index .Tags "customer_code" }} - {{ index .Tags "key" }}')
+        .log(deadLocation)
