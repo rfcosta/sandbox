@@ -6,7 +6,7 @@ class Threshold():
         'StandardDeviation+4': 4,
     }
 
-    DEFAULT_STANDARD_DEVIATIONS = 3
+    DEFAULT_STANDARD_DEVIATIONS = 4
 
     def __init__(self, threshold):
         self.warn_lower = float(str(threshold['warn'][0]))
