@@ -10,6 +10,7 @@ RUN apt-get install -y nano
 RUN apt-get install -y python
 RUN apt-get install -y python-pip
 RUN pip install requests
+RUN pip install retrying
 
 
 RUN [ ! -d /home/grafana ] && mkdir /home/grafana

@@ -33,6 +33,7 @@ class Panel():
 
   # temporary until we figure out the SNOW/SHP mismatched versions problem
 
+
   def get_old_panel_id_for_metric(self):
     if self.metric_type == 'avg_processing_time':
       return '3'
@@ -44,10 +45,12 @@ class Panel():
       return '6'
     print "Unable to determine panel id for metric type"
 
+
   def load_thresholds(self, panel):
     thresholds = panel['thresholds']
     my_threshold = Threshold(thresholds)
     self.thresholds = my_threshold
+
 
   def __str__(self):
     s = ("    panel: " + '\n' +
@@ -71,13 +74,18 @@ class Panel():
     s = s + self.thresholds.to_string()
     return s
 
+
   def __eq__(self, other):
-    return self.customer_name == other.customer_name
+    return ((self.customer_name == other.customer_name) and (self.panel_id == other.panel_id))
+
 
   def __lt__(self, other):
+    if ((self.customer_name == "ALL") and (other.customer_name == "ALL")):
+        return self.panel_id < other.panel_id
     if self.customer_name == "ALL":
        return True
     if other.customer_name == "ALL":
        return False
     return self.customer_name < other.customer_name
+
 

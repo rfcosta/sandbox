@@ -220,6 +220,9 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
             logging.debug("Skipping unconfigured service: " + service.name)
             continue
 
+#        if "Sabre Web Services" not in service.name:
+#            continue
+
         all_panels = ''
         comma = ''
         grid_x = 0
@@ -227,7 +230,7 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
         counter = 0
         panel_count = 0
 
-        for panel in service.panels:
+        for panel in sorted(service.panels):
             if panel.display_state == 'Active':
                 panel_count += 1
                 panel_text = load_template("single_panel_template.json")
