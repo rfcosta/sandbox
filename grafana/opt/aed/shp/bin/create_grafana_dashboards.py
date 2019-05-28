@@ -214,6 +214,13 @@ def create_single_dashboard(dashboard_json, service_name, org_id, dash_uid, fold
         print("Dashboard created successfully: " + dash_uid)
 
 
+def sortable_customers(x):
+    if x.overall_service_metric == "true":
+       return ("A" + ':' +  x.panel_id)   # force to top
+    else:
+       return (x.customer_name + ':' + x.panel_id)
+
+
 def create_service_dashboards(service_cfg, main_org, staging_org):
     for service in service_cfg.get_services():
         if service.state == 'undefined':
@@ -230,7 +237,7 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
         counter = 0
         panel_count = 0
 
-        for panel in sorted(service.panels):
+        for panel in sorted(service.panels, key=sortable_customers):
             if panel.display_state == 'Active':
                 panel_count += 1
                 panel_text = load_template("single_panel_template.json")

@@ -74,18 +74,3 @@ class Panel():
     s = s + self.thresholds.to_string()
     return s
 
-
-  def __eq__(self, other):
-    return ((self.customer_name == other.customer_name) and (self.panel_id == other.panel_id))
-
-
-  def __lt__(self, other):
-    if ((self.customer_name == "ALL") and (other.customer_name == "ALL")):
-        return self.panel_id < other.panel_id
-    if self.customer_name == "ALL":
-       return True
-    if other.customer_name == "ALL":
-       return False
-    return self.customer_name < other.customer_name
-
-

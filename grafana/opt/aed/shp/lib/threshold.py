@@ -1,9 +1,9 @@
 class Threshold():
 
     standard_deviations_mappings = {
-        'StandardDeviation+2': 2,
         'StandardDeviation+3': 3,
         'StandardDeviation+4': 4,
+        'StandardDeviation+5': 5,
     }
 
     DEFAULT_STANDARD_DEVIATIONS = 4

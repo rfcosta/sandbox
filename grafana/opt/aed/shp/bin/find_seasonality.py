@@ -118,7 +118,7 @@ def process_metric(service, panel):
     metric = panel.metric_type
     key = panel.panelKey
 #    print service_name, " - ", metric
-    formatter = "SELECT time, mean({0}) AS {0} FROM {1} WHERE \"key\"='{2}' AND ci='{3}' GROUP BY time(1m) fill(previous)"
+    formatter = "SELECT time, mean({0}) AS {0} FROM {1} WHERE \"key\"='{2}' AND ci='{3}' GROUP BY time(1m) fill(none)"
     query = formatter.format(metric, metric_db, key, service_name)
     rs = db_connection.query(query)
 
