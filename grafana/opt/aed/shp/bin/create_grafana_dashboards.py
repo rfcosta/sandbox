@@ -3,6 +3,7 @@
 import json
 import logging
 import sys
+import copy
 
 import requests
 
@@ -17,6 +18,7 @@ sys.path.append('/opt/aed/shp/lib/grafana')
 
 import shputil
 from service_configuration import ServiceConfiguration
+from customer_configuration import CustomerConfiguration
 from folders import Folders
 from dashboards import Dashboards
 from helper import Helper
@@ -181,7 +183,7 @@ def create_single_dashboard(dashboard_json, service_name, org_id, dash_uid, fold
 
     folder_id = 0  # default to General folder
 
-    if folder_name != "General":
+    if folder_name != "General" and folder_name != "Customers":
         try:
             folder_id = folders_for_organization.get_folder_id(folder_name)
         except Exception, e:
@@ -219,7 +221,6 @@ def sortable_customers(x):
        return ("A" + ':' +  x.panel_id)   # force to top
     else:
        return (x.customer_name + ':' + x.panel_id)
-
 
 def create_service_dashboards(service_cfg, main_org, staging_org):
     for service in service_cfg.get_services():
@@ -372,6 +373,63 @@ def load_dashboards(org_id_array):
     for org_id in org_id_array:
         dashboards[org_id] = Dashboards(org_id)
 
+
+#===== Version of create_service_dashboards but for customers
+def create_customer_dashboards(customers_cfg, main_org, staging_org):
+
+    customers_list = customers_cfg.get_customers()
+    for customer in customers_list:
+        if customer.state == 'undefined':
+            logging.debug("Skipping unconfigured customer: " + customer.name)
+            continue
+
+        all_panels = ''
+        comma = ''
+        grid_x = 0
+        grid_y = 0
+        counter = 0
+        panel_count = 0
+
+        for panel in customer.panels:
+            if panel.display_state == 'Active':
+                panel_count += 1
+                panel_text = load_template("single_panel_template.json")
+                all_panels = all_panels + comma + populate_panel(panel_text, customer, panel, grid_x, grid_y)
+                comma = ','
+                counter += 1
+                grid_x = (counter % columns) * 8
+                grid_y = (counter / columns) * 20
+
+        dash_uid  = customer.dashboard_uid
+        dash_text = load_template("single_dashboard_template.json")
+        dash_text = dash_text.replace("<<SERVICE_NAME>>", customer.name)
+        dash_text = dash_text.replace("<<DASHBOARD_UID>>", dash_uid)
+        dash_text = dash_text.replace("<<PANELS>>", all_panels)
+
+        # Generate and add dashboard links
+        all_links = create_links(customer)
+        dash_text = dash_text.replace("<<LINKS>>", all_links)
+
+
+        if customer.is_validated():
+            org_id = main_org
+        else:
+            org_id = staging_org
+
+        folder_name = customer.report_grouping
+
+        if panel_count > 0:
+            try:
+                create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
+            except Exception:
+                # log it and move on to next dashboard
+                logging.error("Dashboard creation error: " + customer.name, exc_info=True)
+        else:
+            logging.info("No panels for service: " + customer.name)
+
+
+
+#============= MAIN =========================================================
 config = shputil.get_config()
 shputil.configure_logging(config["logging_configuration_file"])
 
@@ -391,6 +449,9 @@ try:
 
     create_service_dashboards(service_config, main_org_id, staging_org_id)
     create_aggregated_dashboards(service_config, aggregate_org_id)
+
+    customer_config = CustomerConfiguration(service_config)
+    create_customer_dashboards(customer_config,main_org_id, staging_org_id)
 
     remove_obsolete_dashboards([main_org_id, staging_org_id, aggregate_org_id])
     remove_obsolete_folders([main_org_id, staging_org_id, aggregate_org_id])
