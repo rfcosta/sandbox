@@ -1,9 +1,11 @@
 class Threshold():
 
     standard_deviations_mappings = {
+        'StandardDeviation+2': 2,
         'StandardDeviation+3': 3,
         'StandardDeviation+4': 4,
         'StandardDeviation+5': 5,
+        'StandardDeviation+6': 6,
     }
 
     DEFAULT_STANDARD_DEVIATIONS = 4
@@ -17,6 +19,9 @@ class Threshold():
 
 
     def get_standard_deviations(self, dynamic_threshold_settings):
+        prefix = 'StandardDeviations'
+
+        standard_deviations = dynamic_threshold_settings.replace('StandardDeviations"','')
         if dynamic_threshold_settings in self.standard_deviations_mappings:
             return self.standard_deviations_mappings[dynamic_threshold_settings]
         else:

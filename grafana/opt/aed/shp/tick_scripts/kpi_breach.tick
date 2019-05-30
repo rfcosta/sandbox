@@ -1,4 +1,4 @@
-var logLocation = '/var/log/shp/andrew_gen_alerts.log'
+var logLocation = '/var/log/shp/gen_alerts.log'
 
 var deadLocation = '/var/log/shp/deadman_alerts.log'
 
@@ -13,6 +13,8 @@ var metric = stream
         .measurement('metric')
         .groupBy('ci', 'key', 'customer_code')
     //|where(lambda: "need_to_alert_static" == 'True')
+    |log()
+        .prefix('metrics')
 
 metric
     |alert()
@@ -22,6 +24,7 @@ metric
         //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
         .crit(lambda: "threshold_static_breach_upper" == 'True')
         .log(logLocation)
+        .exec('python', execScript)
 
 metric
     |alert()
@@ -31,6 +34,7 @@ metric
         //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
         .crit(lambda: "threshold_static_breach_lower" == 'True')
         .log(logLocation)
+        .exec('python', execScript)
 
 metric
     |alert()
@@ -38,8 +42,9 @@ metric
         .message('Dynamic Breach')
         .details('{{ index .Fields "threshold_dynamic_upper" }}')
         //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
-        .crit(lambda: "threshold_dynamic_breach_upper" == 'True')
+        .warn(lambda: "threshold_dynamic_breach_upper" == 'True')
         .log(logLocation)
+        .exec('python', execScript)
 
 metric
     |alert()
@@ -47,8 +52,9 @@ metric
         .message('Dynamic Breach')
         .details('{{ index .Fields "threshold_dynamic_lower" }}')
         //.details('{{ .Level }}: {{ index .Tags "ci" }} breached value is {{ index .Fields "transaction_count" }}')
-        .crit(lambda: "threshold_dynamic_breach_lower" == 'True')
+        .warn(lambda: "threshold_dynamic_breach_lower" == 'True')
         .log(logLocation)
+        .exec('python', execScript)
 
 metric
     |deadman(1.0, 4m)

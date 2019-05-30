@@ -144,7 +144,7 @@ def remove_obsolete_folders(org_id_array):
             try:
                 if org_id in used_folders:
                     if uid not in used_folders[org_id]:
-                        if title != "General":
+                        if title != "General" and title != "Customers":
                             print("Removing Folder: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
                             folders[org_id].delete_folder(uid)
                 else:
@@ -221,6 +221,7 @@ def sortable_customers(x):
        return ("A" + ':' +  x.panel_id)   # force to top
     else:
        return (x.customer_name + ':' + x.panel_id)
+
 
 def create_service_dashboards(service_cfg, main_org, staging_org):
     for service in service_cfg.get_services():

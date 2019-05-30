@@ -5,12 +5,14 @@ from rpy2.robjects import pandas2ri
 
 class Predictor:
 
-    def __init__(self, metric, historical_values, deviations, minutes_to_predict):
+    def __init__(self, metric, historical_values, seasonal_periods, deviations, minutes_to_predict):
         self.metric = metric
         self.historical_values = historical_values
+        print "Seasonal Periods: ", seasonal_periods
+        self.seasonal_periods = seasonal_periods
         self.deviations = deviations
-        self.time_series_columns = list()
         self.minutes_to_predict = minutes_to_predict
+        self.time_series_columns = list()
         self.load_training_data()
 
 
@@ -18,70 +20,80 @@ class Predictor:
         for point_in_time in self.historical_values:
             self.time_series_columns.append(point_in_time[1])
 
-        ##############################################
-        ##############STL CLEANING####################
-        ##############   Start    ####################
-
         pandas2ri.activate()
 
         ro.globalenv['r_time_series'] = np.array(self.time_series_columns)
-        ro.globalenv['r_minutes_to_predict'] = self.minutes_to_predict
+        ro.globalenv['periods'] = self.seasonal_periods
+        ro.globalenv['minutes_to_predict'] = self.minutes_to_predict
+
+        ro.r('periods<-as.numeric(periods)')
 
         ro.r('library(forecast)')
-
         ro.r('library(zoo)')
 
         ro.r('r_time_series<-na.locf(r_time_series)')
-
         ro.r('r_time_series<-as.numeric(r_time_series)')
 
-        # -----------------#
+        ro.r('''preprocess_jumps <- function(input, periods=c(1440, 10080), hours=8)
+          {
+              l <- length(as.numeric(input))
+              input.msts <-msts(input, start=1, seasonal.periods = periods)
+              input_decom <-mstl(input.msts, s.window = 'periodic')
+              data_mod <- as.numeric(input_decom[, 2])
+              temp <- data_mod
+              data_mod<-rollmedian(temp,(60*hours+1),align = 'right')
+              temp[(60*hours+1):l]<-data_mod
+              for (i in (3:(2 + length(periods)))){temp <- temp +as.numeric(input_decom[, i])}
+              final <- msts(temp, start=1, seasonal.periods = periods)
+              return (final)
+          }
+          time_series_original <- r_time_series
+          r_time_series <- preprocess_jumps(r_time_series, periods=c(1440), hours=8)
+          r_time_series <- as.numeric(r_time_series)
+        ''')
 
-        ro.r('f1<-1440')
+        ro.r('''
+          y<-r_time_series
+          y<-log(y+1)
 
-        # ro.r('y<-tsclean(r_time_series)')
-        ro.r('y<-r_time_series')
+          data.ts<-msts(as.numeric(y),start=1,seasonal.periods=periods)
+          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic")
+          out2.ts<-msts((exp(stlf_out$mean)-1),start=1,seasonal.periods=periods)
+          y_temp<-c(r_time_series,as.numeric(out2.ts))
+          x<-(1:length(y_temp))
+          y_temp_smoothed<-loess(y_temp ~ x,span=0.001)
+          out2.ts<-tail(y_temp_smoothed$fitted,length(out2.ts))
+          sd1<-sd((as.numeric(r_time_series)-head(y_temp_smoothed$fitted,length(y))))
+        ''')
 
-        ro.r('y<-log(y+1)')
+        ro.r('''       
+          variance<-function(y) {
+            lead<-5040
+            l<-length(y)
+            recent<-y[(lead+1):(l)]
+            past<-y[(1):(l-lead)]       
+            var1<-sqrt(sum((abs(y[(lead+1):(l)]-y[(1):(l-lead)])^2))/l)        
+            return(var1)        
+          }
+      
+          sd1<-variance(as.numeric(time_series_original))       
+        ''')
 
-        ro.r('data.ts<-ts(as.numeric(y),start=1,frequency=f1)')
-
-        ro.r('stlf_out<-stlf(data.ts,h=r_minutes_to_predict,s.window="periodic")')
-
-        ro.r('out2.ts<-ts((exp(stlf_out$mean)-1),start=1,frequency=f1)')
-
-        ro.r('y_temp<-c(r_time_series,as.numeric(out2.ts))')
-
-        ro.r('x<-(1:length(y_temp))')
-
-        ro.r('y_temp_smoothed<-loess(y_temp ~ x,span=0.001)')
-
-        ro.r('out2.ts<-tail(y_temp_smoothed$fitted,length(out2.ts))')
-
-        ro.r('sd1<-sd((as.numeric(r_time_series)-head(y_temp_smoothed$fitted,length(y))))')
-
-        # ro.r('print(paste("This is sd",sd1,sep=":"))')
-
-        self.forecast = ro.r('as.numeric(out2.ts)')
         self.standard_dev = ro.r('as.numeric(sd1)')
-        # -----------------#
+        self.forecast = ro.r('as.numeric(out2.ts)')
 
         ro.r('rm(stlf_out,data.ts, f1, out2.ts, sd1, x, y, y_temp, y_temp_smoothed)')
-
         ro.r('gc()')
-
-        ##############STL CLEANING####################
-        ##############   End    ######################
-        ##############################################
 
 
     def predict(self):
         lgbPreds = self.forecast
 
-        sd = np.std(self.time_series_columns)
+        sd = self.standard_dev
         lower_limit = lgbPreds - (self.deviations * sd)
         upper_limit = lgbPreds + (self.deviations * sd)
 
         lower_limit = [max(i, 0.0) for i in lower_limit]
 
         return (lower_limit, upper_limit)
+

@@ -28,7 +28,7 @@ STAGING_ORG_ID = 2
 def analyzeKapacitorAlert():
     alertData = ""
     # Defaulting fields so we don't have to keep checking in other functions
-    singleAlert = {"alertSource": "kapacitor", "level": "", "id": "", "ci": ""}
+    singleAlert = {"alertSource": "kapacitor", "level": "", "id": "", "ci": "", "customer_code": ""}
     kapacitorColumns = []
 
     # We don't want to block
@@ -67,8 +67,12 @@ def analyzeKapacitorAlert():
             if "tags" in kapacitorAlerts["data"]["series"][0]:
                 if "ci" in kapacitorAlerts["data"]["series"][0]["tags"]:
                     singleAlert["ci"] = str(kapacitorAlerts["data"]["series"][0]["tags"]["ci"])
+                if "type" in kapacitorAlerts["data"]["series"][0]["tags"]:
+                    singleAlert["type"] = str(kapacitorAlerts["data"]["series"][0]["tags"]["type"])
                 if "key" in kapacitorAlerts["data"]["series"][0]["tags"]:
                     singleAlert["panelKey"] = str(kapacitorAlerts["data"]["series"][0]["tags"]["key"])
+                if "customer_code" in kapacitorAlerts["data"]["series"][0]["tags"]:
+                    singleAlert["customer_code"] = str(kapacitorAlerts["data"]["series"][0]["tags"]["customer_code"])
             else:
                 raise KeyError("Alert data contains no tags: " + str(kapacitorAlerts))
             if "values" in kapacitorAlerts["data"]["series"][0]:
@@ -76,44 +80,29 @@ def analyzeKapacitorAlert():
                     kapacitorColumns = kapacitorAlerts["data"]["series"][0]["columns"]
                     for kapacitorValue in kapacitorAlerts["data"]["series"][0]["values"]:
                         singleAlert["value"] = ""  # reset
-                        singleAlert["crit_lower"] = ""  # reset
-                        singleAlert["crit_upper"] = ""  # reset
-                        # Don't really like this, since it is based on hard-coded values that could change,
-                        # and each new alert type could require modification
-                        if singleAlert["message"] == "Error Count":
-                            singleAlert["type"] = "error_count"
-                            if "metric.error_count" in kapacitorColumns:
-                               singleAlert["value"] = kapacitorValue[kapacitorColumns.index("metric.error_count")]
-                            if "thresholds.error_count_crit_lower" in kapacitorColumns:
-                               singleAlert["crit_lower"] = kapacitorValue[kapacitorColumns.index("thresholds.error_count_crit_lower")]
-                            if "thresholds.error_count_crit_upper" in kapacitorColumns:
-                               singleAlert["crit_upper"] = kapacitorValue[kapacitorColumns.index("thresholds.error_count_crit_upper")]
-                        elif singleAlert["message"] == "Error Rate":
-                            singleAlert["type"] = "error_rate"
-                            if "metric.error_rate" in kapacitorColumns:
-                               singleAlert["value"] = kapacitorValue[kapacitorColumns.index("metric.error_rate")]
-                            if "thresholds.error_rate_crit_lower" in kapacitorColumns:
-                               singleAlert["crit_lower"] = kapacitorValue[kapacitorColumns.index("thresholds.error_rate_crit_lower")]
-                            if "thresholds.error_rate_crit_upper" in kapacitorColumns:
-                               singleAlert["crit_upper"] = kapacitorValue[kapacitorColumns.index("thresholds.error_rate_crit_upper")]
-                        elif singleAlert["message"] == "Transaction Count":
-                            singleAlert["type"] = "transaction_count"
-                            if "metric.transaction_count" in kapacitorColumns:
-                               singleAlert["value"] = kapacitorValue[kapacitorColumns.index("metric.transaction_count")]
-                            if "thresholds.transaction_count_crit_lower" in kapacitorColumns:
-                               singleAlert["crit_lower"] = kapacitorValue[kapacitorColumns.index("thresholds.transaction_count_crit_lower")]
-                            if "thresholds.transaction_count_crit_upper" in kapacitorColumns:
-                               singleAlert["crit_upper"] = kapacitorValue[kapacitorColumns.index("thresholds.transaction_count_crit_upper")]
-                        elif singleAlert["message"] == "Processing Time":
-                            singleAlert["type"] = "avg_processing_time"
-                            if "metric.avg_processing_time" in kapacitorColumns:
-                               singleAlert["value"] = kapacitorValue[kapacitorColumns.index("metric.avg_processing_time")]
-                            if "thresholds.avg_processing_time_crit_lower" in kapacitorColumns:
-                               singleAlert["crit_lower"] = kapacitorValue[kapacitorColumns.index("thresholds.avg_processing_time_crit_lower")]
-                            if "thresholds.avg_processing_time_crit_upper" in kapacitorColumns:
-                               singleAlert["crit_upper"] = kapacitorValue[kapacitorColumns.index("thresholds.avg_processing_time_crit_upper")]
-                        else:
-                            raise KeyError("No valid messages found in alert: " + str(singleAlert))
+                        singleAlert["breached_threshold"] = ""  # reset
+                        singleAlert["breach_type"] = ""  # reset
+                        lower_threshold = -1
+                        upper_threshold = -1
+                        if str(singleAlert["type"]) in kapacitorColumns:
+                           singleAlert["value"] = kapacitorValue[kapacitorColumns.index(singleAlert["type"])]
+                        if singleAlert["message"] == "Dynamic Breach":
+                            if "threshold_dynamic_upper" in kapacitorColumns:
+                                upper_threshold = kapacitorValue[kapacitorColumns.index("threshold_dynamic_upper")]
+                            if "threshold_dynamic_lower" in kapacitorColumns:
+                                lower_threshold = kapacitorValue[kapacitorColumns.index("threshold_dynamic_lower")]
+                        if str(singleAlert["message"]) == "Static Breach":
+                            if "threshold_static_upper" in kapacitorColumns:
+                                upper_threshold = kapacitorValue[kapacitorColumns.index("threshold_static_upper")]
+                            if "threshold_static_lower" in kapacitorColumns:
+                                lower_threshold = kapacitorValue[kapacitorColumns.index("threshold_static_lower")]
+
+                        if upper_threshold < singleAlert["value"]:
+                            singleAlert["breach_type"] = "above"
+                            singleAlert["breached_threshold"] = upper_threshold
+                        if lower_threshold > singleAlert["value"]:
+                            singleAlert["breach_type"] = "below"
+                            singleAlert["breached_threshold"] = lower_threshold
 
                         logging.debug("SingleAlert: " + str(singleAlert))
                         return singleAlert
@@ -165,22 +154,27 @@ def createServiceNowEvent(kapacitorAlert):
 
     baseURL = "https://" + str(global_config['service_health_portal_host']) + "/grafana/d/"
 
-    graph_title = kapacitorAlert["message"]
+    if kapacitorAlert["type"] == "transaction_count":
+        alertMessage = "Transaction Count"
+    elif kapacitorAlert["type"] == "error_count":
+        alertMessage = "Error Count"
+    elif kapacitorAlert["type"] == "error_rate":
+        alertMessage = "Error Rate"
+    elif kapacitorAlert["type"] == "avg_processing_time":
+        alertMessage = "Processing Time"
+
+    graph_title = alertMessage
     if global_panel.title:
         graph_title = global_panel.title
 
-    # We need to find out if this breached the high or low threshold
-    relation = ""
-    threshold = ""
-    if kapacitorAlert["value"] > kapacitorAlert["crit_upper"] and -1 != kapacitorAlert["crit_upper"]:
-        relation = "above"
-        threshold = kapacitorAlert["crit_upper"]
-    else:
-        if kapacitorAlert["value"] < kapacitorAlert["crit_lower"]:
-            relation = "below"
-            threshold = kapacitorAlert["crit_lower"]
+
+    relation = kapacitorAlert["breach_type"]
+    threshold = kapacitorAlert["breached_threshold"]
 
     message = "Service Health Portal: " + kapacitorAlert["level"] + ": " + global_ci + " " + graph_title + " is " +  str(kapacitorAlert["value"])
+
+    if kapacitorAlert["customer_code"] != "" and kapacitorAlert["customer_code"] != "ALL":
+        message = message + " for customer: " + kapacitorAlert["customer_code"]
 
     if relation != "" and threshold != "":
         if "WARNING" == kapacitorAlert["level"]:
@@ -188,8 +182,6 @@ def createServiceNowEvent(kapacitorAlert):
         else:
             message = message + " which is " + relation + " the threshold of " + str(threshold)
 
-
-    alertMessage = str(kapacitorAlert["message"])
 
     d = dateutil.parser.parse(str(kapacitorAlert["time"]))
     snow_alertTime = d.strftime('%Y-%m-%d %H:%M:%S')
@@ -288,10 +280,17 @@ def x_in_y(kapacitorAlert, levelCheck = 'CRITICAL'):
     xTimes = 2
     yMinutes = 2
 
-    if global_panel.threshold_violation_occurrences:
-        xTimes = int(global_panel.threshold_violation_occurrences)
-    if global_panel.threshold_violation_window:
-        yMinutes = int(global_panel.threshold_violation_window)
+    if levelCheck == "CRITICAL":
+        if global_panel.static_threshold_violation_occurrences:
+            xTimes = int(global_panel.static_threshold_violation_occurrences)
+        if global_panel.static_threshold_violation_window:
+            yMinutes = int(global_panel.static_threshold_violation_window)
+    else:
+        if global_panel.dynamic_threshold_violation_occurrences:
+            xTimes = int(global_panel.dynamic_threshold_violation_occurrences)
+        if global_panel.dynamic_threshold_violation_window:
+            yMinutes = int(global_panel.dynamic_threshold_violation_window)
+
 
     beginTime = global_alertTime - (yMinutes * 60 * 1000000000)
     endTime = global_alertTime + 1000

@@ -15,6 +15,8 @@ sys.path.append('/opt/aed/shp/lib')
 
 from service_configuration import ServiceConfiguration
 from predictor import Predictor
+from seasonality import Seasonality
+
 import shputil
 
 State_Undefined = 'undefined'
@@ -24,7 +26,7 @@ State_Staging_Validated = 'validated'
 
 SECONDS_IN_MINUTE = 60
 MINUTES_TO_KEEP = 4 * SECONDS_IN_MINUTE
-MINUTES_TO_CALCULATE = 90
+MINUTES_TO_PREDICT = 90
 TWO_WEEKS = 60 * 24 * 14
 
 def load_previous_thresholds(cache_id):
@@ -92,12 +94,11 @@ def add_timestamps_to_list(timestamps, timestamps_list):
         timestamps_list.append(remove_seconds(t))
 
 
-def process_thresholds(service_name, metric, key, thresholds, cache_id, need_to_alert):
+def process_thresholds(service_name, metric, key, thresholds, cache_id):
     previous_thresholds = load_previous_thresholds(cache_id)
     merged_thresholds = merge_thresholds(previous_thresholds, thresholds)
 
     tags = {}
-    tags['need_to_alert'] = need_to_alert
     tags['ci'] = service_name
     tags['metric'] = metric
     tags['key'] = key
@@ -117,19 +118,12 @@ def get_db_connection():
     return InfluxDBClient(host=influx_host, port=influx_port, database=influx_db)
 
 
-def get_predictor(service_name, metric, key, standard_deviations, when):
-    predictor = None
-
-    timestamp = get_formatted_timestamp(when)
-
-    formatter = "SELECT time, mean({0}) AS {0} FROM {1} WHERE \"key\"='{2}' AND ci='{3}' AND time < '{4}' GROUP BY time(1m) fill(previous)"
-    query = formatter.format(metric, metric_db, key, service_name, timestamp)
-    # print query
-
-    rs = db_connection.query(query)
-
+def load_historical_data(key, metric, service_name, to_when):
+    to_time = get_formatted_timestamp(to_when)
     historical_data = []
-
+    formatter = "SELECT time, mean({0}) AS {0} FROM {1} WHERE \"key\"='{2}' AND ci='{3}' AND time < '{4}' GROUP BY time(1m) fill(previous)"
+    query = formatter.format(metric, metric_db, key, service_name, to_time)
+    rs = db_connection.query(query)
     for item in rs.items():
         for point in item[1]:
             if None == point[metric]:
@@ -142,15 +136,21 @@ def get_predictor(service_name, metric, key, standard_deviations, when):
     if len(historical_data) < TWO_WEEKS:
         raise Exception("Not enough data to analyze for: ", service_name, '-', key)
 
-    predictor = Predictor(metric, historical_data, standard_deviations, MINUTES_TO_CALCULATE)
+    return historical_data
 
-    return predictor
+
+def get_predictor(service_name, metric, key, standard_deviations, seasonal_periods, when):
+    historical_data = load_historical_data(key, metric, service_name, when)
+    return Predictor(metric, historical_data, seasonal_periods, standard_deviations, MINUTES_TO_PREDICT)
+
+
+def get_seasonal_periods(service_name, metric, key, when):
+    historical_data = load_historical_data(key, metric, service_name, when)
+    return Seasonality(historical_data).get_seasons()
 
 
 def calculate_dynamic_thresholds(service_config, service_name, when):
     service = service_config.get_service(service_name)
-
-    state = service.state
 
     for panel in service.panels:
         try:
@@ -163,17 +163,11 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
             print "ID:", cache_id
 
             standard_deviations = panel.thresholds.standard_deviations
-
-            predictor = get_predictor(service_name, metric, key, standard_deviations, when)
-
+            seasonal_periods = get_seasonal_periods(service_name, metric, key, when)
+            predictor = get_predictor(service_name, metric, key, standard_deviations, seasonal_periods, when)
             dynamic_thresholds = predictor.predict()
 
-            display_state = panel.display_state
-            dynamic_alerting_enabled = panel.dynamic_alerting_enabled
-            need_to_alert = dynamic_alerting_enabled == 'true' and display_state == 'Active' and state != State_Undefined and state != State_Staging_No_Alert
-
             i = 0
-
             computed_thresholds = {}
 
             for thresholds in zip(dynamic_thresholds[0], dynamic_thresholds[1]):
@@ -183,7 +177,7 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
                 computed_thresholds[str(remove_seconds(when + i))] = limits
                 i += SECONDS_IN_MINUTE
 
-            process_thresholds(service_name, metric, key, computed_thresholds, cache_id, need_to_alert)
+            process_thresholds(service_name, metric, key, computed_thresholds, cache_id)
         except Exception as e:
             print str(e)
 

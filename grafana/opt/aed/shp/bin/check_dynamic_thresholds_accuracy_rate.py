@@ -148,6 +148,7 @@ def get_formatted_timestamp(when):
     t = datetime.datetime.fromtimestamp(float(when))
     return t.strftime(fmt)
 
+
 def format_percentage(a, b):
     x = (float(a) / float(b)) * 100
     y = int(x * 100)
