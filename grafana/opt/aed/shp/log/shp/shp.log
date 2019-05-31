@@ -55,3 +55,79 @@ Traceback (most recent call last):
   File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
     raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
 IOError: Error in api_post_with_data: dashboards/db - {"message":"Failed to save dashboard"}
+2019-05-31 15:21:04,911 - [create_grafana_dashboards.py:427 - create_customer_dashboards() ] - ERROR - Dashboard creation error: Etihad Airways
+Traceback (most recent call last):
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 424, in create_customer_dashboards
+    create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 207, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/Library/Python/2.7/site-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/Library/Python/2.7/site-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"uid contains illegal characters"}
+2019-05-31 15:23:18,310 - [create_grafana_dashboards.py:427 - create_customer_dashboards() ] - ERROR - Dashboard creation error: Hawaiian Airlines
+Traceback (most recent call last):
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 424, in create_customer_dashboards
+    create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 207, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/Library/Python/2.7/site-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/Library/Python/2.7/site-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"uid contains illegal characters"}
+2019-05-31 15:45:24,336 - [create_grafana_dashboards.py:427 - create_customer_dashboards() ] - ERROR - Dashboard creation error: JetBlue
+Traceback (most recent call last):
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 424, in create_customer_dashboards
+    create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 207, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/Library/Python/2.7/site-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/Library/Python/2.7/site-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"uid contains illegal characters"}
+2019-05-31 16:01:52,182 - [create_grafana_dashboards.py:427 - create_customer_dashboards() ] - ERROR - Dashboard creation error: Nippon Cargo Airlines
+Traceback (most recent call last):
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 424, in create_customer_dashboards
+    create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
+  File "/Users/sg0549743/__github/influxdata/grafana/opt/aed/shp/bin/create_grafana_dashboards.py", line 207, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/Library/Python/2.7/site-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/Library/Python/2.7/site-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/Library/Python/2.7/site-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"uid contains illegal characters"}

@@ -15,7 +15,7 @@ class Customer():
         self.dashboard_uid = self.get_dashboard_uid()
 
     def get_dashboard_uid(self):
-        return self.code + ":" + self.state
+        return self.code + self.state
 
     def is_validated(self):
         if self.state == 'validated':

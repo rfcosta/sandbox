@@ -183,7 +183,7 @@ def create_single_dashboard(dashboard_json, service_name, org_id, dash_uid, fold
 
     folder_id = 0  # default to General folder
 
-    if folder_name != "General" and folder_name != "Customers":
+    if folder_name != "General":
         try:
             folder_id = folders_for_organization.get_folder_id(folder_name)
         except Exception, e:
