@@ -20814,8 +20814,8 @@
                     "transaction_count_zabbix": {
                         "alerting_enabled": "false",
                         "base_metric_name": "Transaction Count",
-                        "customer_code": "ALL",
-                        "customer_name": "ALL",
+                        "customer_code": "EY",
+                        "customer_name": "Etihad Airways",
                         "data_source": "zabbix",
                         "deep_link": "http://zabbix.ssw.sabre.com/zabbix/charts.php?sid=07bbbe7a6f13b2a2&form_refresh=1&fullscreen=0&groupid=282&hostid=12553&graphid=144201060",
                         "display_state": "Active",
