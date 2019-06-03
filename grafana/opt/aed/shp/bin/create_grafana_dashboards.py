@@ -4,6 +4,7 @@ import json
 import logging
 import sys
 import copy
+import re
 
 import requests
 
@@ -22,6 +23,8 @@ from customer_configuration import CustomerConfiguration
 from folders import Folders
 from dashboards import Dashboards
 from helper import Helper
+
+sysidOK = re.compile('^[0-9A-Fa-f]{32,32}$')
 
 columns = 3
 
@@ -52,9 +55,14 @@ def create_links(service):
     _PARAMS = dict(servicenow_instance=config["servicenow_instance"],
                    dashboard_uid=service.dashboard_uid
                    )
-    _links_text = ''
+    _dashboard_template =  ""
+    if sysidOK.match(service.dashboard_uid):
+        _dashboard_template =  "single_dash_links_template.json"
+    else:
+        _dashboard_template =  "single_dash_links_customer.json"
+
     try:
-        _links_text = load_template("single_dash_links_template.json")
+        _links_text = load_template(_dashboard_template)
         _links_text = apply_parameters(_links_text, _PARAMS)
     except Exception as e:
         logging.error("Dashboard Links creation error: " + e.message)
@@ -71,6 +79,7 @@ def create_panel_links(panel):
     _PARAMS = dict(servicenow_instance = config["servicenow_instance"],
                    graph_panel_sys_id  = panel.graph_panel_sys_id
                    )
+
 
     _links_text = ''
     try:

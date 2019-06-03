@@ -40,10 +40,12 @@ class CustomerConfiguration():
                 self.customers_db.setdefault(_customer.dashboard_uid, _customer)
 
                 _panel_copy = copy.deepcopy(panel)
+                _panel_copy.title += " - " + service.name
                 self.customers_db[_customer.dashboard_uid].add_panel(_panel_copy)
 
         for _cust_uid in self.customers_db:
             _customer = self.customers_db[_cust_uid]
+            _customer.name += " (" + _customer.code + ")"
             self.customers.append(_customer)
 
     def get_customers(self):
