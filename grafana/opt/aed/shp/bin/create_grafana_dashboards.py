@@ -410,9 +410,11 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
                 grid_x = (counter % columns) * 8
                 grid_y = (counter / columns) * 20
 
-        dash_uid  = customer.dashboard_uid
+        dash_uid   = customer.dashboard_uid
+        dash_title = customer.customer_name + " " + customer.customer_code
+
         dash_text = load_template("single_dashboard_template.json")
-        dash_text = dash_text.replace("<<SERVICE_NAME>>", customer.name)
+        dash_text = dash_text.replace("<<SERVICE_NAME>>", dash_title)
         dash_text = dash_text.replace("<<DASHBOARD_UID>>", dash_uid)
         dash_text = dash_text.replace("<<PANELS>>", all_panels)
 
@@ -430,12 +432,12 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
 
         if panel_count > 0:
             try:
-                create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
+                create_single_dashboard(dash_text, customer.customer_name, org_id, dash_uid, folder_name)
             except Exception:
                 # log it and move on to next dashboard
                 logging.error("Dashboard creation error: " + customer.name, exc_info=True)
         else:
-            logging.info("No panels for service: " + customer.name)
+            logging.info("No panels for Customer: " + customer.customer_name)
 
 
 

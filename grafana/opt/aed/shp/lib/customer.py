@@ -8,8 +8,9 @@ class Customer():
         if self.state != 'validated':
             self.state = 'staging-no-alerting'
         self.panels = []
-        self.name = str(customer_name)
-        self.code = str(customer_code)
+        self.name = service.name
+        self.customer_name = str(customer_name)
+        self.customer_code = str(customer_code)
         self.knowledge_article = ""
         self.report_grouping = 'Customers'
         self.dashboard_uid = self.get_dashboard_uid()
@@ -33,8 +34,9 @@ class Customer():
         self.panels.append(panel)
 
     def __str__(self):
-        s = ("Customer Name: " + self.name.encode('ascii', 'ignore') + '\n' +
-             "  Code:            " + self.code.encode('ascii', 'ignore') + '\n' +
+        s = ("Service Name: " + self.name.encode('ascii', 'ignore') + '\n' +
+             "  Customer Name:   " + self.customer_name.encode('ascii', 'ignore') + '\n' +
+             "  Customer Code:   " + self.customer_code.encode('ascii', 'ignore') + '\n' +
              "  state:           " + self.state + '\n' +
              "  dashboard uid:   " + self.dashboard_uid + '\n' +
              "  kb article:      " + self.knowledge_article + '\n' +

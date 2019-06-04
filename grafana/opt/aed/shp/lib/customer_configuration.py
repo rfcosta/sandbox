@@ -45,7 +45,6 @@ class CustomerConfiguration():
 
         for _cust_uid in self.customers_db:
             _customer = self.customers_db[_cust_uid]
-            _customer.name += " (" + _customer.code + ")"
             self.customers.append(_customer)
 
     def get_customers(self):
