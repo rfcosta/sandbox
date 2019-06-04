@@ -435,7 +435,7 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
                 create_single_dashboard(dash_text, customer.customer_name, org_id, dash_uid, folder_name)
             except Exception:
                 # log it and move on to next dashboard
-                logging.error("Dashboard creation error: " + customer.name, exc_info=True)
+                logging.error("Dashboard creation error: " + customer.customer_name, exc_info=True)
         else:
             logging.info("No panels for Customer: " + customer.customer_name)
 
@@ -462,8 +462,9 @@ try:
     create_service_dashboards(service_config, main_org_id, staging_org_id)
     create_aggregated_dashboards(service_config, aggregate_org_id)
 
-    customer_config = CustomerConfiguration(service_config)
-    create_customer_dashboards(customer_config,main_org_id, staging_org_id)
+    # Code for customers dashboard to turn on by uncommenting the following 2 lines
+    # customer_config = CustomerConfiguration(service_config)
+    # create_customer_dashboards(customer_config,main_org_id, staging_org_id)
 
     remove_obsolete_dashboards([main_org_id, staging_org_id, aggregate_org_id])
     remove_obsolete_folders([main_org_id, staging_org_id, aggregate_org_id])
