@@ -153,7 +153,7 @@ def remove_obsolete_folders(org_id_array):
             try:
                 if org_id in used_folders:
                     if uid not in used_folders[org_id]:
-                        if title != "General" and title != "Customers":
+                        if title != "General":
                             print("Removing Folder: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
                             folders[org_id].delete_folder(uid)
                 else:
@@ -411,7 +411,7 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
                 grid_y = (counter / columns) * 20
 
         dash_uid   = customer.dashboard_uid
-        dash_title = customer.customer_name + " " + customer.customer_code
+        dash_title = customer.customer_name + " (" + customer.customer_code + ")"
 
         dash_text = load_template("single_dashboard_template.json")
         dash_text = dash_text.replace("<<SERVICE_NAME>>", dash_title)
@@ -463,8 +463,8 @@ try:
     create_aggregated_dashboards(service_config, aggregate_org_id)
 
     # Code for customers dashboard to turn on by uncommenting the following 2 lines
-    # customer_config = CustomerConfiguration(service_config)
-    # create_customer_dashboards(customer_config,main_org_id, staging_org_id)
+    customer_config = CustomerConfiguration(service_config)
+    create_customer_dashboards(customer_config,main_org_id, staging_org_id)
 
     remove_obsolete_dashboards([main_org_id, staging_org_id, aggregate_org_id])
     remove_obsolete_folders([main_org_id, staging_org_id, aggregate_org_id])
