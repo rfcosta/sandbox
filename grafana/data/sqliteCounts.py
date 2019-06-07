@@ -22,17 +22,18 @@ try:
 
     _result = cur.fetchone()
     while _result:
-        _table_name = str(_result[0])
+        [_table_name] = (_result)
         # print ("DEBUG1: " + _table_name )
 
-        _statement = "select count(*) as ROWS, '%s' as TNAME from %s" % (_table_name, _table_name)
+        #_statement = "select count(*) as ROWS, '%s' as TNAME from %s" % (_table_name, _table_name)
+        _statement = "select count(*) from %s" % (_table_name)
         tbl = con.cursor()
         tbl.execute(_statement)
         _countResult = tbl.fetchone()
         while _countResult:
-            (_count, _tableName) = _countResult
+            [_count] = _countResult
             if _count > 0:
-                print("%8d %s" % (_count, _tableName))
+                print("%8d %s" % (_count, _table_name))
             _countResult = tbl.fetchone()
         _result = cur.fetchone()
 
