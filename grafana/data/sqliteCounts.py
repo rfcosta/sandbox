@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sqlite3 as lite
 import json
 import sys
