@@ -351,6 +351,8 @@ class ShpAnnotations():
             if _orgId > 0:
                 _search_url = _search_url + _char + 'orgId=' + str(_orgId)
                 _char = '&'
+        else:
+            _pOrgId = str(self.current_org)
 
         for keyword in ['from','to','dashboardId','limit','panelId','type','tags']:
             _parm = kwargs.get(keyword.upper())
@@ -362,6 +364,7 @@ class ShpAnnotations():
         self.debug("#grafanaAPI URL: " + _search_url)
 
         _headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        _headers['X-Grafana-Org-Id'] = _pOrgId
 
         _maxTries = 2
         if self.MAXTRIES < 5:
@@ -853,6 +856,107 @@ class ShpAnnotations():
         self.debug("#deleteAnnotation> delete Response = " + json.dumps(_deleteResponse))
 
         return _deleteResponse
+
+    def loadAnnotation_new(self,_annt, annotations, **kwargs):
+        self.debug("#loadAnnotations> Annotation From Grafana: " + json.dumps(_annt))
+
+        _HASH = kwargs.get('HASH')
+        if not _HASH:
+            _HASH = getattr(self, "parseSysId")
+
+
+        _hash = _HASH(_annt)
+
+        if _hash:
+            _annotation = {"id": int(str(_annt.get("id"))),
+                           "regionId": int(str(_annt.get("regionId"))),
+                           "dashboardId": int(str(_annt.get("dashboardId"))),
+                           "panelId": _annt.get("panelId"),
+                           "hash": _hash,
+                           "time": _annt.get("time"),
+                           "text": _annt.get("text")
+                           }
+
+            # Range is the unique home of the range annotation. i.e. Dashboard + Panel + Hash
+            # A homerange is a list of ranges with a regionId that has two annotation with the same regionId
+
+            _homerange = (_annotation['dashboardId'], _annotation["panelId"], _annotation['hash'])
+            _regionId = _annotation["regionId"]
+
+            if not annotations.get(_homerange):
+                annotations[_homerange] = []  # Make the group be a list of ranges object
+
+            _region = next((x for x in annotations[_homerange] if x.get('regionId') == _regionId), None)
+
+            if not _region:
+                _region = {"regionId": _regionId, "annotations": []}
+                annotations[_homerange].append(_region)
+
+            _region['annotations'].insert(0, _annotation)
+
+            return annotations
+
+
+    def getAnnotations_new(self, *args, **kwargs):
+
+        _HASH = kwargs.get('HASH')
+        if not _HASH:
+            _HASH = getattr(self, "parseSysId")
+
+        _orgId = kwargs.get('ORGID')
+        if not _orgId:
+            _orgId = self.current_org['id']
+
+        _dashboardId = kwargs.get('DASHBOARDID')
+        _panelId     = kwargs.get('PANELID')
+        _limit       = kwargs.get('LIMIT',5000)
+
+        _parameters = dict(LIMIT=_limit,
+                           TYPE='annotation',
+                           ORGID=_orgId
+                      )
+        if _dashboardId:
+            _parameters['DASHBOARDID'] = _dashboardId
+        if _panelId:
+            _parameters['PANELID']     = _panelId
+
+        _annotations = []
+        epochNow = int(time.time())
+        seconds_of_a_day = 60 * 60 * 24
+        seconds_of_a_week = seconds_of_a_day * 7
+        seconds_of_a_month = seconds_of_a_day * 31
+
+        time_interval_start = epochNow - seconds_of_a_month
+        _seconds_of_a_time_slice = seconds_of_a_week
+
+        _timeEnd = epochNow
+        _timeStart = _timeEnd - _seconds_of_a_time_slice
+
+        _within_a_time_slice = (_timeEnd > time_interval_start)
+
+        while _within_a_time_slice:
+
+            _interval = dict(FROM=_timeStart)
+            if _timeEnd < epochNow:
+                _interval["TO"] = _timeEnd
+
+            _queryParameters = copy.deepcopy(_parameters).update(_interval)
+            _annotations = self.grafanaAPI('get','annotations', **_queryParameters)
+
+            self.annotations = { }
+            self.debug("#getAnnotations: annotations object = " + json.dumps(_annotations))
+            for _annt in _annotations:
+                self.debug("#getAnnotations> Annotation From Grafana: " + json.dumps(_annt))
+                self.annotations = self.loadAnnotation_new(_annt, self.annotations, HASH=_HASH)
+
+            _timeEnd = _timeStart
+            _timeStart = _timeEnd - _seconds_of_a_time_slice
+            _within_a_time_slice = (_timeEnd > time_interval_start)
+
+        if self.VERBOSE or self.DEBUG:
+            self.printAnnotations(self.annotations)
+
+        return self.annotations
 
 
     #===================================================================================================================
