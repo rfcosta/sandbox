@@ -1,0 +1,18 @@
+var logLocation = '/var/log/shp/deadman_alerts.log'
+
+var execScript = '/opt/aed/shp/bin/GenerateDeadmanEvent.py'
+
+var metric = stream
+    |from()
+        .database('kpi')
+        .retentionPolicy('days')
+        .measurement('metric')
+    |where(lambda: "source" == 'zabbix')
+
+metric
+    |deadman(1.0, 4m)
+        .id('Zabbix_Deadman')
+        .message('Zabbix Deadman')
+        .details('Source: Zabbix')
+        .log(logLocation)
+        .exec('python', execScript)

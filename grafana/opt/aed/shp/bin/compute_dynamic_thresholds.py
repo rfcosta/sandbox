@@ -172,8 +172,8 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
 
             for thresholds in zip(dynamic_thresholds[0], dynamic_thresholds[1]):
                 limits = {}
-                limits['lower'] = thresholds[0]
-                limits['upper'] = thresholds[1]
+                limits['lower'] = round(thresholds[0], 2)
+                limits['upper'] = round(thresholds[1], 2)
                 computed_thresholds[str(remove_seconds(when + i))] = limits
                 i += SECONDS_IN_MINUTE
 
