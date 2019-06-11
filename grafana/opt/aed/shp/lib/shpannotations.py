@@ -609,7 +609,7 @@ class ShpAnnotations():
     # A N N O T A T I O N S   R E L A T E D   M E T H O D S
     # ===================================================================================================================
 
-    def loadAnnotation(self,_annt, annotations, **kwargs):
+    def loadAnnotation_deprecated(self,_annt, annotations, **kwargs):
         self.debug("#loadAnnotations> Annotation From Grafana: " + json.dumps(_annt))
 
         _HASH = kwargs.get('HASH')
@@ -657,7 +657,7 @@ class ShpAnnotations():
 
         return _regionlist
 
-    def printAnnotations(self,annotations):
+    def printAnnotations_deprecated(self,annotations):
         for _homerange in annotations.keys():
             print("#getAnnotations> _homerange=" + str(_homerange))
             d, p, h = _homerange
@@ -675,7 +675,25 @@ class ShpAnnotations():
                           )
                     _c = _c + 1
 
-    def getAnnotations(self, *args, **kwargs):
+    def printAnnotations(self,annotations):
+        for _homerange in annotations.keys():
+            print("#printAnnotations> _homerange=" + str(_homerange))
+            d, p, h = _homerange
+
+            _regionlist = annotations[(d, p, h)].keys()
+            print("Region list for " + str(_homerange) + " = " + str(_regionlist))
+
+            for _regionId in annotations[(d, p, h)].keys():
+                _rangeList = annotations[(d, p, h)][_regionId]
+                _c = 0
+                for _ann in _rangeList:
+                    print("#    DASH=%d PANEL=%d HASH='%s' REGION=%s [%2d]: \t %s" %
+                          (d, p, h, _regionId, _c, json.dumps(_ann))
+                          )
+                    _c = _c + 1
+
+
+    def getAnnotations_deprecated(self, *args, **kwargs):
         _orgId = kwargs.get('ORGID')
         if not _orgId:
             _orgId = self.current_org['id']
@@ -703,7 +721,7 @@ class ShpAnnotations():
         self.debug("#getAnnotations: annotations object = " + json.dumps(_annotations))
         for _annt in _annotations:
             self.debug("#getAnnotations> Annotation From Grafana: " + json.dumps(_annt))
-            self.annotations = self.loadAnnotation(_annt, self.annotations, HASH=_HASH)
+            self.annotations = self.loadAnnotation_deprecated(_annt, self.annotations, HASH=_HASH)
 
 
         if self.VERBOSE or self.DEBUG:
@@ -857,7 +875,11 @@ class ShpAnnotations():
 
         return _deleteResponse
 
-    def loadAnnotation_new(self,_annt, annotations, **kwargs):
+
+    # --------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
+
+    def loadAnnotation(self,_annt, annotations, **kwargs):
         self.debug("#loadAnnotations> Annotation From Grafana: " + json.dumps(_annt))
 
         _HASH = kwargs.get('HASH')
@@ -882,22 +904,39 @@ class ShpAnnotations():
 
             _homerange = (_annotation['dashboardId'], _annotation["panelId"], _annotation['hash'])
             _regionId = _annotation["regionId"]
+            _annotationTime = _annotation["time"]
 
-            if not annotations.get(_homerange):
-                annotations[_homerange] = []  # Make the group be a list of ranges object
+            _regionBuffer = {}
 
-            _region = next((x for x in annotations[_homerange] if x.get('regionId') == _regionId), None)
+            # if not annotations.get(_homerange):
+            #     annotations[_homerange] = []  # Make the group be a list of ranges object
+            _regionBuffer.setdefault(_regionId, dict(time=_annotationTime, endtime=_annotationTime))
+            if _annotationTime > _regionBuffer[_regionId]["time"]:
+                _regionBuffer[_regionId]["endtime"] = _annotationTime
+            else:
+                _regionBuffer[_regionId]["time"] = _annotationTime
 
-            if not _region:
-                _region = {"regionId": _regionId, "annotations": []}
-                annotations[_homerange].append(_region)
+            if _regionBuffer[_regionId]["endtime"] > _regionBuffer[_regionId]["time"]:
+                _timeInterval = (_regionBuffer[_regionId]["time"], _regionBuffer[_regionId]["endtime"])
 
-            _region['annotations'].insert(0, _annotation)
+
+            annotations[_homerange].setdefault(_timeInterval,0)
+            annotations[_homerange][_timeInterval] = _regionId
+
+
+            # _region = next((x for x in annotations[_homerange] if x.get('regionId') == _regionId), None)
+
+            # if not _region:
+            #     _region = {"regionId": _regionId, "annotations": []}
+            #     annotations[_homerange].append(_region)
+            #
+            # _region['annotations'].insert(0, _annotation)
+
 
             return annotations
 
 
-    def getAnnotations_new(self, *args, **kwargs):
+    def getAnnotations(self, *args, **kwargs):
 
         _HASH = kwargs.get('HASH')
         if not _HASH:
@@ -941,16 +980,19 @@ class ShpAnnotations():
                 _interval["TO"] = _timeEnd
 
             _queryParameters = copy.deepcopy(_parameters).update(_interval)
+            print("#getAnnotations: Query Parameters are " + json.dumps(_queryParameters, indent=4))
+
             _annotations = self.grafanaAPI('get','annotations', **_queryParameters)
 
             self.annotations = { }
             self.debug("#getAnnotations: annotations object = " + json.dumps(_annotations))
             for _annt in _annotations:
                 self.debug("#getAnnotations> Annotation From Grafana: " + json.dumps(_annt))
-                self.annotations = self.loadAnnotation_new(_annt, self.annotations, HASH=_HASH)
+                self.annotations = self.loadAnnotation(_annt, self.annotations, HASH=_HASH)
 
             _timeEnd = _timeStart
             _timeStart = _timeEnd - _seconds_of_a_time_slice
+
             _within_a_time_slice = (_timeEnd > time_interval_start)
 
         if self.VERBOSE or self.DEBUG:
