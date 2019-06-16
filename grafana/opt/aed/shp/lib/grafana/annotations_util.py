@@ -132,7 +132,10 @@ class AnnotationsUtil():
 
             _change = self.parseChange(_text)
             _annotationSubset['change'] = _change
-            _changeOnPanel[_regionId].append(_annotationSubset)
+            if len(_changeOnPanel[_regionId]) > 1 and _annotationSubset['id'] > _changeOnPanel[_regionId][0]['id']:
+                _changeOnPanel[_regionId].append(_annotationSubset)
+            else:
+                _changeOnPanel[_regionId].insert(0,_annotationSubset)
 
 
             return _changeOnPanel[_regionId]
@@ -171,7 +174,7 @@ class AnnotationsUtil():
         return True
 
 
-    def testMyLoad(self):
+    def testMyself(self):
         self.testMode = True
         self.loadAnnotationsReturnedFromGrafana(self.getExampleOfGrafanaAnnotations())
         return True
@@ -184,7 +187,7 @@ class AnnotationsUtil():
 
 
     def getAnnotationsOnDashboard(self, *args, **kwargs):
-        params = dict(type='annotation', dashboardId=kwargs.get('dashboardId',0), limit=kwargs.get('limit',500))
+        params = dict(type='annotation', dashboardId=kwargs.get('dashboardId',0), limit=kwargs.get('limit',15000))
         #params.update(kwargs)
 
         resp = self.helper.api_get_with_params("annotations", params)
@@ -226,31 +229,45 @@ class AnnotationsUtil():
     def regionIdList(self,change):
         return change.keys()
 
+    def checkDuplicates(self):
+        for dpc in self.changesList():
+            _changeMap = self.changeMap(dpc)
+            _regionList = self.regionIdList(_changeMap)
+            d, p, h = dpc
+            if len(_regionList) > 1:
+                _maxRegion = max(_regionList)
+                print("Dash %8d Panel %8d Hash %s regions found: %8d, will keep %8d" % (
+                d, p, h, len(_regionList), _maxRegion))
+                for _regionId in _regionList:
+                    if _regionId != _maxRegion:
+                        _region = _changeMap[_regionId]
+                        for _annotation in _region:
+                            print("About to delete annotation %s" % (json.dumps(_annotation)))
+                            response = self.deleteAnnotation(_annotation['id'])
+                        pass
+                    pass
+                pass
+            else:
+                print("Dash %8d Panel %8d Hash %s region found: %8d, No Dupes" % (d, p, h, _regionList[0]))
 
 
 if __name__ == '__main__':
+
+    print("**START**")
+
     orgId = 1
-    autil = AnnotationsUtil(orgId)
+    autl = AnnotationsUtil(orgId)
 
-    autil.testMyLoad()
-    autil.printAllExistingAnnotations()
+    # autil.testMyself()
 
-    for dpc in autil.changesList():
-        _changeMap = autil.changeMap(dpc)
-        _regionList = autil.regionIdList(_changeMap)
-        if len(_regionList) > 1:
-            d, p, h = dpc
-            _maxRegion = max(_regionList)
-            print("Dash %d Panel %d Hash %s regions found: %d, will keep %d" % (d, p, h, len(_regionList), _maxRegion))
-            for _regionId in _regionList:
-                if _regionId != _maxRegion:
-                    _region = _changeMap[_regionId]
-                    for _annotation in _region:
-                        print("About to delete annotation %s" % (json.dumps(_annotation)))
-                        response = autil.deleteAnnotation(_annotation['id'])
-                    pass
-            pass
-        else:
-            print("Dash %d Panel %d Hash %s regions found: %d, No Dupes" % (d, p, h, len(_regionList)))
+    DASHES = autl.getDashboards()
 
+    for DASH in DASHES:
+        _dashboardId = DASH['id']
+        _dashAnnotations = autl.getAnnotationsOnDashboard(dashboardId=_dashboardId, limit=20000)
+        _result = autl.loadAnnotationsReturnedFromGrafana(_dashAnnotations)
 
+        autl.printAllExistingAnnotations()
+        autl.checkDuplicates()
+
+    print("**END**")

@@ -8,10 +8,12 @@ import requests
 import re
 import copy
 import time
-#import pytz
+
+# import pytz
 
 sys.path.append('/opt/aed/shp/lib')
 import shputil
+
 
 class ShpAnnotations():
     """The shp_annotations object wraps features of :class:`requests.Session`
@@ -24,12 +26,12 @@ class ShpAnnotations():
 
     @staticmethod
     def encodeService(service):
-        service_name = service.replace(" -", "-").replace("- ", "-").replace("_", "-").replace(" ","-")
+        service_name = service.replace(" -", "-").replace("- ", "-").replace("_", "-").replace(" ", "-")
         return service_name
 
-    #pytz dependency so don't define gertEpoch since is not used for now
-    #@staticmethod
-    #def getEpoch(timestamp, format='%Y-%m-%d %H:%M', zone='US/Central'):
+    # pytz dependency so don't define gertEpoch since is not used for now
+    # @staticmethod
+    # def getEpoch(timestamp, format='%Y-%m-%d %H:%M', zone='US/Central'):
     #     offset = datetime.datetime.now(pytz.timezone(zone)).strftime('%z')
     #     hereIAm = time.strftime("%z",time.gmtime())
     #     offsetSeconds = (int(offset) - int(hereIAm)) / 100 * 3600
@@ -37,7 +39,6 @@ class ShpAnnotations():
     #     epochSeconds = int(time.mktime(dateValue.timetuple()))
     #     epochSeconds = epochSeconds - offsetSeconds
     #     return int(str(epochSeconds) + '000'), offset, offsetSeconds, hereIAm
-
 
     @staticmethod
     def load_file(filename):
@@ -56,7 +57,7 @@ class ShpAnnotations():
     @staticmethod
     def validate_datetime(input):
         _XNUMBER = re.compile(r'^\d+$')
-        #print(" %s type is %s" % (input, type(input).__name__))
+        # print(" %s type is %s" % (input, type(input).__name__))
         if type(input).__name__ == 'datetime':
             return input
 
@@ -74,7 +75,6 @@ class ShpAnnotations():
                 msg = 'Not a valid date: %s' % input
                 raise argparse.ArgumentTypeError(msg)
 
-
     @staticmethod
     def parseSysId(_annotation):
         _sysId = ''
@@ -85,7 +85,6 @@ class ShpAnnotations():
             if _tokens.__len__() > 0:
                 _sysId = _tokens[0]
         return _sysId
-
 
     @staticmethod
     def annotationRequest(*args, **kwargs):
@@ -132,66 +131,64 @@ class ShpAnnotations():
 
         return _annotationReq
 
-    #===================================================================================================================
+    # ===================================================================================================================
     # D E B U G
-    #===================================================================================================================
-    def debug(self,msg):
+    # ===================================================================================================================
+    def debug(self, msg):
         if (self.DEBUG):
             print (time.strftime('%Y-%m-%d %H:%M:%S') + " " + msg)
 
-
-    #===================================================================================================================
+    # ===================================================================================================================
     # C O N S T R U C T O R
-    #===================================================================================================================
+    # ===================================================================================================================
 
     def __init__(self, *args, **kwargs):
 
         self.MAXTRIES = 3
         self.DEBUG = False
         self.VERBOSE = False
-        self.CONFIG  = shputil.get_config()
+        self.CONFIG = shputil.get_config()
         self.CONFIG_FILE_NAME = self.CONFIG.get('service_configuration_file')
         self.CHANGE_FILE_NAME = self.CONFIG.get('change_configuration_file')
 
-        _aDEBUG     = kwargs.get('DEBUG')
+        _aDEBUG = kwargs.get('DEBUG')
         if _aDEBUG:
             if _aDEBUG == 'YES':
                 self.DEBUG = True
             if _aDEBUG == "NO":
                 self.DEBUG = False
 
-        _aVERBOSE     = kwargs.get('VERBOSE')
+        _aVERBOSE = kwargs.get('VERBOSE')
         if _aVERBOSE:
             if _aVERBOSE == 'YES':
                 self.VERBOSE = True
             if _aVERBOSE == "NO":
                 self.VERBOSE = False
 
-
         self.SSO_MAIN = 'https://login.sabre.com/wam/json'
-        self.URL      = 'http://' + self.CONFIG.get("grafana_host") # 'http://localhost:3000'
+        self.URL = 'http://' + self.CONFIG.get("grafana_host")  # 'http://localhost:3000'
         self._session = requests.Session()
         self._session.headers.update({
             "Content-Type": "application/json"
         })
-        self._user      = self.CONFIG.get("grafana_user")
-        self._password  = self.CONFIG.get("grafana_pass")
+        self._user = self.CONFIG.get("grafana_user")
+        self._password = self.CONFIG.get("grafana_pass")
 
-        self._snowuser      = self.CONFIG.get("servicenow_user")
-        self._snowpassword  = self.CONFIG.get("servicenow_pass")
-        self._snowinstance  = self.CONFIG.get("servicenow_instance") # sabredev2 ?
+        self._snowuser = self.CONFIG.get("servicenow_user")
+        self._snowpassword = self.CONFIG.get("servicenow_pass")
+        self._snowinstance = self.CONFIG.get("servicenow_instance")  # sabredev2 ?
 
-        self.orgs_dict   = self.getOrgs()
+        self.orgs_dict = self.getOrgs()
         self.debug("#Constructor self.orgs_dict: " + json.dumps(self.orgs_dict))
 
-        _aUSER      = kwargs.get('user')
-        _aPASSWORD  = kwargs.get('password')
-        _sUSER      = kwargs.get('suser')
-        _sPASSWORD  = kwargs.get('spassword')
-        _aSSO       = kwargs.get('SSO')  # Future implementations, not used mow
-        _aURL       = kwargs.get('URL')
-        _aSNOW      = kwargs.get('SNOW')
-        _aORGID     = kwargs.get('ORGID')
+        _aUSER = kwargs.get('user')
+        _aPASSWORD = kwargs.get('password')
+        _sUSER = kwargs.get('suser')
+        _sPASSWORD = kwargs.get('spassword')
+        _aSSO = kwargs.get('SSO')  # Future implementations, not used mow
+        _aURL = kwargs.get('URL')
+        _aSNOW = kwargs.get('SNOW')
+        _aORGID = kwargs.get('ORGID')
 
         if _aUSER:
             self._user = _aUSER
@@ -216,8 +213,6 @@ class ShpAnnotations():
 
         self.debug("#Constructor self.current_org: " + json.dumps(self.current_org))
 
-
-
         # self._XHEADER   = re.compile('[,]+')
         # self._XDATETIME = re.compile('\d\d\d\d[-]\d\d[-]\d\d\s\d\d[:]\S+')
         # self._XCSV      = re.compile('([^,]+)[,]?|[,]')
@@ -226,11 +221,9 @@ class ShpAnnotations():
 
         self.debug("DEBUG-- URL = " + self.URL)
 
-
-
-    #===================================================================================================================
+    # ===================================================================================================================
     # N E T W O R K   r e l a t e d   m e t h o d s
-    #===================================================================================================================
+    # ===================================================================================================================
 
     def _post(self, url, data=None, json=None, **kwargs):
         """
@@ -260,7 +253,6 @@ class ShpAnnotations():
         responseFromPut = self._session.put(url, data, json, **kwargs)
         return responseFromPut
 
-
     def _get(self, url, params=None, **kwargs):
         """
         Sends a GET request. Returns :class:`Response` object.
@@ -269,7 +261,6 @@ class ShpAnnotations():
         :returns: :class:`requests.Response`
         """
         return self._session.get(url, **kwargs)
-
 
     def _delete(self, url, params=None, **kwargs):
         """
@@ -280,11 +271,9 @@ class ShpAnnotations():
         """
         return self._session.delete(url, **kwargs)
 
-
-
-    #===================================================================================================================
+    # ===================================================================================================================
     # S N O W   r e l a t e d   m e t h o d s
-    #===================================================================================================================
+    # ===================================================================================================================
 
     def getDataFromSnowAPI(self, SNOWAPI='', **kwargs):
 
@@ -293,19 +282,22 @@ class ShpAnnotations():
             SNOWURL = 'https://' + str(self._snowinstance) + '.service-now.com/api/x_sahr_health_port/' + SNOWAPI
             #         'https://sabredev2.service-now.com/api/x_sahr_health_port/getshpchangeconfigdata'
             #                                                                  'getshpchangeconfigdata'
-            headers = {"Content-Type":"application/json","Accept":"application/json"}
+            headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
             self.debug('URL: ' + str(SNOWURL))
 
-            response = requests.get(SNOWURL, auth=(self._snowuser, self._snowpassword), headers=headers )
+            response = requests.get(SNOWURL, auth=(self._snowuser, self._snowpassword), headers=headers)
             # Check for HTTP codes other than 200
             if response.status_code != 200:
-                self.debug('#*Cannot get changes info from %s: Status: %s Response: %r' % (self._snowinstance, response.status_code, response.json()))
+                self.debug('#*Cannot get changes info from %s: Status: %s Response: %r' % (
+                self._snowinstance, response.status_code, response.json()))
                 raise Exception('Cannot get changes info from %s: '
-                                'Status: %s Response: %r' % (self._snowinstance, response.status_code, json.dumps(response.json())))
+                                'Status: %s Response: %r' % (
+                                self._snowinstance, response.status_code, json.dumps(response.json())))
                 exit()
             # Decode the JSON response into a dictionary and use the snowInfo
-            self.debug('#Got Info from %s: Status: %s Response: %r' % (self._snowinstance, response.status_code, json.dumps(response.json())))
+            self.debug('#Got Info from %s: Status: %s Response: %r' % (
+            self._snowinstance, response.status_code, json.dumps(response.json())))
             snowInfo = response.json()
             self.debug("#ServiceNow " + SNOWAPI + " Info: " + json.dumps(snowInfo))
             return snowInfo
@@ -317,33 +309,29 @@ class ShpAnnotations():
         self.servicesInfo = self.getDataFromSnowAPI('getshpmetricconfigdata')
         self.debug('servicesInfo: ' + json.dumps(self.servicesInfo))
 
-        return { "changesInfo": self.changesInfo, "servicesInfo": self.servicesInfo }
-
+        return {"changesInfo": self.changesInfo, "servicesInfo": self.servicesInfo}
 
     def getAllFromSnow(self, *args, **kwargs):
         if not os.path.exists(self.CONFIG_FILE_NAME):
             os.system("/opt/aed/shp/bin/download_service_configurations.py")
-        self.servicesInfo  = self.load_file(self.CONFIG_FILE_NAME)
+        self.servicesInfo = self.load_file(self.CONFIG_FILE_NAME)
         if not os.path.exists(self.CHANGE_FILE_NAME):
             os.system("/opt/aed/shp/bin/download_change_configurations.py")
-        self.changesInfo  = self.load_file(self.CHANGE_FILE_NAME)
-        return { "changesInfo": self.changesInfo, "servicesInfo": self.servicesInfo }
+        self.changesInfo = self.load_file(self.CHANGE_FILE_NAME)
+        return {"changesInfo": self.changesInfo, "servicesInfo": self.servicesInfo}
 
-
-
-
-    #===================================================================================================================
+    # ===================================================================================================================
     # G R A F A N A   r e l a t e d   m e t h o d s
-    #===================================================================================================================
+    # ===================================================================================================================
 
-    def grafanaAPI(self, OPTION='get', API='api/search', DATA=None, **kwargs ):
+    def grafanaAPI(self, OPTION='get', API='api/search', DATA=None, **kwargs):
 
         if API[0] == '/':
             API = API[1:]
         if API[0:4] != 'api/':
             API = 'api/' + API
 
-        _search_url = os.path.join(self.URL,API)
+        _search_url = os.path.join(self.URL, API)
         _char = '?'
         _pOrgId = kwargs.get('ORGID')
         if _pOrgId:
@@ -351,28 +339,25 @@ class ShpAnnotations():
             if _orgId > 0:
                 _search_url = _search_url + _char + 'orgId=' + str(_orgId)
                 _char = '&'
-        else:
-            _pOrgId = str(self.current_org)
 
-        for keyword in ['from','to','dashboardId','limit','panelId','type','tags']:
+        for keyword in ['from', 'to', 'dashboardId', 'limit', 'panelId', 'type', 'tags']:
             _parm = kwargs.get(keyword.upper())
             if _parm:
                 _search_url = _search_url + _char + keyword + '=' + str(_parm)
                 _char = '&'
-   
 
         self.debug("#grafanaAPI URL: " + _search_url)
 
         _headers = {"Content-Type": "application/json", "Accept": "application/json"}
-        _headers['X-Grafana-Org-Id'] = _pOrgId
 
         _maxTries = 2
         if self.MAXTRIES < 5:
             _maxTries = self.MAXTRIES
 
-        for _try in range(1,_maxTries + 1):
+        for _try in range(1, _maxTries + 1):
             try:
-                _search = getattr(self, '_' + OPTION)(_search_url, DATA, auth=(self._user, self._password), headers=_headers, timeout=(5.0, 10.0))
+                _search = getattr(self, '_' + OPTION)(_search_url, DATA, auth=(self._user, self._password),
+                                                      headers=_headers, timeout=(5.0, 10.0))
                 break
 
             except requests.ConnectionError as CONERR:
@@ -383,9 +368,11 @@ class ShpAnnotations():
 
         if _search.status_code != 200:
             self.debug(
-                'Cannot %s %s: Status: %s Response: %r' % (OPTION, API, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r' % (
+                OPTION, API, _search.status_code, json.dumps(_search.json())))
             raise Exception(
-                'Cannot %s %s: Status: %s Response: %r' % (OPTION, API, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r' % (
+                OPTION, API, _search.status_code, json.dumps(_search.json())))
             exit()
 
         # Decode the JSON response into a dictionary and use the changesInfo
@@ -398,16 +385,16 @@ class ShpAnnotations():
         _orgFound = False
 
         if str(ORG).isdigit():
-            _orgId   = ORG
+            _orgId = ORG
             _orgName = self.getOrgName(_orgId)
             _orgFound = (_orgName != None)
         else:
             _orgName = ORG
-            _orgId   = self.getOrgId(_orgName)
+            _orgId = self.getOrgId(_orgName)
             _orgfound = (_orgId > 0)
 
         if not _orgFound:
-            _orgId   = 0
+            _orgId = 0
             self.debug("#findOrg ORG=" + str(ORG) + " Was Not Found")
 
         return _orgId, _orgName
@@ -426,9 +413,11 @@ class ShpAnnotations():
         self.orgs = _search.json()
         if _search.status_code != 200:
             self.debug(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r' % (
+                'GET', _search_url, _search.status_code, json.dumps(_search.json())))
             raise Exception(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r' % (
+                'GET', _search_url, _search.status_code, json.dumps(_search.json())))
             exit()
 
         # Build the dictionary
@@ -457,31 +446,32 @@ class ShpAnnotations():
         return self.current_org
 
     def getGrafanaCurrentOrg(self):
-        #self.current_org = self.grafanaAPI('get', '/api/org/')
+        # self.current_org = self.grafanaAPI('get', '/api/org/')
         # self.grafanaAPI method needs to get current organisation, so
         # don't call grafanaAPI to avoid recursive calls
         _search_url = self.URL + '/api/org/'
         _search = self._get(_search_url,
                             auth=(self._user, self._password),
                             headers={"Content-Type": "application/json", "Accept": "application/json"}
-                           )
+                            )
         if _search.status_code != 200:
             self.debug(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r' % (
+                'GET', _search_url, _search.status_code, json.dumps(_search.json())))
             raise Exception(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r' % (
+                'GET', _search_url, _search.status_code, json.dumps(_search.json())))
             exit()
 
         self.current_org = _search.json()
         return self.current_org
 
-    def getOrgName(self,ORGID):
+    def getOrgName(self, ORGID):
         _orgName = None
         if str(ORGID).isdigit():
             _orgName = self.orgs_dict.get(int(str(ORGID)))
 
         return _orgName
-
 
     def getOrgId(self, ORGNAME):
         _orgId = 0
@@ -500,15 +490,13 @@ class ShpAnnotations():
 
         self.debug("#setOrg ID=" + str(_orgId) + ", NAME=" + _orgName)
 
-
-        #_orgObj   = {"name": _orgName}
-        _response = self.grafanaAPI('post', 'api/user/using/' + str(_orgId) )
+        # _orgObj   = {"name": _orgName}
+        _response = self.grafanaAPI('post', 'api/user/using/' + str(_orgId))
         self.debug("#Grafana response from set current org: " + json.dumps(_response))
         self.current_org = self.getGrafanaCurrentOrg()
 
         self.debug("#Grafana Current Org after setCurrentOrg: " + json.dumps(self.current_org))
         return self.current_org
-
 
     def addOrg(self, ORG='Staging'):
 
@@ -518,14 +506,14 @@ class ShpAnnotations():
         self.debug("#setOrg ID=" + str(_orgId) + ", NAME=" + _orgName)
 
         if not _orgFound:
-            _orgObj   = {"name": _orgName}
-            _response = self.grafanaAPI('post', 'orgs', json.dumps(_orgObj) )
+            _orgObj = {"name": _orgName}
+            _response = self.grafanaAPI('post', 'orgs', json.dumps(_orgObj))
             self.debug("#Grafana response from add org: " + json.dumps(_response))
-            self.orgs_dict   = self.getOrgs()               # Update the dictionary
-            #Don't let it change current org
-            #self.current_org = self.getGrafanaCurrentOrg() # Update current to grafana's
-            #restore current org to previous before ADD
-            self.setCurrentOrg(ORG=self.current_org.get('name')) # Re-set org to previous one
+            self.orgs_dict = self.getOrgs()  # Update the dictionary
+            # Don't let it change current org
+            # self.current_org = self.getGrafanaCurrentOrg() # Update current to grafana's
+            # restore current org to previous before ADD
+            self.setCurrentOrg(ORG=self.current_org.get('name'))  # Re-set org to previous one
             self.debug("#addOrg: CURRENT ORG AFTER ADD: " + json.dumps(self.current_org))
             self.debug("#addOrg:    ORG DICT AFTER ADD: " + json.dumps(self.orgs_dict))
         else:
@@ -535,26 +523,24 @@ class ShpAnnotations():
         self.debug("#Grafana Current Org after setCurrentOrg: " + json.dumps(self.current_org))
         return self.current_org
 
-
     def deleteOrg(self, ORG):
 
-        self.orgs_dict = self.getOrgs()   # Update Organizations Dictionary
+        self.orgs_dict = self.getOrgs()  # Update Organizations Dictionary
         _orgId, _orgName = self.findOrg(ORG)
         _orgFound = (_orgId > 0)
 
         self.debug("#deleteOrg ID=" + str(_orgId) + ", NAME=" + _orgName)
 
         if _orgId > 0:
-            _response = self.grafanaAPI('delete','orgs/' + str(_orgId))
-            self.orgs_dict = self.getOrgs() # Update orgs dictionary
+            _response = self.grafanaAPI('delete', 'orgs/' + str(_orgId))
+            self.orgs_dict = self.getOrgs()  # Update orgs dictionary
             return _response
         else:
-            self.debug("#Organization %s \"%s\" not found: %s" % (str(_orgId), _orgName, json.dumps(self.orgs_dict)) )
+            self.debug("#Organization %s \"%s\" not found: %s" % (str(_orgId), _orgName, json.dumps(self.orgs_dict)))
             return self.orgs_dict
 
-
-    #---------------------------------------
-    def invalidMethod(self,*args,**kwargs):
+    # ---------------------------------------
+    def invalidMethod(self, *args, **kwargs):
         self.debug(
             'Invalid method name called on grafanaAPI: %s ' % (args[0])
         )
@@ -571,7 +557,7 @@ class ShpAnnotations():
             _dashboardPanels = _dashboardEntry.get('panels')
             if _dashboardPanels:
                 for _panelObj in _dashboardPanels:
-                    _panel = { "id": _panelObj['id']}
+                    _panel = {"id": _panelObj['id']}
                     _panels.append(_panel)
 
         return _panels
@@ -581,41 +567,38 @@ class ShpAnnotations():
         if not _orgId:
             _orgId = self.current_org['id']
 
-        _dashboards = self.grafanaAPI('get','/api/search', ORGID=_orgId)
+        _dashboards = self.grafanaAPI('get', '/api/search', ORGID=_orgId)
         self.debug("#Dashboards from Local Grafana: " + json.dumps(_dashboards))
 
-        #self.debug("#Replacing Dashboards with test data...")
+        # self.debug("#Replacing Dashboards with test data...")
         # TESTFILENAME = './examples/dashboardsDEV.json'
         # dashboardInfo = load_file(TESTFILENAME)
         # debug("#Dashboards from Testdata from Grafana: " + json.dumps(dashboardInfo))
 
         # Build table of dashboardsID per UUID
-        self.dashboardDict = { "dashboards": _dashboards }
+        self.dashboardDict = {"dashboards": _dashboards}
 
         for _dash in _dashboards:
             _uid = _dash['uid']
-            _id  = _dash['id']
+            _id = _dash['id']
             _panels = self.getPanels(_uid, _orgId)
-            _dictEntry = { "uid": _uid, "id": _id, "panels": _panels }
+            _dictEntry = {"uid": _uid, "id": _id, "panels": _panels}
             self.dashboardDict[_uid] = _dictEntry
-            self.dashboardDict[_id]  = _dictEntry
+            self.dashboardDict[_id] = _dictEntry
         self.debug("#Dashboard dictionary: " + json.dumps(self.dashboardDict))
 
         return self.dashboardDict
-
-
 
     # ===================================================================================================================
     # A N N O T A T I O N S   R E L A T E D   M E T H O D S
     # ===================================================================================================================
 
-    def loadAnnotation_deprecated(self,_annt, annotations, **kwargs):
+    def loadAnnotation(self, _annt, annotations, **kwargs):
         self.debug("#loadAnnotations> Annotation From Grafana: " + json.dumps(_annt))
 
         _HASH = kwargs.get('HASH')
         if not _HASH:
             _HASH = getattr(self, "parseSysId")
-
 
         _hash = _HASH(_annt)
 
@@ -651,13 +634,13 @@ class ShpAnnotations():
     def getRangeList(self, annotations, dashboardId, panelId, hash):
         _regionlist = []
         _homerange = (dashboardId, panelId, hash)
-        _regions   = annotations.get(_homerange)
+        _regions = annotations.get(_homerange)
         if _regions:
             _regionlist = [_region['regionId'] for _region in _regions]
 
         return _regionlist
 
-    def printAnnotations_deprecated(self,annotations):
+    def printAnnotations(self, annotations):
         for _homerange in annotations.keys():
             print("#getAnnotations> _homerange=" + str(_homerange))
             d, p, h = _homerange
@@ -666,7 +649,7 @@ class ShpAnnotations():
             print("Region list for " + str(_homerange) + " = " + str(_regionlist))
 
             for _region in annotations[(d, p, h)]:
-                _regionId  = _region['regionId']
+                _regionId = _region['regionId']
                 _rangeList = _region['annotations']
                 _c = 0
                 for _ann in _rangeList:
@@ -675,25 +658,7 @@ class ShpAnnotations():
                           )
                     _c = _c + 1
 
-    def printAnnotations(self,annotations):
-        for _homerange in annotations.keys():
-            print("#printAnnotations> _homerange=" + str(_homerange))
-            d, p, h = _homerange
-
-            _regionlist = annotations[(d, p, h)].keys()
-            print("Region list for " + str(_homerange) + " = " + str(_regionlist))
-
-            for _regionId in annotations[(d, p, h)].keys():
-                _rangeList = annotations[(d, p, h)][_regionId]
-                _c = 0
-                for _ann in _rangeList:
-                    print("#    DASH=%d PANEL=%d HASH='%s' REGION=%s [%2d]: \t %s" %
-                          (d, p, h, _regionId, _c, json.dumps(_ann))
-                          )
-                    _c = _c + 1
-
-
-    def getAnnotations_deprecated(self, *args, **kwargs):
+    def getAnnotations(self, *args, **kwargs):
         _orgId = kwargs.get('ORGID')
         if not _orgId:
             _orgId = self.current_org['id']
@@ -704,31 +669,30 @@ class ShpAnnotations():
 
         _annotations = []
         _dashboardId = kwargs.get('DASHBOARDID')
-        _limit       = kwargs.get('LIMIT')
+        _limit = kwargs.get('LIMIT')
         if not _limit:
             _limit = 100
-        _limit       = kwargs.get('LIMIT')
+        _limit = kwargs.get('LIMIT')
 
         if not _limit:
             _limit = 100
 
         if _dashboardId:
-            _annotations = self.grafanaAPI('get','annotations', ORGID=_orgId, LIMIT=_limit, TYPE='annotation', DASHBOARDID=_dashboardId)
+            _annotations = self.grafanaAPI('get', 'annotations', ORGID=_orgId, LIMIT=_limit, TYPE='annotation',
+                                           DASHBOARDID=_dashboardId)
         else:
-            _annotations = self.grafanaAPI('get','annotations', ORGID=_orgId, LIMIT=_limit, TYPE='annotation')
+            _annotations = self.grafanaAPI('get', 'annotations', ORGID=_orgId, LIMIT=_limit, TYPE='annotation')
 
-        self.annotations = { }
+        self.annotations = {}
         self.debug("#getAnnotations: annotations object = " + json.dumps(_annotations))
         for _annt in _annotations:
             self.debug("#getAnnotations> Annotation From Grafana: " + json.dumps(_annt))
-            self.annotations = self.loadAnnotation_deprecated(_annt, self.annotations, HASH=_HASH)
-
+            self.annotations = self.loadAnnotation(_annt, self.annotations, HASH=_HASH)
 
         if self.VERBOSE or self.DEBUG:
             self.printAnnotations(self.annotations)
 
         return self.annotations
-
 
     def makeAnnotationsForServices(self, *args, **kwargs):
         #
@@ -738,13 +702,13 @@ class ShpAnnotations():
 
         annotationsReqs = {}  # By Dashboard ID
 
-        allSnowInfo   = self.getAllFromSnow()
-        changesInfo   = allSnowInfo['changesInfo']
-        servicesInfo  = allSnowInfo['servicesInfo']
+        allSnowInfo = self.getAllFromSnow()
+        changesInfo = allSnowInfo['changesInfo']
+        servicesInfo = allSnowInfo['servicesInfo']
         dashboardDict = self.getDashboards(*args, **kwargs)
 
         apiVersionNumber = changesInfo['result'].get('thisapiversion', 1)
-        newApiVersion    = (apiVersionNumber > 1)
+        newApiVersion = (apiVersionNumber > 1)
 
         changedServicesList = []
         if newApiVersion:
@@ -766,13 +730,14 @@ class ShpAnnotations():
                 # Look for the service UID on dashboards
                 if dashboardDict.has_key(serviceUID):
                     dashboardID = dashboardDict[serviceUID]['id']
-                    self.debug("#Found on dict dashboard UID " + str(serviceUID) + " = " +  str(dashboardID))
+                    self.debug("#Found on dict dashboard UID " + str(serviceUID) + " = " + str(dashboardID))
                 else:
                     dashboardID = 0
                     _curr = self.current_org
                     _orgId = _curr['id']
                     _orgName = _curr['name']
-                    self.debug("#No Dashboard UID " + str(serviceUID) + " found on ORG " +  str(_orgId) + " " + str(_orgName))
+                    self.debug(
+                        "#No Dashboard UID " + str(serviceUID) + " found on ORG " + str(_orgId) + " " + str(_orgName))
 
                 if dashboardID > 0:
                     if not annotationsReqs.get(dashboardID):
@@ -796,29 +761,29 @@ class ShpAnnotations():
                                 change['number'] = _changenumber
 
                             _annotation_start = int(str(int(change['start_datetime'])) + '000')
-                            _annotation_end   = int(str(int(change['end_datetime']  )) + '000')
+                            _annotation_end = int(str(int(change['end_datetime'])) + '000')
 
                             _work_start_datetime = int(change.get('work_start_datetime'))
                             _work_end_datetime = int(change.get('work_end_datetime'))
 
                             if _work_start_datetime > 0:
-                                _annotation_start = int( str(_work_start_datetime) + '000')
+                                _annotation_start = int(str(_work_start_datetime) + '000')
 
                             if _work_end_datetime > 0:
-                                _annotation_end = int( str(_work_end_datetime) + '000')
+                                _annotation_end = int(str(_work_end_datetime) + '000')
 
                             _annotationReq = self.annotationRequest(
                                 DASHBOARD=dashboardID,
                                 PANEL=_panel_id,
-                                TIME   =_annotation_start,
+                                TIME=_annotation_start,
                                 ENDTIME=_annotation_end,
-                                TAGS=[],  #[change['number']],
+                                TAGS=[],  # [change['number']],
                                 TEXT="<a target=\"_blank\" href='https://" + changesInfo['result']['instancename'] +
-                                        ".service-now.com/nav_to.do?uri=change_request.do?sys_id=" +
-                                        change['sys_id'] + "'>" +
-                                        change['number'] +
-                                        "</a>" +
-                                        ": " + change['short_description']
+                                     ".service-now.com/nav_to.do?uri=change_request.do?sys_id=" +
+                                     change['sys_id'] + "'>" +
+                                     change['number'] +
+                                     "</a>" +
+                                     ": " + change['short_description']
                             )
 
                             self.debug("#makeAnnotationsForServices> Annotation: " + json.dumps(_annotationReq))
@@ -833,14 +798,13 @@ class ShpAnnotations():
         self.debug("#makeAnnotationsForServices> annotationReqs: " + json.dumps(annotationsReqs))
         return annotationsReqs
 
-
-    def createAnnotation(self,annotationRequest, **kwargs):
+    def createAnnotation(self, annotationRequest, **kwargs):
         _orgId = kwargs.get('ORGID')
         if not _orgId:
             _orgId = self.current_org['id']
 
         try:
-            _createResponse = self.grafanaAPI('post','annotations',DATA=json.dumps(annotationRequest), ORGID=_orgId)
+            _createResponse = self.grafanaAPI('post', 'annotations', DATA=json.dumps(annotationRequest), ORGID=_orgId)
         except Exception as E:
             self.debug("#createAnnotation> Exception: " + str(E.message))
             raise
@@ -875,135 +839,9 @@ class ShpAnnotations():
 
         return _deleteResponse
 
-
-    # --------------------------------------------------------------------------------------------------
-    # --------------------------------------------------------------------------------------------------
-
-    def loadAnnotation(self,_annt, annotations, **kwargs):
-        self.debug("#loadAnnotations> Annotation From Grafana: " + json.dumps(_annt))
-
-        _HASH = kwargs.get('HASH')
-        if not _HASH:
-            _HASH = getattr(self, "parseSysId")
-
-
-        _hash = _HASH(_annt)
-
-        if _hash:
-            _annotation = {"id": int(str(_annt.get("id"))),
-                           "regionId": int(str(_annt.get("regionId"))),
-                           "dashboardId": int(str(_annt.get("dashboardId"))),
-                           "panelId": _annt.get("panelId"),
-                           "hash": _hash,
-                           "time": _annt.get("time"),
-                           "text": _annt.get("text")
-                           }
-
-            # Range is the unique home of the range annotation. i.e. Dashboard + Panel + Hash
-            # A homerange is a list of ranges with a regionId that has two annotation with the same regionId
-
-            _homerange = (_annotation['dashboardId'], _annotation["panelId"], _annotation['hash'])
-            _regionId = _annotation["regionId"]
-            _annotationTime = _annotation["time"]
-
-            _regionBuffer = {}
-
-            # if not annotations.get(_homerange):
-            #     annotations[_homerange] = []  # Make the group be a list of ranges object
-            _regionBuffer.setdefault(_regionId, dict(time=_annotationTime, endtime=_annotationTime))
-            if _annotationTime > _regionBuffer[_regionId]["time"]:
-                _regionBuffer[_regionId]["endtime"] = _annotationTime
-            else:
-                _regionBuffer[_regionId]["time"] = _annotationTime
-
-            if _regionBuffer[_regionId]["endtime"] > _regionBuffer[_regionId]["time"]:
-                _timeInterval = (_regionBuffer[_regionId]["time"], _regionBuffer[_regionId]["endtime"])
-
-
-            annotations[_homerange].setdefault(_timeInterval,0)
-            annotations[_homerange][_timeInterval] = _regionId
-
-
-            # _region = next((x for x in annotations[_homerange] if x.get('regionId') == _regionId), None)
-
-            # if not _region:
-            #     _region = {"regionId": _regionId, "annotations": []}
-            #     annotations[_homerange].append(_region)
-            #
-            # _region['annotations'].insert(0, _annotation)
-
-
-            return annotations
-
-
-    def getAnnotations(self, *args, **kwargs):
-
-        _HASH = kwargs.get('HASH')
-        if not _HASH:
-            _HASH = getattr(self, "parseSysId")
-
-        _orgId = kwargs.get('ORGID')
-        if not _orgId:
-            _orgId = self.current_org['id']
-
-        _dashboardId = kwargs.get('DASHBOARDID')
-        _panelId     = kwargs.get('PANELID')
-        _limit       = kwargs.get('LIMIT',5000)
-
-        _parameters = dict(LIMIT=_limit,
-                           TYPE='annotation',
-                           ORGID=_orgId
-                      )
-        if _dashboardId:
-            _parameters['DASHBOARDID'] = _dashboardId
-        if _panelId:
-            _parameters['PANELID']     = _panelId
-
-        _annotations = []
-        epochNow = int(time.time())
-        seconds_of_a_day = 60 * 60 * 24
-        seconds_of_a_week = seconds_of_a_day * 7
-        seconds_of_a_month = seconds_of_a_day * 31
-
-        time_interval_start = epochNow - seconds_of_a_month
-        _seconds_of_a_time_slice = seconds_of_a_week
-
-        _timeEnd = epochNow
-        _timeStart = _timeEnd - _seconds_of_a_time_slice
-
-        _within_a_time_slice = (_timeEnd > time_interval_start)
-
-        while _within_a_time_slice:
-
-            _interval = dict(FROM=_timeStart)
-            if _timeEnd < epochNow:
-                _interval["TO"] = _timeEnd
-
-            _queryParameters = copy.deepcopy(_parameters).update(_interval)
-            print("#getAnnotations: Query Parameters are " + json.dumps(_queryParameters, indent=4))
-
-            _annotations = self.grafanaAPI('get','annotations', **_queryParameters)
-
-            self.annotations = { }
-            self.debug("#getAnnotations: annotations object = " + json.dumps(_annotations))
-            for _annt in _annotations:
-                self.debug("#getAnnotations> Annotation From Grafana: " + json.dumps(_annt))
-                self.annotations = self.loadAnnotation(_annt, self.annotations, HASH=_HASH)
-
-            _timeEnd = _timeStart
-            _timeStart = _timeEnd - _seconds_of_a_time_slice
-
-            _within_a_time_slice = (_timeEnd > time_interval_start)
-
-        if self.VERBOSE or self.DEBUG:
-            self.printAnnotations(self.annotations)
-
-        return self.annotations
-
-
-    #===================================================================================================================
+    # ===================================================================================================================
     # S S O   M E T H O D S .   F o r   f u t u r e   a l t e r n a t e   s i g n o n
-    #===================================================================================================================
+    # ===================================================================================================================
     # @property
     # def cookies(self):
     #     """Access cookies stored in :class:`requests.Session` object instance.
