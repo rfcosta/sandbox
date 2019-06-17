@@ -23,7 +23,7 @@ class AnnotationsUtil():
 
     def __init__(self, org_id):
         self.helper = Helper(org_id)
-        self.org_id = org_id
+        self.orgId = org_id
         self.reset()
 
     def reset(self):
@@ -155,14 +155,15 @@ class AnnotationsUtil():
         for _regionId in self.existingAnnotations[key].keys():
             _region =  self.existingAnnotations[key][_regionId]
             _numberOfAnnotations = len(_region)
-            _annotation1 = json.dumps(_region[0])
-            _annotation2 = json.dumps(_region[1])
+            if _numberOfAnnotations == 2:
+                _annotation1 = json.dumps(_region[0])
+                _annotation2 = json.dumps(_region[1])
 
-            print("# Dash %8d Panel %8d Hash %-32s Region %8d A1: %s A2: %s" %
-                    ( _dashboardId, _panelId, hash, _regionId,
-                      _annotation1, _annotation2
-                    )
-                  )
+                print("# Dash %8d Panel %8d Hash %-32s Region %8d A1: %s A2: %s" %
+                        ( _dashboardId, _panelId, hash, _regionId,
+                          _annotation1, _annotation2
+                        )
+                      )
 
     def printAllExistingAnnotations(self):
 
@@ -238,9 +239,13 @@ class AnnotationsUtil():
                 for _regionId in _regionList:
                     if _regionId != _maxRegion:
                         _region = _changeMap[_regionId]
-                        for _annotation in _region:
-                            print("About to delete annotation %s" % (json.dumps(_annotation)))
-                            response = self.deleteAnnotation(_annotation['id'])
+                        _numberOfAnnotations = len(_region)
+                        if _numberOfAnnotations == 2:
+                            for _annotation in _region:
+                                # print("About to delete annotation %s" % (json.dumps(_annotation)))
+                                response = self.deleteAnnotation(_annotation['id'])
+                                #print("Annotation deletion %d - %d response: % s" % (_regionId, _annotation['id'], response))
+                            pass
                         pass
                     pass
                 pass
@@ -257,7 +262,7 @@ if __name__ == '__main__':
     print("**START**")
     # autil.testMyself()
 
-    orgId = 2
+    orgId = 1
     autl = AnnotationsUtil(orgId)
 
     DASHES = autl.getDashboards()
@@ -269,7 +274,7 @@ if __name__ == '__main__':
         _dashAnnotations = autl.getAnnotationsOnDashboard(dashboardId=_dashboardId, limit=20000)
         _result = autl.loadAnnotationsReturnedFromGrafana(_dashAnnotations)
 
-        autl.printAllExistingAnnotations()
+        # autl.printAllExistingAnnotations()
         autl.checkDuplicates()
 
         autl.reset()
