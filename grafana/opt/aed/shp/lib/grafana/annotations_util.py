@@ -6,6 +6,7 @@ import json
 import requests
 import traceback
 import time
+import os
 import datetime
 import re
 from requests.auth import HTTPBasicAuth
@@ -28,11 +29,17 @@ class AnnotationsUtil():
     LOG_LEVEL_DEFAULT = DEBUG
     NAME_DEFAULT = __name__
 
-    def __init__(self, org_id,myname=NAME_DEFAULT,loglevel=LOG_LEVEL_DEFAULT):
-        self.helper = Helper(org_id)
-        self.orgId = org_id
+    def __init__(self, *args, **kwargs):
+
+        _myname   = kwargs.get('myname',self.NAME_DEFAULT)
+        _loglevel = kwargs.get('loglevel',self.LOG_LEVEL_DEFAULT)
+        _panelids = kwargs.get('panelids',True)
+        _orgId   = kwargs.get('orgId',1)
+
+        self.helper = Helper(_orgId)
+        self.orgId = _orgId
         self.reset()
-        _logger = getLogger(myname + str(self.orgId))
+        _logger = getLogger(_myname + str(self.orgId))
 
         if _logger.handlers.__len__() == 0:
             _logger.propagate = 0
@@ -42,7 +49,12 @@ class AnnotationsUtil():
             _logger.addHandler(_console_handler)
 
         self.loggger = _logger
-        self.loggger.setLevel(loglevel)
+        self.loggger.setLevel(_loglevel)
+
+        self.CONFIG = shputil.get_config()
+        self.CONFIG_FILE_NAME = self.CONFIG.get('service_configuration_file')
+        self.CHANGE_FILE_NAME = self.CONFIG.get('change_configuration_file')
+        self.DashboardList = self.getDashboards(panelids=_panelids)
 
 
     def reset(self):
@@ -240,7 +252,7 @@ class AnnotationsUtil():
     def getDashboards(self, *args, **kwargs):
         resp = self.helper.api_get_with_params("search", {'type': 'dash-db'})
         dashboards = json.loads(resp.content)
-        if kwargs.get("panelids",False):
+        if kwargs.get("panelids",True):
             for dashboard in dashboards:
                 dashboard['panelids'] = self.getPanelidsFromDashboard(dashboard['uid'])
         return dashboards
@@ -326,6 +338,173 @@ class AnnotationsUtil():
             else:
                 self.loggger.info("Dash %8d Panel %8d Hash %s region found: %8d, No Dupes" % (d, p, h, _regionList[0]))
 
+    def getConfigFiles(self, *args, **kwargs):
+        if not os.path.exists(self.CONFIG_FILE_NAME):
+            os.system("/opt/aed/shp/bin/download_service_configurations.py")
+        self.servicesInfo = self.load_file(self.CONFIG_FILE_NAME)
+        if not os.path.exists(self.CHANGE_FILE_NAME):
+            os.system("/opt/aed/shp/bin/download_change_configurations.py")
+        self.changesInfo = self.load_file(self.CHANGE_FILE_NAME)
+        return {"changesInfo": self.changesInfo, "servicesInfo": self.servicesInfo}
+
+    def indexDashboards(self, *args, **kwargs):
+        # Build table of dashboardsID per UUID
+        self.dashboardIndex = {"dashboards": self.dashboardList}
+
+        for _dash in self.dashboardList:
+            _uid = _dash['uid']
+            _id = _dash['id']
+            _panels = _dash['panels']
+            _dictEntry = {"uid": _uid, "id": _id, "panels": _panels}
+            self.dashboardIndex[_uid] = _dictEntry
+            self.dashboardIndex[_id]  = _dictEntry
+        self.loggger.debug("#Dashboard Index: " + json.dumps(self.dashboardDict))
+
+        return self.dashboardIndex
+
+    @staticmethod
+    def annotationRequest(*args, **kwargs):
+
+        _dashboardId    = kwargs.get("DASHBOARD")
+        _panelId        = kwargs.get("PANEL")
+        _time           = kwargs.get("TIME")
+        _timeEnd        = kwargs.get("ENDTIME")
+        _isRegion       = True
+        if not _timeEnd:
+            _isRegion = False
+
+        _text           = kwargs.get("TEXT")
+        _title          = kwargs.get("TITLE")
+        _tags           = kwargs.get("TAGS")
+
+        if not _dashboardId:
+            raise Exception("#annotationRequest: Missing DASHBOARD=")
+        if not _panelId:
+            raise Exception("#annotationRequest: Missing PANEL=")
+        if not _time:
+            raise Exception("#annotationRequest: Missing TIME=")
+        if not _text:
+            raise Exception("#annotationRequest: Missing TEXT=")
+        if not _tags:
+            _tags = []
+
+        if not _title:
+            _title = ''
+
+        _annotationReq = {
+            "dashboardId":  _dashboardId,
+            "panelId":      _panelId,
+            "time":         _time,          # int(change['start_datetime']),
+            "isRegion":     _isRegion,
+            "timeEnd":      _timeEnd,       # int(change['end_datetime']),
+            "tags":         _tags,          # [change['number']],
+            "title":        _title,         # change['number'] + " " + change['short_description'],
+            "text":         _text
+        }
+
+        return _annotationReq
+
+
+    def makeAnnotationsRequestsForServices(self, *args, **kwargs):
+        #
+        # Start matching changes with panels from change's cmdb_ci
+        # and create annotations requests
+        #
+
+        annotationsReqs = {}  # By Dashboard ID
+
+        allConfigInfo = self.getConfigFiles()
+        changesInfo   = allConfigInfo['changesInfo']
+        servicesInfo  = allConfigInfo['servicesInfo']
+        dashboardDict = self.indexDashboards()
+
+        apiVersionNumber = changesInfo['result'].get('thisapiversion', 1)
+        newApiVersion = (apiVersionNumber > 1)
+
+        changedServicesList = []
+        if newApiVersion:
+            changedServicesList = [changesInfo['result']['services'][service]['name']
+                                   for service in
+                                   changesInfo['result']['services'].keys()]
+        else:
+            changedServicesList = [service for service in changesInfo['result']['services'].keys()]
+
+        self.loggger.debug("#Changed Services List: " + str(changedServicesList))
+
+        for service in changedServicesList:
+            self.loggger.debug("#Service = " + service)
+            serviceEntry = servicesInfo['result']['services'].get(service)
+            self.loggger.debug("#Service Entry: " + json.dumps(serviceEntry))
+
+            if serviceEntry:
+                serviceUID = serviceEntry['uid']
+                # Look for the service UID on dashboards
+                if dashboardDict.has_key(serviceUID):
+                    dashboardID = dashboardDict[serviceUID]['id']
+                    self.loggger.debug("#Found on dict dashboard UID " + str(serviceUID) + " = " + str(dashboardID))
+                else:
+                    dashboardID = 0
+                    self.loggger.warn(
+                        "#No Dashboard UID " + str(serviceUID) + " found on ORG " + str(self.orgId))
+
+                if dashboardID > 0:
+                    annotationsReqs.setdefault(dashboardID,[])
+
+                    _panels = self.dashboardDict[serviceUID]['panels']
+                    self.loggger.debug("#Panels List: " + str(_panels))
+                    for _panel_id in _panels:
+                        #_panel_id = _panel['id']
+                        changes = []
+                        if newApiVersion:
+                            changes = changesInfo['result']['services'][serviceUID]['changes']
+                        else:
+                            changes = changesInfo['result']['services'][service]['changes']
+
+                        for change in changes:
+                            # Version 1 change entry is the change object
+                            if newApiVersion:
+                                _changenumber = str(change)
+                                change = changesInfo['result']['changes'][change]
+                                change['number'] = _changenumber
+
+                            _annotation_start = int(str(int(change['start_datetime'])) + '000')
+                            _annotation_end = int(str(int(change['end_datetime'])) + '000')
+
+                            _work_start_datetime = int(change.get('work_start_datetime'))
+                            _work_end_datetime = int(change.get('work_end_datetime'))
+
+                            if _work_start_datetime > 0:
+                                _annotation_start = int(str(_work_start_datetime) + '000')
+
+                            if _work_end_datetime > 0:
+                                _annotation_end = int(str(_work_end_datetime) + '000')
+
+                            _annotationReq = self.annotationRequest(
+                                DASHBOARD=dashboardID,
+                                PANEL=_panel_id,
+                                TIME=_annotation_start,
+                                ENDTIME=_annotation_end,
+                                TAGS=[],  # [change['number']],
+                                TEXT="<a target=\"_blank\" href='https://" + changesInfo['result']['instancename'] +
+                                     ".service-now.com/nav_to.do?uri=change_request.do?sys_id=" +
+                                     change['sys_id'] + "'>" +
+                                     change['number'] +
+                                     "</a>" +
+                                     ": " + change['short_description']
+                            )
+
+                            self.loggger.debug("#makeAnnotationsForServices> Annotation: " + json.dumps(_annotationReq))
+                            annotationsReqs[dashboardID].append(_annotationReq)
+
+                else:
+                    self.loggger.debug("#makeAnnotationsForServices> No panels for service " + service)
+            else:
+                self.loggger.debug("#makeAnnotationsForServices> Service " + service + ' Not Found.')
+
+        # ================================================================
+        self.loggger.debug("#makeAnnotationsForServices> annotationReqs: " + json.dumps(annotationsReqs))
+        return annotationsReqs
+
 
 
 if __name__ == '__main__':
@@ -333,19 +512,19 @@ if __name__ == '__main__':
     print("** CLEANUP START **")
     wantedOrgs = ['Staging']
 
-    mainUtil = AnnotationsUtil(1)
+    mainUtil = AnnotationsUtil(orgId=1,panelids=False)
     utils = [mainUtil]  # Main Org.
     orgs = mainUtil.getOrgs()
     for org in orgs:
         orgId   = org['id']
         orgName = org['name']
         if orgName in wantedOrgs:
-            utils.append(AnnotationsUtil(orgId))
+            utils.append(AnnotationsUtil(orgId, panelids=False))
         pass
     pass
 
     for autl in utils:
-        DASHES = autl.getDashboards()
+        DASHES = autl.DashboardList
         _numberOfDashboards = len(DASHES)
         autl.loggger.info("** Dashboards found for org %d: %d" % (autl.orgId, _numberOfDashboards))
         for DASH in DASHES:
