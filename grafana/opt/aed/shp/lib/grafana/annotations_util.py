@@ -139,7 +139,7 @@ class AnnotationsUtil():
 
         return _regionRequest
 
-    def addAnnotationToExisting(self, grafanaAnnotation):
+    def addAnnotationToExisting(self, grafanaAnnotation, dupes=False):
         _text = grafanaAnnotation.get('text',None)
         if _text:
             _hash = self.parseSysId(_text)
@@ -151,19 +151,31 @@ class AnnotationsUtil():
             _regionId = grafanaAnnotation['regionId']
             _changeOnPanel = self.existingAnnotations[_key]
 
+            _ignore = False
             _changeOnPanel.setdefault(_regionId,[])
-            #_changeOnPanel[_regionId].append(grafanaAnnotation)
 
-            _annotationSubset = dict(id=None, time=None, dashboardId=None, panelId=None, regionId=None)
-            dictSetValues = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
-            _annotationSubset = dictSetValues(grafanaAnnotation, set(_annotationSubset))
+            if not dupes:
+                _latestRegionId = max(_changeOnPanel.keys())
 
-            _change = self.parseChange(_text)
-            _annotationSubset['change'] = _change
-            if len(_changeOnPanel[_regionId]) > 0 and _annotationSubset['id'] > _changeOnPanel[_regionId][0]['id']:
-                _changeOnPanel[_regionId].append(_annotationSubset)
-            else:
-                _changeOnPanel[_regionId].insert(0,_annotationSubset)
+                for _rId in _changeOnPanel.keys():
+                    if _rId != _latestRegionId:
+                        del _changeOnPanel[_rId]
+                    pass
+                pass
+            pass
+
+            if _regionId in _changeOnPanel:
+                _annotationSubset = dict(id=None, time=None, dashboardId=None, panelId=None, regionId=None)
+                dictSetValues = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
+                _annotationSubset = dictSetValues(grafanaAnnotation, set(_annotationSubset))
+
+                _change = self.parseChange(_text)
+                _annotationSubset['change'] = _change
+
+                if len(_changeOnPanel[_regionId]) > 0 and _annotationSubset['id'] > _changeOnPanel[_regionId][0]['id']:
+                    _changeOnPanel[_regionId].append(_annotationSubset)
+                else:
+                    _changeOnPanel[_regionId].insert(0,_annotationSubset)
 
 
             return _changeOnPanel[_regionId]
@@ -199,7 +211,12 @@ class AnnotationsUtil():
 
     def loadAnnotationsReturnedFromGrafana(self, annotations):
         for _annotation in annotations:
-            self.addAnnotationToExisting(_annotation)
+            self.addAnnotationToExisting(_annotation, dupes=True)
+        return True
+
+    def loadLatestAnnotationsReturnedFromGrafana(self, annotations):
+        for _annotation in annotations:
+            self.addAnnotationToExisting(_annotation, dupes=False)
         return True
 
 
