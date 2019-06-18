@@ -54,7 +54,7 @@ class AnnotationsUtil():
         self.CONFIG = shputil.get_config()
         self.CONFIG_FILE_NAME = self.CONFIG.get('service_configuration_file')
         self.CHANGE_FILE_NAME = self.CONFIG.get('change_configuration_file')
-        self.DashboardList = self.getDashboards(panelids=_panelids)
+        self.dashboardList = self.getDashboards(panelids=_panelids)
 
 
     def reset(self):
@@ -80,6 +80,7 @@ class AnnotationsUtil():
     def conceal(pwd):
         return pwd[0].ljust(pwd.__len__(), '*') + pwd[-1]
 
+
     @staticmethod
     def LoadFile(filename):
         """Load JSON file.
@@ -92,6 +93,7 @@ class AnnotationsUtil():
             with open(filename) as query_file:
                 return json.load(query_file)
         except ValueError as err:
+            raise err
             return dict()
 
     @staticmethod
@@ -341,10 +343,10 @@ class AnnotationsUtil():
     def getConfigFiles(self, *args, **kwargs):
         if not os.path.exists(self.CONFIG_FILE_NAME):
             os.system("/opt/aed/shp/bin/download_service_configurations.py")
-        self.servicesInfo = self.load_file(self.CONFIG_FILE_NAME)
+        self.servicesInfo = self.LoadFile(self.CONFIG_FILE_NAME)
         if not os.path.exists(self.CHANGE_FILE_NAME):
             os.system("/opt/aed/shp/bin/download_change_configurations.py")
-        self.changesInfo = self.load_file(self.CHANGE_FILE_NAME)
+        self.changesInfo = self.LoadFile(self.CHANGE_FILE_NAME)
         return {"changesInfo": self.changesInfo, "servicesInfo": self.servicesInfo}
 
     def indexDashboards(self, *args, **kwargs):
@@ -354,11 +356,11 @@ class AnnotationsUtil():
         for _dash in self.dashboardList:
             _uid = _dash['uid']
             _id = _dash['id']
-            _panels = _dash['panels']
+            _panels = _dash['panelids']
             _dictEntry = {"uid": _uid, "id": _id, "panels": _panels}
             self.dashboardIndex[_uid] = _dictEntry
             self.dashboardIndex[_id]  = _dictEntry
-        self.loggger.debug("#Dashboard Index: " + json.dumps(self.dashboardDict))
+        self.loggger.debug("#Dashboard Index: " + json.dumps(self.dashboardIndex))
 
         return self.dashboardIndex
 
@@ -450,7 +452,7 @@ class AnnotationsUtil():
                 if dashboardID > 0:
                     annotationsReqs.setdefault(dashboardID,[])
 
-                    _panels = self.dashboardDict[serviceUID]['panels']
+                    _panels = dashboardDict[serviceUID]['panels']
                     self.loggger.debug("#Panels List: " + str(_panels))
                     for _panel_id in _panels:
                         #_panel_id = _panel['id']
@@ -519,12 +521,12 @@ if __name__ == '__main__':
         orgId   = org['id']
         orgName = org['name']
         if orgName in wantedOrgs:
-            utils.append(AnnotationsUtil(orgId, panelids=False))
+            utils.append(AnnotationsUtil(orgId=orgId, panelids=False))
         pass
     pass
 
     for autl in utils:
-        DASHES = autl.DashboardList
+        DASHES = autl.dashboardList
         _numberOfDashboards = len(DASHES)
         autl.loggger.info("** Dashboards found for org %d: %d" % (autl.orgId, _numberOfDashboards))
         for DASH in DASHES:
