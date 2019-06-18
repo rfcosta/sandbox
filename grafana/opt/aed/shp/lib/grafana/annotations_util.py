@@ -11,6 +11,11 @@ import re
 from requests.auth import HTTPBasicAuth
 from retrying import retry
 
+import logging
+from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
+
+
+
 sys.path.append('/opt/aed/shp/lib')
 sys.path.append('/opt/aed/shp/lib/grafana')
 
@@ -20,15 +25,36 @@ from helper import Helper
 
 class AnnotationsUtil():
 
+    LOG_LEVEL_DEFAULT = DEBUG
+    NAME_DEFAULT = __name__
 
-    def __init__(self, org_id):
+    def __init__(self, org_id,myname=NAME_DEFAULT,loglevel=LOG_LEVEL_DEFAULT):
         self.helper = Helper(org_id)
         self.orgId = org_id
         self.reset()
+        _logger = getLogger(myname + str(self.orgId))
+
+        if _logger.handlers.__len__() == 0:
+            _logger.propagate = 0
+            _formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s %(funcName)s:%(lineno)d: %(message)s')
+            _console_handler = logging.StreamHandler()
+            _console_handler.setFormatter(_formatter)
+            _logger.addHandler(_console_handler)
+
+        self.loggger = _logger
+        self.loggger.setLevel(loglevel)
+
 
     def reset(self):
+        self.limit = 20000
+        self.limitReached = True
         self.testMode = False
         self.existingAnnotations = dict() # indexed by (dashboardId, panelId, hash)
+
+    def setLimitStatus(self,state=True):
+        self.limitReached = state
+        if state:
+            self.loggger.warn("** Limit Reached Status set to " + str(self.limitReached) )
 
     @staticmethod
     def epoch2date(epoch):
@@ -134,7 +160,7 @@ class AnnotationsUtil():
 
             _change = self.parseChange(_text)
             _annotationSubset['change'] = _change
-            if len(_changeOnPanel[_regionId]) > 1 and _annotationSubset['id'] > _changeOnPanel[_regionId][0]['id']:
+            if len(_changeOnPanel[_regionId]) > 0 and _annotationSubset['id'] > _changeOnPanel[_regionId][0]['id']:
                 _changeOnPanel[_regionId].append(_annotationSubset)
             else:
                 _changeOnPanel[_regionId].insert(0,_annotationSubset)
@@ -159,7 +185,7 @@ class AnnotationsUtil():
                 _annotation1 = json.dumps(_region[0])
                 _annotation2 = json.dumps(_region[1])
 
-                print("# Dash %8d Panel %8d Hash %-32s Region %8d A1: %s A2: %s" %
+                self.loggger.info("# Dash %8d Panel %8d Hash %-32s Region %8d A1: %s A2: %s" %
                         ( _dashboardId, _panelId, hash, _regionId,
                           _annotation1, _annotation2
                         )
@@ -176,11 +202,6 @@ class AnnotationsUtil():
             self.addAnnotationToExisting(_annotation)
         return True
 
-
-    def testMyself(self):
-        self.testMode = True
-        self.loadAnnotationsReturnedFromGrafana(self.getExampleOfGrafanaAnnotations())
-        return True
 
     def getOrgs(self):
         resp = self.helper.api_get_with_params("orgs", {})
@@ -209,7 +230,7 @@ class AnnotationsUtil():
 
 
     def getAnnotationsOnDashboard(self, *args, **kwargs):
-        self.annotationsFromGrafana = []
+        _annotationsFromGrafana = []
         if kwargs.get('dashboardId'):
             params = dict(type='annotation',
                           dashboardId=kwargs.get('dashboardId',0),
@@ -217,11 +238,11 @@ class AnnotationsUtil():
                           )
 
             resp = self.helper.api_get_with_params("annotations", params)
-            self.annotationsFromGrafana = json.loads(resp.content)
-        return self.annotationsFromGrafana
+            _annotationsFromGrafana = json.loads(resp.content)
+        return _annotationsFromGrafana
 
     def getAnnotationsOnDashboardPanel(self, *args, **kwargs):
-        self.annotationsFromGrafana = []
+        _annotationsFromGrafana = []
         if kwargs.get('dashboardId') and kwargs.get('panelId'):
             params = dict(type='annotation',
                           dashboardId= kwargs.get('dashboardId',0),
@@ -230,8 +251,8 @@ class AnnotationsUtil():
                           )
 
             resp = self.helper.api_get_with_params("annotations", params)
-            self.annotationsFromGrafana = json.loads(resp.content)
-        return self.annotationsFromGrafana
+            _annotationsFromGrafana = json.loads(resp.content)
+        return _annotationsFromGrafana
 
 
     def deleteAnnotationByRegion(self,region):
@@ -270,7 +291,7 @@ class AnnotationsUtil():
             d, p, h = dpc
             if len(_regionList) > 1:
                 _maxRegion = max(_regionList)
-                print("Dash %8d Panel %8d Hash %s regions found: %8d, will keep %8d" % (
+                self.loggger.info("Dash %8d Panel %8d Hash %s regions found: %8d, will keep %8d" % (
                 d, p, h, len(_regionList), _maxRegion))
                 for _regionId in _regionList:
                     if _regionId != _maxRegion:
@@ -278,46 +299,67 @@ class AnnotationsUtil():
                         _numberOfAnnotations = len(_region)
                         if _numberOfAnnotations == 2:
                             for _annotation in _region:
-                                # print("About to delete annotation %s" % (json.dumps(_annotation)))
+                                # self.loggger.info("About to delete annotation %s" % (json.dumps(_annotation)))
                                 response = self.deleteAnnotation(_annotation['id'])
-                                #print("Annotation deletion %d - %d response: % s" % (_regionId, _annotation['id'], response))
+                                # self.loggger.info("Annotation deletion %d - %d response: % s" % (_regionId, _annotation['id'], response))
                             pass
                         pass
                     pass
                 pass
             else:
-                print("Dash %8d Panel %8d Hash %s region found: %8d, No Dupes" % (d, p, h, _regionList[0]))
+                self.loggger.info("Dash %8d Panel %8d Hash %s region found: %8d, No Dupes" % (d, p, h, _regionList[0]))
 
-    def getExampleOfGrafanaAnnotations(self):
-        example42 = [{"id":8530894,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1560517400216,"updated":1560517400216,"time":1560517608000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530893,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530896,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1560517400254,"updated":1560517400254,"time":1560517608000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530895,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530898,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1560517400293,"updated":1560517400293,"time":1560517608000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530897,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530900,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560517400332,"updated":1560517400332,"time":1560517608000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530899,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530893,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1560517400206,"updated":1560517400211,"time":1560516708000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530893,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530895,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1560517400245,"updated":1560517400250,"time":1560516708000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530895,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530897,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1560517400283,"updated":1560517400288,"time":1560516708000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530897,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8530899,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560517400322,"updated":1560517400327,"time":1560516708000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=96ea4f1d13c2b740b8a179566144b0f8'\u003eCHG0469048\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8530899,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523212,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1560510199499,"updated":1560510199499,"time":1560510557000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523211,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523214,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1560510199537,"updated":1560510199537,"time":1560510557000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523213,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523216,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1560510199578,"updated":1560510199578,"time":1560510557000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523215,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523218,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560510199618,"updated":1560510199618,"time":1560510557000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523217,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522798,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1560509598148,"updated":1560509598148,"time":1560510016000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522797,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522800,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1560509598187,"updated":1560509598187,"time":1560510016000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522799,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522802,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1560509598227,"updated":1560509598227,"time":1560510016000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522801,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522804,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560509598266,"updated":1560509598266,"time":1560510016000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522803,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523211,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1560510199490,"updated":1560510199495,"time":1560509657000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523211,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523213,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1560510199528,"updated":1560510199533,"time":1560509657000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523213,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523215,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1560510199567,"updated":1560510199573,"time":1560509657000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523215,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8523217,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560510199607,"updated":1560510199613,"time":1560509657000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=34007ad91302b740b8a179566144b083'\u003eCHG0469047\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8523217,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522797,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1560509598140,"updated":1560509598144,"time":1560509116000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522797,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522799,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1560509598177,"updated":1560509598182,"time":1560509116000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522799,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522801,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1560509598216,"updated":1560509598222,"time":1560509116000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522801,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8522803,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560509598256,"updated":1560509598261,"time":1560509116000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=6cfdea951302b740b8a179566144b0cb'\u003eCHG0469046\u003c/a\u003e: SHP: Update graph panel for \"CENTIVA\" of \"B6_Error Count\"","regionId":8522803,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1447,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1558537416908,"updated":1558537416908,"time":1558079213000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":1446,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1453,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1558537417089,"updated":1558537417089,"time":1558079213000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":1452,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1459,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1558537417271,"updated":1558537417271,"time":1558079213000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":1458,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8511457,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560492798609,"updated":1560492798609,"time":1558079213000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":8511456,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1446,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1558537416888,"updated":1558537416898,"time":1558056894000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":1446,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1452,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1558537417069,"updated":1558537417079,"time":1558056894000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":1452,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1458,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1558537417251,"updated":1558537417261,"time":1558056894000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":1458,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":8511456,"alertId":0,"alertName":"","dashboardId":42,"panelId":3000,"userId":0,"newState":"","prevState":"","created":1560492798599,"updated":1560492798605,"time":1558056894000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=5b75b535dba8bfc0295870d9af9619cb'\u003eCHG0447051\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019  + BIOS/FIRMWARE   + SEP Upgrade  + MPIO checks  -EMGHWP1215 / EMGHWP1216 /EMGHWP1217 / EMGHWP1218 -PROD-CLUSTER","regionId":8511456,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1451,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1558537417029,"updated":1558537417029,"time":1557823895000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=eda17f0adbe03b000f9377e9af961994'\u003eCHG0447773\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019   + BIOS/FIRMWARE + SEP +  MPIO Checks - EMGHWP1793 / EMGHWP1794 - PROD(Cluster)DBPE-SQL","regionId":1450,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1457,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1558537417210,"updated":1558537417210,"time":1557823895000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=eda17f0adbe03b000f9377e9af961994'\u003eCHG0447773\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019   + BIOS/FIRMWARE + SEP +  MPIO Checks - EMGHWP1793 / EMGHWP1794 - PROD(Cluster)DBPE-SQL","regionId":1456,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1463,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1558537417390,"updated":1558537417390,"time":1557823895000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=eda17f0adbe03b000f9377e9af961994'\u003eCHG0447773\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019   + BIOS/FIRMWARE + SEP +  MPIO Checks - EMGHWP1793 / EMGHWP1794 - PROD(Cluster)DBPE-SQL","regionId":1462,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1450,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1558537417009,"updated":1558537417019,"time":1557799146000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=eda17f0adbe03b000f9377e9af961994'\u003eCHG0447773\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019   + BIOS/FIRMWARE + SEP +  MPIO Checks - EMGHWP1793 / EMGHWP1794 - PROD(Cluster)DBPE-SQL","regionId":1450,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1456,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1558537417190,"updated":1558537417200,"time":1557799146000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=eda17f0adbe03b000f9377e9af961994'\u003eCHG0447773\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019   + BIOS/FIRMWARE + SEP +  MPIO Checks - EMGHWP1793 / EMGHWP1794 - PROD(Cluster)DBPE-SQL","regionId":1456,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1462,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1558537417371,"updated":1558537417381,"time":1557799146000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=eda17f0adbe03b000f9377e9af961994'\u003eCHG0447773\u003c/a\u003e: HP OTS/WIN and DPLS Windows – Q2 2019   + BIOS/FIRMWARE + SEP +  MPIO Checks - EMGHWP1793 / EMGHWP1794 - PROD(Cluster)DBPE-SQL","regionId":1462,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1449,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1558537416969,"updated":1558537416969,"time":1555995032000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=c690b5dedb787f48295870d9af96190f'\u003eCHG0453861\u003c/a\u003e: Import Renewal SSL(s) for travelbank.prod.sabre.com  - TCVDMZ02P/S","regionId":1448,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1455,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1558537417149,"updated":1558537417149,"time":1555995032000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=c690b5dedb787f48295870d9af96190f'\u003eCHG0453861\u003c/a\u003e: Import Renewal SSL(s) for travelbank.prod.sabre.com  - TCVDMZ02P/S","regionId":1454,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1461,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1558537417331,"updated":1558537417331,"time":1555995032000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=c690b5dedb787f48295870d9af96190f'\u003eCHG0453861\u003c/a\u003e: Import Renewal SSL(s) for travelbank.prod.sabre.com  - TCVDMZ02P/S","regionId":1460,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1448,"alertId":0,"alertName":"","dashboardId":42,"panelId":1,"userId":0,"newState":"","prevState":"","created":1558537416949,"updated":1558537416959,"time":1555989719000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=c690b5dedb787f48295870d9af96190f'\u003eCHG0453861\u003c/a\u003e: Import Renewal SSL(s) for travelbank.prod.sabre.com  - TCVDMZ02P/S","regionId":1448,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1454,"alertId":0,"alertName":"","dashboardId":42,"panelId":2,"userId":0,"newState":"","prevState":"","created":1558537417129,"updated":1558537417139,"time":1555989719000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=c690b5dedb787f48295870d9af96190f'\u003eCHG0453861\u003c/a\u003e: Import Renewal SSL(s) for travelbank.prod.sabre.com  - TCVDMZ02P/S","regionId":1454,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}},{"id":1460,"alertId":0,"alertName":"","dashboardId":42,"panelId":3,"userId":0,"newState":"","prevState":"","created":1558537417311,"updated":1558537417321,"time":1555989719000,"text":"\u003ca target=\"_blank\" href='https://sabretest.service-now.com/nav_to.do?uri=change_request.do?sys_id=c690b5dedb787f48295870d9af96190f'\u003eCHG0453861\u003c/a\u003e: Import Renewal SSL(s) for travelbank.prod.sabre.com  - TCVDMZ02P/S","regionId":1460,"tags":[],"login":"admin","email":"admin@localhost","avatarUrl":"/grafana/avatar/46d229b033af06a191ff2267bca9ae56","data":{}}]
-        return example42
-
-    def runCleanup(self):
-        print("runCleamup: Organisation %d" % (self.orgId))
-        DASHES = self.getDashboards()
 
 
 if __name__ == '__main__':
 
     print("** CLEANUP START **")
-    orgs = autl.getOrgs()
+    wantedOrgs = ['Staging']
+
+    mainUtil = AnnotationsUtil(1)
+    utils = [mainUtil]  # Main Org.
+    orgs = mainUtil.getOrgs()
     for org in orgs:
+        orgId   = org['id']
         orgName = org['name']
-        orgId = org['id']
-        if orgName in ['Main Org.', 'Staging']:
-            autl = AnnotationsUtil(orgId)
-            DASHES = autl.getDashboards()
-            for DASH in DASHES:
-                print("Processing dashboard %s" % (json.dumps(DASH)))
-                _dashboardId = DASH['id']
-                _panelIdList = autl.getPanelidsFromDashboard(DASH['uid'])
-                for _panelId in _panelIdList:
-                    _dashAnnotations = autl.getAnnotationsOnDashboardPanel(dashboardId=_dashboardId, panelId=_panelId)
+        if orgName in wantedOrgs:
+            utils.append(AnnotationsUtil(orgId))
+        pass
+    pass
+
+    for autl in utils:
+        DASHES = autl.getDashboards()
+        _numberOfDashboards = len(DASHES)
+        autl.loggger.info("** Dashboards found for org %d: %d" % (autl.orgId, _numberOfDashboards))
+        for DASH in DASHES:
+            # if DASH['id'] != 33: # for debug
+            #     continue
+            #
+            autl.loggger.info("Processing dashboard (remains %d of %d): %s" % (_numberOfDashboards, len(DASHES), json.dumps(DASH)))
+            _numberOfDashboards -= 1
+            _dashboardId = DASH['id']
+            _panelIdList = autl.getPanelidsFromDashboard(DASH['uid'])
+            for _panelId in _panelIdList:
+                # if _panelId != 1:  # for debug
+                #     continue
+                autl.loggger.info("** Processing Panel %d" % (_panelId))
+                _dashAnnotations = autl.getAnnotationsOnDashboardPanel(dashboardId=_dashboardId, panelId=_panelId)
+                _numberOfAnnotationsReturned = len(_dashAnnotations)
+
+                autl.loggger.info("** Ann returned %d" % (_numberOfAnnotationsReturned))
+
+                autl.setLimitStatus(state=(_numberOfAnnotationsReturned == autl.limit))
+                if _numberOfAnnotationsReturned > 0:
                     _result = autl.loadAnnotationsReturnedFromGrafana(_dashAnnotations)
                     autl.checkDuplicates()
-                    autl.reset()
-                pass
+                else:
+                    autl.loggger.info("** No annotations for dashboard %d %s %s Panel %d" % (_dashboardId, DASH['uid'], DASH['title'], _panelId))
+                autl.reset()
             pass
+        pass
+    pass
+
+
 
 
     print("**END**")
