@@ -265,7 +265,7 @@ class AnnotationsUtil():
         if kwargs.get('dashboardId'):
             params = dict(type='annotation',
                           dashboardId=kwargs.get('dashboardId',0),
-                          limit=kwargs.get('limit',20000)
+                          limit=kwargs.get('limit',self.limit)
                           )
 
             resp = self.helper.api_get_with_params("annotations", params)
@@ -278,7 +278,7 @@ class AnnotationsUtil():
             params = dict(type='annotation',
                           dashboardId= kwargs.get('dashboardId',0),
                           panelId    = kwargs.get('panelId',0),
-                          limit      = kwargs.get('limit',20000)
+                          limit      = kwargs.get('limit',self.limit)
                           )
 
             resp = self.helper.api_get_with_params("annotations", params)
@@ -304,6 +304,38 @@ class AnnotationsUtil():
             raise Exception("Error deleting annotation " + str(annotationId))
         self.deletionFromGrafana = json.loads(resp.content)
         return self.deletionFromGrafana
+
+    def createAnnotationPair(self, annotationRequest, **kwargs):
+
+        try:
+            _createResponse = self.helper.api_post_with_data('annotations', annotationRequest)
+        except Exception as E:
+            self.loggger.warn("#createAnnotationPair> Exception: " + str(E.message))
+            pass
+
+        self.loggger.debug("#createAnnotationPair> add Response = " + json.dumps(_createResponse))
+
+        return _createResponse
+
+    def updateAnnotationPair(self, annotationRequest, region, **kwargs):
+
+        # Verify if we need to perform 2 updates
+        annotationId = region[0]['id']
+        try:
+            aupdatedata = dict(text     = annotationRequest['text'],
+                               time     = annotationRequest['time'],
+                               isRegion = annotationRequest['isRegion'],
+                               timeEnd  = annotationRequest['timeEnd'],
+                               tags     = annotationRequest['tags']
+                               )
+            _updateResponse = self.helper.api_post_with_data('annotations/' + str(annotationId), aupdatedata)
+        except Exception as E:
+            self.loggger.warn("#updateAnnotationPair> Exception: " + str(E.message))
+            pass
+
+        self.loggger.debug("#createAnnotationPair> add Response = " + json.dumps(_updateResponse))
+
+        return _updateResponse
 
 
     def changesList(self):

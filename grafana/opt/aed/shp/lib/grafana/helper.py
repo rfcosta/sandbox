@@ -67,3 +67,14 @@ class Helper():
       raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
 
     return resp
+
+  @retry(stop_max_delay = 10000, wait_fixed=2000)
+  def api_patch_with_data(self, function, payload):
+    headers = {'content-type': 'application/json', 'X-Grafana-Org-Id': str(self.org_id)}
+
+    url = self.base_url + function
+    resp = requests.patch(url, data=json.dumps(payload), auth=self.credentials, headers=headers)
+    if resp.status_code != 200:
+      raise IOError("Error in api_patch_with_data: " + function + " - " + resp.text)
+
+    return resp

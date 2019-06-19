@@ -16,40 +16,52 @@ def process_annotations(cls):
     loggger = cls.loggger
     loggger.debug("** NEW ANN: %d" % (len(_newAnnotations)))
 
-    DASHES = cls.dashboardList
-    _numberOfDashboards = len(DASHES)
-    cls.loggger.info("** Dashboards found for org %d: %d" % (autl.orgId, _numberOfDashboards))
-    for DASH in DASHES:
-        # if DASH['id'] != 33: # for debug
-        #     continue
-        #
-        cls.loggger.info(
-            "Processing dashboard (remains %d of %d): %s" % (_numberOfDashboards, len(DASHES), json.dumps(DASH)))
-        _numberOfDashboards -= 1
-        _dashboardId = DASH['id']
-        _incomingDashAnnotations = _newAnnotations[_dashboardId]
-        _panelIdList = DASH['panelids']
-        for _panelId in _panelIdList:
-            # if _panelId != 1:  # for debug
-            #     continue
-            cls.loggger.info("** Processing Panel %d" % (_panelId))
-            _dashAnnotations = cls.getAnnotationsOnDashboardPanel(dashboardId=_dashboardId, panelId=_panelId)
-            _numberOfAnnotationsReturned = len(_dashAnnotations)
+    lastDashId  = 0
+    lastPanelId = 0
 
-            cls.loggger.info("** Ann returned %d" % (_numberOfAnnotationsReturned))
+    cls.loggger.info("** Will process %d dashboards" % (len(_newAnnotations.keys())))
 
-            cls.setLimitStatus(state=(_numberOfAnnotationsReturned == autl.limit))
-            if _numberOfAnnotationsReturned > 0:
-                _result = cls.loadAnnotationsReturnedFromGrafana(_dashAnnotations)
-                #autl.checkDuplicates()
-            # else:
-            #     cls.loggger.info("** No annotations for dashboard %d %s %s Panel %d" % (
-            #     _dashboardId, DASH['uid'], DASH['title'], _panelId))
-            cls.reset()
-        pass
-    pass
+    for _dashboardId in _newAnnotations.keys():
 
-    pass
+        _lastPanelId = 0
+        for _newAnnotation in _newAnnotations[_dashboardId]:
+
+            _panelId = _newAnnotation['panelId']
+            _change  = cls.parseSysId(_newAnnotation['text'])
+            key = (_dashboardId, _panelId, _change)
+
+            if _panelId != _lastPanelId:
+                _lastPanelId = _panelId
+                cls.loggger.info("** Loading Existing Annotations from Dashboard %d Panel %d" % (_dashboardId, _panelId))
+                cls.reset()
+                _existingAnnotations = cls.getAnnotationsOnDashboardPanel(dashboardId=_dashboardId, panelId=_panelId)
+                _existingReturned = len(_existingAnnotations)
+                cls.loggger.info("** Ann returned %d" % (_existingReturned))
+                cls.setLimitStatus(state=(_existingReturned >= cls.limit))
+                if _existingReturned > 0:
+                    _result = cls.loadLatestAnnotationsReturnedFromGrafana(_existingAnnotations)
+                if cls.limitReached:
+                    cls.loggger.warn("** Too many annnotations on panel; Inserts turned off")
+            pass
+
+            if key in cls.existingAnnotations:
+                _existingChange = cls.existingAnnotations[key]
+                _existingRegion = max(_existingChange.keys())
+
+                _annotationStart = _existingChange[_existingRegion][0]
+                _annotationEnd   = _existingChange[_existingRegion][1]
+                _match = (_newAnnotation['text']   == _annotationStart['text']) and (_newAnnotation['text']   == _annotationEnd['text'])   and \
+                         (_annotationStart['time'] == _newAnnotation['time'])   and (_annotationEnd['time']   == _newAnnotation['timeEnd'])
+                if _match:
+                    cls.loggger("** Annotation Region %d matched therefore will not be updated" % (_existingRegion))
+                else:
+                    _updateResp = cls.updateAnnotationPair(_newAnnotation, _existingChange[_existingRegion])
+                    cls.loggger.info("Annotation Region %d %s Update response: %s" % (_existingRegion, json.dumps(_newAnnotation),json.dumps(_updateResp)))
+            else:
+                _createResp = cls.createAnnotationPair(_newAnnotation)
+                cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), json.dumps(_updateResp)))
+
+
 
 if __name__ == '__main__':
 
