@@ -179,7 +179,7 @@ class AnnotationsUtil():
             pass
 
             if _regionId in _changeOnPanel:
-                _annotationSubset = dict(id=None, time=None, dashboardId=None, panelId=None, regionId=None)
+                _annotationSubset = dict(id=None, time=None, dashboardId=None, panelId=None, regionId=None, text=None)
                 dictSetValues = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
                 _annotationSubset = dictSetValues(grafanaAnnotation, set(_annotationSubset))
 

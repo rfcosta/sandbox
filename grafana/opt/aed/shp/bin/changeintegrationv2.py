@@ -16,8 +16,6 @@ def process_annotations(cls):
     loggger = cls.loggger
     loggger.debug("** NEW ANN: %d" % (len(_newAnnotations)))
 
-    lastDashId  = 0
-    lastPanelId = 0
 
     cls.loggger.info("** Will process %d dashboards" % (len(_newAnnotations.keys())))
 
@@ -53,23 +51,26 @@ def process_annotations(cls):
                 _match = (_newAnnotation['text']   == _annotationStart['text']) and (_newAnnotation['text']   == _annotationEnd['text'])   and \
                          (_annotationStart['time'] == _newAnnotation['time'])   and (_annotationEnd['time']   == _newAnnotation['timeEnd'])
                 if _match:
-                    cls.loggger("** Annotation Region %d matched therefore will not be updated" % (_existingRegion))
+                    cls.loggger.info("** Annotation Region %d matched therefore will not be updated" % (_existingRegion))
                 else:
                     _updateResp = cls.updateAnnotationPair(_newAnnotation, _existingChange[_existingRegion])
                     cls.loggger.info("Annotation Region %d %s Update response: %s" % (_existingRegion, json.dumps(_newAnnotation),json.dumps(_updateResp)))
             else:
-                _createResp = cls.createAnnotationPair(_newAnnotation)
-                cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), json.dumps(_updateResp)))
-
+                if cls.limitReached:
+                    cls.logger.warn("** Too many annnotations on panel; Inserts turned off: %s" % (json.dumps(_newAnnotation)))
+                else:
+                    _createResp = cls.createAnnotationPair(_newAnnotation)
+                    cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), json.dumps(_updateResp)))
+                pass
+            pass
 
 
 if __name__ == '__main__':
 
     print("** CHANGE INTEGRATION START **")
     wantedOrgs = ['Staging'] # Other than main
-    wantedOrgs = []
 
-    mainUtil = AnnotationsUtil(orgId=2,panelids=True)
+    mainUtil = AnnotationsUtil(orgId=1,panelids=True)  # For testing only get orgId=2 because there are fewer dashboards
     utils = [mainUtil]  # Main Org.
     orgs = mainUtil.getOrgs()
     for org in orgs:
@@ -80,5 +81,10 @@ if __name__ == '__main__':
         pass
     pass
 
+    for _util in utils:
+        process_annotations(_util)
+    pass
 
-    process_annotations(utils[0])
+    print("** CHANGE INTEGRATION END **")
+
+
