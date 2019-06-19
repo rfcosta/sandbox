@@ -51,10 +51,14 @@ class AnnotationsUtil():
         self.loggger = _logger
         self.loggger.setLevel(_loglevel)
 
+        self.loggger.debug("Util init start for org %d" % (self.orgId))
         self.CONFIG = shputil.get_config()
         self.CONFIG_FILE_NAME = self.CONFIG.get('service_configuration_file')
         self.CHANGE_FILE_NAME = self.CONFIG.get('change_configuration_file')
         self.dashboardList = self.getDashboards(panelids=_panelids)
+
+        _logger.debug("Util init end for org %d, %d dashboards found" % (self.orgId, len(self.dashboardList)))
+
 
 
     def reset(self):
@@ -313,7 +317,7 @@ class AnnotationsUtil():
             self.loggger.warn("#createAnnotationPair> Exception: " + str(E.message))
             pass
 
-        self.loggger.debug("#createAnnotationPair> add Response = " + json.dumps(_createResponse))
+        self.loggger.debug("#createAnnotationPair> add Response = " + _createResponse.text)
 
         return _createResponse
 
@@ -333,7 +337,7 @@ class AnnotationsUtil():
             self.loggger.warn("#updateAnnotationPair> Exception: " + str(E.message))
             pass
 
-        self.loggger.debug("#createAnnotationPair> add Response = " + json.dumps(_updateResponse))
+        self.loggger.debug("#updateAnnotationPair> update Response = " + _updateResponse.text)
 
         return _updateResponse
 
@@ -392,7 +396,6 @@ class AnnotationsUtil():
             _dictEntry = {"uid": _uid, "id": _id, "panels": _panels}
             self.dashboardIndex[_uid] = _dictEntry
             self.dashboardIndex[_id]  = _dictEntry
-        self.loggger.debug("#Dashboard Index: " + json.dumps(self.dashboardIndex))
 
         return self.dashboardIndex
 
@@ -466,20 +469,15 @@ class AnnotationsUtil():
         self.loggger.debug("#Changed Services List: " + str(changedServicesList))
 
         for service in changedServicesList:
-            self.loggger.debug("#Service = " + service)
             serviceEntry = servicesInfo['result']['services'].get(service)
-            self.loggger.debug("#Service Entry: " + json.dumps(serviceEntry))
 
             if serviceEntry:
                 serviceUID = serviceEntry['uid']
                 # Look for the service UID on dashboards
                 if dashboardDict.has_key(serviceUID):
                     dashboardID = dashboardDict[serviceUID]['id']
-                    self.loggger.debug("#Found on dict dashboard UID " + str(serviceUID) + " = " + str(dashboardID))
                 else:
                     dashboardID = 0
-                    self.loggger.warn(
-                        "#No Dashboard UID " + str(serviceUID) + " found on ORG " + str(self.orgId))
 
                 if dashboardID > 0:
                     annotationsReqs.setdefault(dashboardID,[])
@@ -527,7 +525,6 @@ class AnnotationsUtil():
                                      ": " + change['short_description']
                             )
 
-                            self.loggger.debug("#makeAnnotationsForServices> Annotation: " + json.dumps(_annotationReq))
                             annotationsReqs[dashboardID].append(_annotationReq)
 
                 else:
@@ -536,7 +533,6 @@ class AnnotationsUtil():
                 self.loggger.debug("#makeAnnotationsForServices> Service " + service + ' Not Found.')
 
         # ================================================================
-        self.loggger.debug("#makeAnnotationsForServices> annotationReqs: " + json.dumps(annotationsReqs))
         return annotationsReqs
 
 
