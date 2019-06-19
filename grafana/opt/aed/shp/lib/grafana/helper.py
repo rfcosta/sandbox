@@ -86,6 +86,6 @@ class Helper():
     url = self.base_url + function
     resp = requests.put(url, data=json.dumps(payload), auth=self.credentials, headers=headers)
     if resp.status_code != 200:
-      raise IOError("Error in api_patch_with_data: " + function + " - " + resp.text)
+      raise IOError("Error in api_put_with_data: " + function + " - " + resp.text)
 
     return resp
