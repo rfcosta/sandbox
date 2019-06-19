@@ -54,13 +54,13 @@ def process_annotations(cls):
                     cls.loggger.info("** Annotation Region %d matched therefore will not be updated" % (_existingRegion))
                 else:
                     _updateResp = cls.updateAnnotationPair(_newAnnotation, _existingChange[_existingRegion])
-                    cls.loggger.info("Annotation Region %d %s Update response: %s" % (_existingRegion, json.dumps(_newAnnotation),json.dumps(_updateResp)))
+                    cls.loggger.info("Annotation Region %d %s Update response: %s" % (_existingRegion, json.dumps(_newAnnotation),_updateResp.text))
             else:
                 if cls.limitReached:
                     cls.logger.warn("** Too many annnotations on panel; Inserts turned off: %s" % (json.dumps(_newAnnotation)))
                 else:
                     _createResp = cls.createAnnotationPair(_newAnnotation)
-                    cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), json.dumps(_updateResp)))
+                    cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), _createResp.text))
                 pass
             pass
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     print("** CHANGE INTEGRATION START **")
     wantedOrgs = ['Staging'] # Other than main
 
-    mainUtil = AnnotationsUtil(orgId=1,panelids=True)  # For testing only get orgId=2 because there are fewer dashboards
+    mainUtil = AnnotationsUtil(orgId=1,panelids=True)  # start with Main Org.
     utils = [mainUtil]  # Main Org.
     orgs = mainUtil.getOrgs()
     for org in orgs:
