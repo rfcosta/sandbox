@@ -77,7 +77,7 @@ if __name__ == '__main__':
         orgId   = org['id']
         orgName = org['name']
         if orgName in wantedOrgs:
-            utils.append(AnnotationsUtil(orgId=orgId, panelids=False))
+            utils.append(AnnotationsUtil(orgId=orgId, panelids=True))
         pass
     pass
 

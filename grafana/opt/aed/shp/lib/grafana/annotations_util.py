@@ -328,7 +328,7 @@ class AnnotationsUtil():
                                timeEnd  = annotationRequest['timeEnd'],
                                tags     = annotationRequest['tags']
                                )
-            _updateResponse = self.helper.api_post_with_data('annotations/' + str(annotationId), aupdatedata)
+            _updateResponse = self.helper.api_put_with_data('annotations/' + str(annotationId), aupdatedata)
         except Exception as E:
             self.loggger.warn("#updateAnnotationPair> Exception: " + str(E.message))
             pass
