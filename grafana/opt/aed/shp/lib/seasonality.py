@@ -107,8 +107,6 @@ class Seasonality:
                     }
                 }
 
-                print(ANS)
-                #print(prop.table(table(check)))
                 return(ANS)
                 }
 

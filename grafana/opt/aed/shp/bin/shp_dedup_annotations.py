@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import json
 import os
 import sys
@@ -24,7 +26,11 @@ class Annotations():
         return dashboards
 
     def getAnnotationsOnDashboard(self, *args, **kwargs):
-        params = dict(type='annotation', dashboardId=kwargs.get('dashboardId',0), limit=kwargs.get('limit',500))
+        params = dict(type='annotation', dashboardId=kwargs.get('dashboardId',0), limit=kwargs.get('limit',5000))
+        _panelId = kwargs.get('panelId',None)
+        if _panelId:
+            params['panelId'] = _panelId
+
         #params.update(kwargs)
 
         resp = self.helper.api_get_with_params("annotations", params)
@@ -36,6 +42,14 @@ class Annotations():
         resp = self.helper.api_delete("annotations/region/" + str(region))
         if resp.status_code != 200:
             raise Exception("Error deleting annotation " + str(region))
+        self.deletionFromGrafana = json.loads(resp.content)
+        return self.deletionFromGrafana
+
+    def deleteAnnotation(self,annotationId):
+        params = dict(orgId=self.orgId)
+        resp = self.helper.api_delete("annotations/" + str(annotationId))
+        if resp.status_code != 200:
+            raise Exception("Error deleting annotation " + str(annotationId))
         self.deletionFromGrafana = json.loads(resp.content)
         return self.deletionFromGrafana
 
@@ -135,42 +149,28 @@ class Annotations():
 
             # if not annotations.get(_homerange):
             #     annotations[_homerange] = []  # Make the group be a list of ranges object
-            annotations.setdefault(_homerange, [])
+            annotations.setdefault(_homerange, {})
 
-            _region = next((x for x in annotations[_homerange] if x.get('regionId') == _regionId), None)
-
-            if not _region:
-                _region = {"regionId": _regionId, "annotations": []}
-                annotations[_homerange].append(_region)
+            annotations[_homerange].setdefault(_regionId,{"regionId": _regionId, "annotations": []})
 
             # _region['annotations'].insert(0, _annotation)
-            _region['annotations'].append(_annotation)
+            annotations[_homerange][_regionId]['annotations'].append(_annotation)
 
             return annotations
 
-    #   ===========================================================================================
-    def getRangeList(self, annotations, dashboardId, panelId, hash):
-        _regionlist = []
-        _homerange = (dashboardId, panelId, hash)
-        _regions = annotations.get(_homerange)
-        if _regions:
-            _regionlist = [_region['regionId'] for _region in _regions]
-
-        return _regionlist
-
-    #   ===========================================================================================
+     #   ===========================================================================================
     def printAnnotations(self, annotations):
         for _homerange in annotations.keys():
             # print("#getAnnotations> _homerange=" + str(_homerange))
             d, p, h = _homerange
-            _regionlist = [_region['regionId'] for _region in annotations[_homerange]]
+            _regionlist = [_region['regionId'] for _region in annotations[_homerange].keys()]
 
             print(" ")
             print("Region list for " + str(_homerange) + " = " + str(_regionlist))
 
-            for _region in annotations[(d, p, h)]:
-                _regionId = _region['regionId']
-                _rangeList = _region['annotations']
+            for _region in annotations[(d, p, h)].keys():
+                _regionId  = annotations[(d, p, h)][_region]['regionId']
+                _rangeList = annotations[(d, p, h)][_region]['annotations']
                 _c = 0
                 startend = {"0": "start", "1": "end"}
                 for _ann in _rangeList:
@@ -207,7 +207,7 @@ class Annotations():
             for _homerange in annotations.keys():
                 # print("#getAnnotations> _homerange=" + str(_homerange))
                 d, p, h = _homerange
-                _regionlist = [_region['regionId'] for _region in annotations[_homerange]]
+                _regionlist =  annotations[_homerange].keys()
 
                 print(" ")
                 print("Region list for " + str(_homerange) + " = " + str(_regionlist))
@@ -307,15 +307,20 @@ if __name__ == "__main__":
 
         for _changeKey in _annotationsDB.keys():
             (_d, _p, _h) = _changeKey
-            _regionlist = [_region['regionId'] for _region in _annotationsDB[_changeKey]]
+            _regionList = _annotationsDB[_changeKey].keys()
 
-            if _regionlist.__len__() > 1:  # Duplicates if more than 1
-                _latestToKeep = max(_regionlist)
+            if _regionList.__len__() > 1:  # Duplicates if more than 1
+                _latestToKeep = max(_regionList)
                 _toDelete = []
 
-                for _region in _regionlist:
-                    if _region != _latestToKeep:
-                        _toDelete.append(_region)
+                for _region in _annotationsDB[_changeKey]:
+                    _regionId = _region['regionId']
+                    if _regionId != _latestToKeep:
+                        _annotationsOnRegion = _region['annotations']
+                        if len(_annotationsOnRegion) > 1:
+                            _annotationId1 = _annotationsOnRegion[0]['id']
+                            _annotationId2 = _annotationsOnRegion[1]['id']
+                            _toDelete.append((_regionId, _annotationId1, _annotationId2))
 
                 if _toDelete.__len__() < 20:
                     print("Dashboard=%s, Panel=%s, Hash=%s, Deletelist: %s" % (_d, _p, _h, str(_toDelete)))
@@ -325,8 +330,11 @@ if __name__ == "__main__":
                 print("Dash %d, Panel %d, Hash %s, Kept %d " % (_d, _p, _h, _latestToKeep))
 
                 for regionToDelete in _toDelete:
-                    result = ANN.deleteAnnotationByRegion(regionToDelete)
-                    print("Ann Region %d: %s" % (regionToDelete,result))
+                    _regionId, _annotationId1, _annotationId2 = regionToDelete
+                    #result = ANN.deleteAnnotationByRegion(regionId)
+                    result1 = ANN.deleteAnnotation(_annotationId1)
+                    result2 = ANN.deleteAnnotation(_annotationId2)
+                    print("Ann Region %d: A1: %d %s, A2: %d %s" % (_region, _annotationId1, result1, _annotationId2, result2))
 
             else:
                 print("Dashboard=%s, Panel=%s, Hash=%s No duplicates found" % (_d, _p, _h) )

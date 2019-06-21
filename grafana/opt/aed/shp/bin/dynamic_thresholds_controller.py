@@ -1,5 +1,6 @@
 #!/bin/env python
 
+import glob
 import sys
 sys.path.append('/opt/aed/shp/lib')
 
@@ -60,6 +61,31 @@ def spawn_threads():
 
          time.sleep(5)
 
+
+# Delete 10 of the oldest seasonality cache files to force recomputation in batches
+def cleanup_seasonality_cache(pattern):
+    FILES_TO_DELETE = 10
+
+    files = {}
+
+    try:
+        for path_to_file in glob.glob(pattern):
+            stat = os.stat(path_to_file)
+            files[stat.st_mtime] = path_to_file
+
+        cnt = 0
+
+        for file in sorted(files):
+            cnt += 1
+            if cnt > FILES_TO_DELETE:
+                break
+#           print files[file]
+            os.remove(files[file])
+
+    except Exception as e:
+        print "Failed: ", e
+
+
 config = shputil.get_config()
 
 s3_data_dir = config['s3_dynamic_thresholds_dir']
@@ -75,6 +101,8 @@ if not os.path.isdir(local_thresholds_data_dir):
     os.mkdir(local_thresholds_data_dir, 0777)
 
 sync_from_s3_bucket(s3_thresholds_data_dir, local_thresholds_data_dir)
+
+cleanup_seasonality_cache(local_thresholds_data_dir + "/*-seasons.json")
 
 spawn_threads()
 

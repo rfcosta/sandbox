@@ -145,10 +145,10 @@ def createServiceNowEvent(kapacitorAlert):
 
     if (global_snowConfigService.is_validated()):
       org_id = MAIN_ORG_ID
-      assignment_group = str(servicenow_group_validated)
+      category_key = "true"
     else:
       org_id = STAGING_ORG_ID
-      assignment_group = str(servicenow_group_staging)
+      category_key = "false"
 
     event_class = str(global_config['servicenow_event_class'])
 
@@ -191,7 +191,7 @@ def createServiceNowEvent(kapacitorAlert):
     grafanaEndTime = global_grafanaTime + (60 * 60 * 1000)
 
     kapacitorAlert["u_urgency"] = "1"
-    kapacitorAlert["u_assignment_group"] = str(assignment_group)
+    kapacitorAlert["u_category"] = str(category_key)
     kapacitorAlert["u_kb_article"] = str(global_snowConfigService.knowledge_article.split(' ')[0] )
     kapacitorAlert["u_monitoringlink"] = str(baseURL + dashboard_uid + "/" + service_name + '?orgId=' + str(org_id) + '&from=' + str(grafanaBeginTime) + '&to=' + str(grafanaEndTime))
     kapacitorAlert["type"] = str(alertMessage)

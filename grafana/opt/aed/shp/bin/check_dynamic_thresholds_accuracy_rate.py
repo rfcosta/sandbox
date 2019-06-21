@@ -16,8 +16,9 @@ from predictor import Predictor
 MINUTES_IN_HOUR = 60
 MINUTES_IN_DAY = MINUTES_IN_HOUR * 24
 
-DAYS_TO_SCAN = 5
+DAYS_TO_SCAN = 8
 MIN_POINTS =  (DAYS_TO_SCAN * MINUTES_IN_DAY) * .5
+MIN_THRESHOLDS =  (DAYS_TO_SCAN * MINUTES_IN_DAY)
 
 total_panels = 0
 panels_not_validated = 0
@@ -69,10 +70,17 @@ def count_alerts(service_name, metric_name, key, when, panel):
     timestamp = get_formatted_timestamp(then)
 
     thresholds = get_recent_thresholds(metric_name, key, service_name, timestamp)
+    if (len(thresholds) < MIN_THRESHOLDS):
+       panels_lacking_data = panels_lacking_data + 1
+       print service_name, ':', key, ':', metric_name,  MIN_THRESHOLDS, ": Total Alerts: Insufficient predictions"
+       return
+
     metrics = get_recent_metrics(metric_name, key, service_name, timestamp)
 
-    window = panel.threshold_violation_window.encode('ascii','ignore')
-    occurrences = panel.threshold_violation_occurrences.encode('ascii','ignore')
+    #window = panel.threshold_violation_window.encode('ascii','ignore')
+    window = 5
+    #occurrences = panel.threshold_violation_occurrences.encode('ascii','ignore')
+    occurrences = 5
 
 #    print "WINDOW: ", window, "OCCURRENCES: ", occurrences
 
@@ -106,7 +114,6 @@ def count_alerts(service_name, metric_name, key, when, panel):
 #    print "TOTAL:", service_name, ":", key, ":", metric_name, " = ", i, " Compared: ", total_compared, "Min Points Required:", MIN_POINTS
 
     if (i < MIN_POINTS):
-#       panels_lacking_data += 1
        panels_lacking_data = panels_lacking_data + 1
        print service_name, ':', key, ':', metric_name, i, MIN_POINTS, ": Total Alerts: Insufficient Data"
        return
@@ -127,7 +134,7 @@ def count_alerts(service_name, metric_name, key, when, panel):
                 breaches += 1
         if breaches >= int(occurrences):
             if not last_time_breached:
-                print service_name, "would have alerted", alerts[i]
+                print service_name, metric_name, key, ": would have alerted", alerts[i]
                 alerted += 1
 #            else:
 #                print "Already alerted"
@@ -171,7 +178,7 @@ for service in service_config.get_services():
     state = service.state
     service_name = service.name
 
-#    if "Interline" not in service.name:
+#    if "SRW" not in service.name:
 #        continue
 
     for panel in service.panels:
@@ -181,7 +188,7 @@ for service in service_config.get_services():
             print service_name, panel.panelKey, "Not validated"
             continue
         try:
-            if str(panel.dynamic_alerting_enabled) == 'true':
+            if ((str(panel.dynamic_alerting_enabled_high) == 'true') or (str(panel.dynamic_alerting_enabled_low) == 'true')):
                already_enabled = already_enabled + 1
                print "already done:", service_name, panel.panelKey, panel.dynamic_alerting_enabled
                continue

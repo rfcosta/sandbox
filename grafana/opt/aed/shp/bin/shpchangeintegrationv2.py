@@ -46,21 +46,31 @@ def process_annotations(cls):
                 _existingChange = cls.existingAnnotations[key]
                 _existingRegion = max(_existingChange.keys())
 
-                _annotationStart = _existingChange[_existingRegion][0]
-                _annotationEnd   = _existingChange[_existingRegion][1]
+                if len(_existingChange[_existingRegion]) > 0:
+                    _annotationStart = _existingChange[_existingRegion][0]
+                else:
+                    _annotationStart = dict(text='Missing annotation', time=0, dashboardId=_dashboardId, panelId=_panelId)
+                pass
+
+                if len(_existingChange[_existingRegion]) > 1:
+                    _annotationEnd   = _existingChange[_existingRegion][1]
+                else:
+                    _annotationEnd    = dict(text=_annotationStart['text'], time=0, dashboardId=_dashboardId, panelId=_panelId)
+                pass
+
                 _match = (_newAnnotation['text']   == _annotationStart['text']) and (_newAnnotation['text']   == _annotationEnd['text'])   and \
                          (_annotationStart['time'] == _newAnnotation['time'])   and (_annotationEnd['time']   == _newAnnotation['timeEnd'])
                 if _match:
                     cls.loggger.info("** Annotation Region %d matched therefore will not be updated" % (_existingRegion))
                 else:
                     _updateResp = cls.updateAnnotationPair(_newAnnotation, _existingChange[_existingRegion])
-                    cls.loggger.info("Annotation Region %d %s Update response: %s" % (_existingRegion, json.dumps(_newAnnotation),_updateResp.text))
+                    cls.loggger.info("Annotation Region %d %s Update response: %s" % (_existingRegion, json.dumps(_newAnnotation),_updateResp))
             else:
                 if cls.limitReached:
-                    cls.logger.warn("** Too many annnotations on panel; Inserts turned off: %s" % (json.dumps(_newAnnotation)))
+                    cls.loggger.warn("** Too many annnotations on panel; Inserts turned off: %s" % (json.dumps(_newAnnotation)))
                 else:
                     _createResp = cls.createAnnotationPair(_newAnnotation)
-                    cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), _createResp.text))
+                    cls.loggger.info("Annotation %s Creation response: %s" % (json.dumps(_newAnnotation), _createResp))
                 pass
             pass
 

@@ -25,7 +25,7 @@ class Service():
   def load_panels(self, service, use_configured_panelIDs):
     panels = service['panels']
     for panel in panels:
-      my_panel = Panel(panels[panel], panel, use_configured_panelIDs)
+      my_panel = Panel(panels[panel], panel, use_configured_panelIDs, self.name)
       self.panels.append(my_panel)
     self.panels.sort(key=lambda x: int(x.panel_id))
 

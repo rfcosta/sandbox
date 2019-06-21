@@ -35,7 +35,8 @@ class CustomerConfiguration():
                     continue
 
                 _customer_name = str(panel.customer_name)
-                _customer = Customer(service, _customer_code, _customer_name)
+                _customer_sys_id = str(panel.customer_sys_id)
+                _customer = Customer(service, _customer_code, _customer_name, _customer_sys_id)
 
                 self.customers_db.setdefault(_customer.dashboard_uid, _customer)
 
@@ -46,6 +47,7 @@ class CustomerConfiguration():
         for _cust_uid in self.customers_db:
             _customer = self.customers_db[_cust_uid]
             self.customers.append(_customer)
+
 
     def get_customers(self):
         return sorted(self.customers, key=self.sortable_customers)

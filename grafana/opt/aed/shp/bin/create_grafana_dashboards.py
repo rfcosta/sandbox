@@ -106,8 +106,8 @@ def create_panel_links(panel):
     return _links_text
 
 
-def populate_panel(text, service, panel, grid_x, grid_y):
-    text = text.replace("<<SERVICE_NAME>>", service.name)
+def populate_panel(text, panel, grid_x, grid_y):
+    text = text.replace("<<SERVICE_NAME>>", panel.service_name)
     text = text.replace("<<BASE_METRIC_NAME>>", panel.base_metric_name)
     text = text.replace("<<METRIC_NAME>>", panel.base_metric_name)
     text = text.replace("<<INFLUXDB_METRIC_MEASURE>>", config["influxdb_metric_measure"])
@@ -134,7 +134,7 @@ def remove_obsolete_dashboards(org_id_array):
         all_dashboards = dashboards[org_id].get_dashboards()
         for uid, title in all_dashboards.items():
             try:
-                if 'Unhealthy' not in title:
+                if 'Main' not in title:
                     if org_id in used_dashboards:
                         if uid not in used_dashboards[org_id]:
                             print("Removing Dash: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
@@ -252,7 +252,7 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
             if panel.display_state == 'Active':
                 panel_count += 1
                 panel_text = load_template("single_panel_template.json")
-                all_panels = all_panels + comma + populate_panel(panel_text, service, panel, grid_x, grid_y)
+                all_panels = all_panels + comma + populate_panel(panel_text, panel, grid_x, grid_y)
                 comma = ','
                 counter += 1
                 grid_x = (counter % columns) * 8
@@ -399,19 +399,26 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
         grid_y = 0
         counter = 0
         panel_count = 0
+        id_list = []
 
         for panel in customer.panels:
             if panel.display_state == 'Active':
                 panel_count += 1
                 panel_text = load_template("single_panel_template.json")
-                all_panels = all_panels + comma + populate_panel(panel_text, customer, panel, grid_x, grid_y)
+                # Make a copy of the panel to use, in case we need to change something
+                panel_copy = copy.copy(panel)
+                # Make sure panel_id is unique (for this dashboard)
+                while panel_copy.panel_id in id_list:
+                    panel_copy.panel_id = str(int(panel_copy.panel_id) + 1)
+                id_list.append(panel_copy.panel_id)
+                all_panels = all_panels + comma + populate_panel(panel_text, panel_copy, grid_x, grid_y)
                 comma = ','
                 counter += 1
                 grid_x = (counter % columns) * 8
                 grid_y = (counter / columns) * 20
 
         dash_uid   = customer.dashboard_uid
-        dash_title = customer.customer_name + " (" + customer.customer_code + ")"
+        dash_title = customer.name + " (" + customer.code + ")"
 
         dash_text = load_template("single_dashboard_template.json")
         dash_text = dash_text.replace("<<SERVICE_NAME>>", dash_title)
@@ -432,12 +439,12 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
 
         if panel_count > 0:
             try:
-                create_single_dashboard(dash_text, customer.customer_name, org_id, dash_uid, folder_name)
+                create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
             except Exception:
                 # log it and move on to next dashboard
-                logging.error("Dashboard creation error: " + customer.customer_name, exc_info=True)
+                logging.error("Dashboard creation error: " + customer.name, exc_info=True)
         else:
-            logging.info("No panels for Customer: " + customer.customer_name)
+            logging.info("No panels for Customer: " + customer.name)
 
 
 

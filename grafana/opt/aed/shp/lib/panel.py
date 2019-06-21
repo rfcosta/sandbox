@@ -1,9 +1,10 @@
 from threshold import Threshold
 
 class Panel():
-    def __init__(self, panel, panelKey, use_configured_panelIDs):
+    def __init__(self, panel, panelKey, use_configured_panelIDs, service_name):
         self.use_configured_panelIDs = use_configured_panelIDs
         self.thresholds = []
+        self.service_name = service_name
         self.display_state = panel['display_state']
         self.deep_link = panel['deep_link']
         self.title = panel['title']
@@ -40,6 +41,7 @@ class Panel():
         self.graph_panel_sys_id = panel["graph_panel_sys_id"] if "graph_panel_sys_id" in panel else ''
         self.customer_code = panel['customer_code']
         self.customer_name = panel['customer_name']
+        self.customer_sys_id = panel['customer_sys_id']
 
     def get_panel_id(self, panel):
         if self.use_configured_panelIDs == 'true':
@@ -89,8 +91,10 @@ class Panel():
              "      dynamic_alert_tolerance:        " + str(self.dynamic_threshold_violation_occurrences) + '\n' +
              "      metric_type:                    " + self.metric_type + '\n' +
              "      panelKey:                       " + self.panelKey + '\n' +
+             "      service_name:                   " + self.service_name + '\n' +
              "      customer_name:                  " + self.customer_name + '\n' +
              "      customer_code:                  " + self.customer_code + '\n' +
+             "      customer_sys_id:                " + self.customer_sys_id + '\n' +
              "      kpi:                            " + self.kpi + '\n')
         s = s + self.thresholds.to_string()
         return s

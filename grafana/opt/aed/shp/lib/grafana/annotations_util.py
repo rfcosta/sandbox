@@ -194,9 +194,10 @@ class AnnotationsUtil():
                     _changeOnPanel[_regionId].append(_annotationSubset)
                 else:
                     _changeOnPanel[_regionId].insert(0,_annotationSubset)
+                pass
 
-
-            return _changeOnPanel[_regionId]
+                return _changeOnPanel[_regionId]
+            pass
 
         return False
 
@@ -311,19 +312,23 @@ class AnnotationsUtil():
 
     def createAnnotationPair(self, annotationRequest, **kwargs):
 
+        returnText = ''
         try:
             _createResponse = self.helper.api_post_with_data('annotations', annotationRequest)
+            self.loggger.debug("#createAnnotationPair> add Response = " + _createResponse.text)
+            returnText = str(_createResponse.text)
         except Exception as E:
             self.loggger.warn("#createAnnotationPair> Exception: " + str(E.message))
+            returnText = str(E.message)
             pass
 
-        self.loggger.debug("#createAnnotationPair> add Response = " + _createResponse.text)
 
-        return _createResponse
+        return returnText
 
     def updateAnnotationPair(self, annotationRequest, region, **kwargs):
 
         # Verify if we need to perform 2 updates
+        returnText = ''
         annotationId = region[0]['id']
         try:
             aupdatedata = dict(text     = annotationRequest['text'],
@@ -333,13 +338,14 @@ class AnnotationsUtil():
                                tags     = annotationRequest['tags']
                                )
             _updateResponse = self.helper.api_put_with_data('annotations/' + str(annotationId), aupdatedata)
+            returnText = str(_updateResponse.text)
+
         except Exception as E:
             self.loggger.warn("#updateAnnotationPair> Exception: " + str(E.message))
+            returnText = str(E.message)
             pass
 
-        self.loggger.debug("#updateAnnotationPair> update Response = " + _updateResponse.text)
-
-        return _updateResponse
+        return returnText
 
 
     def changesList(self):

@@ -28,6 +28,39 @@ SECONDS_IN_MINUTE = 60
 MINUTES_TO_KEEP = 4 * SECONDS_IN_MINUTE
 MINUTES_TO_PREDICT = 90
 TWO_WEEKS = 60 * 24 * 14
+ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7
+
+MAX_SEASONS_CACHE_AGE = ONE_WEEK_IN_SECONDS
+
+def get_db_connection():
+    influx_host = config['influxdb_host']
+    influx_port = config['influxdb_port']
+    influx_db = config['influxdb_db']
+    return InfluxDBClient(host=influx_host, port=influx_port, database=influx_db)
+
+
+def get_formatted_timestamp(when):
+    fmt = "%Y-%m-%d %H:%M:00"
+    t = datetime.datetime.fromtimestamp(float(when))
+    return t.strftime(fmt)
+
+
+def remove_seconds(timestamp):
+    t = int(int(timestamp) / 60) * 60
+    return t
+
+
+def get_cache_id(service_name, metric, key):
+    cache_id = service_name + '-' + metric + '-' + key
+    cache_id = cache_id.replace('/', ' ')
+    return cache_id
+
+
+def add_timestamps_to_list(timestamps, timestamps_list):
+    for t in sorted(timestamps):
+        t = t.encode('ascii', 'ignore')
+        timestamps_list.append(remove_seconds(t))
+
 
 def load_previous_thresholds(cache_id):
     fname = local_thresholds_data_dir + '/' + cache_id + '.json'
@@ -47,11 +80,6 @@ def write_new_thresholds(cache_id, thresholds_json):
     # print json.dumps(thresholds_json, indent=4, sort_keys=True)
     with open(fname, 'w') as outfile:
         outfile.write(json.dumps(thresholds_json, indent=4, sort_keys=True))
-
-
-def remove_seconds(timestamp):
-    t = int(int(timestamp) / 60) * 60
-    return t
 
 
 def merge_thresholds(previous, new):
@@ -88,12 +116,6 @@ def merge_thresholds(previous, new):
     return ordered_keys
 
 
-def add_timestamps_to_list(timestamps, timestamps_list):
-    for t in sorted(timestamps):
-        t = t.encode('ascii', 'ignore')
-        timestamps_list.append(remove_seconds(t))
-
-
 def process_thresholds(service_name, metric, key, thresholds, cache_id):
     previous_thresholds = load_previous_thresholds(cache_id)
     merged_thresholds = merge_thresholds(previous_thresholds, thresholds)
@@ -109,13 +131,6 @@ def process_thresholds(service_name, metric, key, thresholds, cache_id):
     my_json['thresholds'] = merged_thresholds
 
     write_new_thresholds(cache_id, my_json)
-
-
-def get_db_connection():
-    influx_host = config['influxdb_host']
-    influx_port = config['influxdb_port']
-    influx_db = config['influxdb_db']
-    return InfluxDBClient(host=influx_host, port=influx_port, database=influx_db)
 
 
 def load_historical_data(key, metric, service_name, to_when):
@@ -144,9 +159,35 @@ def get_predictor(service_name, metric, key, standard_deviations, seasonal_perio
     return Predictor(metric, historical_data, seasonal_periods, standard_deviations, MINUTES_TO_PREDICT)
 
 
-def get_seasonal_periods(service_name, metric, key, when):
-    historical_data = load_historical_data(key, metric, service_name, when)
-    return Seasonality(historical_data).get_seasons()
+def save_seasons(cache_id, seasons):
+    fname = local_thresholds_data_dir + '/' + cache_id + '-seasons.json'
+
+    season_json = {}
+    season_json['seasons'] = seasons
+    season_json['last_updated'] = get_formatted_timestamp(time.time())
+
+    with open(fname, 'w') as outfile:
+        outfile.write(json.dumps(season_json, indent=4, sort_keys=True))
+
+
+def get_seasons(service_name, metric, key, when):
+    cache_id = get_cache_id(service_name, metric, key)
+    fname = local_thresholds_data_dir + '/' + cache_id + '-seasons.json'
+
+    seasons = None
+    if os.path.isfile(fname):
+        with open(fname) as json_file:
+            seasons = json.load(json_file)
+            seasons = seasons['seasons']
+            print "Loaded Seasons From Cache: ", seasons
+
+    if seasons is None:
+        print "Seasons not found in cache - recomputing"
+        historical_data = load_historical_data(key, metric, service_name, when)
+        seasons = Seasonality(historical_data).get_seasons()
+        save_seasons(cache_id, seasons)
+
+    return seasons
 
 
 def calculate_dynamic_thresholds(service_config, service_name, when):
@@ -158,12 +199,11 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
 
             key = panel.panelKey
 
-            cache_id = service_name + '-' + metric + '-' + key
-            cache_id = cache_id.replace('/', ' ')
+            cache_id = get_cache_id(service_name, metric, key)
             print "ID:", cache_id
 
             standard_deviations = panel.thresholds.standard_deviations
-            seasonal_periods = get_seasonal_periods(service_name, metric, key, when)
+            seasonal_periods = get_seasons(service_name, metric, key, when)
             predictor = get_predictor(service_name, metric, key, standard_deviations, seasonal_periods, when)
             dynamic_thresholds = predictor.predict()
 
@@ -182,10 +222,7 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
             print str(e)
 
 
-def get_formatted_timestamp(when):
-    fmt = "%Y-%m-%d %H:%M:00"
-    t = datetime.datetime.fromtimestamp(float(when))
-    return t.strftime(fmt)
+#### Main
 
 parser = OptionParser()
 parser.add_option("--service_name", dest="service_name", default="")
