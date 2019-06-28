@@ -3,7 +3,7 @@ FROM grafana/grafana:$GRAFANA_TAG
 USER root
 RUN echo 'root:root' | chpasswd
 #
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get install -y vim
 RUN apt-get install -y nano
 
