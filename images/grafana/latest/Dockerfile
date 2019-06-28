@@ -3,14 +3,19 @@ FROM grafana/grafana:$GRAFANA_TAG
 USER root
 RUN echo 'root:root' | chpasswd
 #
-RUN apt-get update --fix-missing
+RUN apt-get update
 RUN apt-get install -y vim
 RUN apt-get install -y nano
 
 RUN apt-get install -y python
-RUN apt-get install -y python-pip
-RUN pip install requests
-RUN pip install retrying
+#
+# Network problem getching files at random made unreliable to
+# install PIP from here. lines commented out
+# Use root after sandbox enter grafana to manually install PIP, REQUESTS and RETRYING
+
+#RUN apt-get install -y python-pip  --fix-missing
+#RUN pip install requests
+#RUN pip install retrying
 
 
 RUN [ ! -d /home/grafana ] && mkdir /home/grafana
