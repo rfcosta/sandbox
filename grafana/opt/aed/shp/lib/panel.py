@@ -41,7 +41,7 @@ class Panel():
         self.graph_panel_sys_id = panel["graph_panel_sys_id"] if "graph_panel_sys_id" in panel else ''
         self.customer_code = panel['customer_code']
         self.customer_name = panel['customer_name']
-        self.customer_sys_id = panel['customer_sys_id']
+        self.customer_sys_id = panel.get('customer_sys_id')
 
     def get_panel_id(self, panel):
         if self.use_configured_panelIDs == 'true':
