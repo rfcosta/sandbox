@@ -50,12 +50,12 @@ def LoadJson(json_filename):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--csv",       dest="csv"         , default="", help="Input data file",   )
-    parser.add_option("--options",   dest="options_file", default="", help="Options json file"  )
-    parser.add_option("--service",   dest="service"     , default="", help="Service"            )
-    parser.add_option("--key",       dest="key"         , default="", help="Key"                )
-    parser.add_option("--metric",    dest="metric"      , default="", help="Metric"             )
-    parser.add_option("--source",    dest="source"      , default="", help="Data Source"        )
+    parser.add_option("-f",   "--file",      dest="csv"         , default="", help="Input data file",   )
+    parser.add_option("-o",   "--options",   dest="options_file", default="", help="Options json file"  )
+    parser.add_option("-v",   "--service",   dest="service"     , default="", help="Service"            )
+    parser.add_option("-k",   "--key",       dest="key"         , default="", help="Key"                )
+    parser.add_option("-m",   "--metric",    dest="metric"      , default="", help="Metric"             )
+    parser.add_option("-s",   "--source",    dest="source"      , default="", help="Data Source"        )
 
 
     (options, args) = parser.parse_args()
