@@ -4,9 +4,9 @@ import urllib
 import calendar
 import os
 import json
+import sys
 from datetime import datetime
 from optparse import OptionParser
-
 
 def encode(service):
     service_name = service.replace(" -", "-")
@@ -18,7 +18,7 @@ def encode(service):
 
 def convert_utc_to_epoch(timestamp_string):
     '''Use this function to convert utc to epoch'''
-    print timestamp_string
+    print (timestamp_string)
     try:
         timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S:%fZ')
     except Exception:
@@ -28,7 +28,7 @@ def convert_utc_to_epoch(timestamp_string):
             timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%SZ')
 
     epoch = int(calendar.timegm(timestamp.utctimetuple()))
-    print epoch
+    print (epoch)
     return str(epoch) + '000000000'
 
 
@@ -65,44 +65,42 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
 
-    # print( options.__dict__.keys() )
-
-
     # ----------------------------------------------------------------------------------------------------------
     # The following statement is just to ilustrate how to address the attributes of an object like a dictionary
     #       options.__dict__['source'] = 'VIZ' if not options.source else options.source
     # ----------------------------------------------------------------------------------------------------------
 
-    options_file = options.options_file
-    options_from_json = LoadJson(options_file)
+    options_from_json = dict()
+    if options.options_file:
+        options_from_json = LoadJson(options.options_file)
 
-    # Now get overrides from options into the options from JSON (this will prioritize non null options
-    options_from_json.update(  (ky, val) for (ky,val) in options.__dict__.iteritems() if val  )
+    # The following onlyt works on Python 2:
+    # options_from_json.update(  (ky, val) for (ky,val) in options.__dict__.iteritems() if val  )
+
+    options_from_json.update(  (ky, val) for (ky,val) in options.__dict__.items() if val  )
+
 
     #update back options after the overides
     options.__dict__.update(options_from_json)
 
     print("Options: " + str(options))
 
-    # ----------------------------------------------------------------------------------------------------------
-    # The following code used to use filename with service, key and metric within the file name
-    # Deprecated by the new program options and json options file
-    # ----------------------------------------------------------------------------------------------------------
-    #       (service, key, metric) = metrics_file.split('^', 3)
-    #       metric = metric.replace(".csv", "")
-    # ----------------------------------------------------------------------------------------------------------
+    if not options.service or not options.metric or not options.source or not options.key or not options.csv:
+        print("**ERROR** All options service, metric, source, key, csv must be specified from command options + options_file (-o or --options_file)")
+        exit(8)
+
 
     influx_url = options.url # "http://localhost:8086/write?db=kpi"
 
     first_line = 1
 
     size = os.stat(options.csv).st_size
-    print "FILE: " + options.csv + ", Size: " + str(size)
+    print ("FILE: " + options.csv + ", Size: " + str(size))
 
     if (size > 100):
         with open(options.csv) as f:
             for line in f:
-                print line
+                print (line)
                 if first_line == 1:
                     first_line = 0
                     continue
@@ -115,11 +113,26 @@ if __name__ == "__main__":
                 values = options.metric + "=" + count
                 data = "metric," + tags + " " + values + " " + when
 
-                print "SERVICE: " + service
-                print "Type: " + str(options.metric)
-                print "DATA: " + data
+                print ("SERVICE: " + service          )
+                print ("Type: " + str(options.metric) )
+                print ("DATA: " + data                )
 
                 command = "curl -s -i -XPOST " + influx_url + " --data-binary \"" + data + "\""
-                print command
+                print (command)
                 os.system(command)
+            pass
+        pass
+    pass
+
+
+    # ----------------------------------------------------------------------------------------------------------
+    # OLD CODE memory
+    # The following code used to use filename with service, key and metric within the file name
+    # Deprecated by the new program options and json options file
+    # ----------------------------------------------------------------------------------------------------------
+    #       (service, key, metric) = metrics_file.split('^', 3)
+    #       metric = metric.replace(".csv", "")
+    # ----------------------------------------------------------------------------------------------------------
+
+
 
