@@ -34,7 +34,6 @@ class Predictor:
         ro.r('r_time_series<-na.locf(r_time_series)')
         ro.r('r_time_series<-as.numeric(r_time_series)')
 
-
         ro.r('''preprocess_jumps <- function(input, periods=c(1440, 10080), hours=8)
           ###-------------------------------------------------------------------------###
           ### The function preprocess_jumps deals with the abrupt changes at the
@@ -48,7 +47,7 @@ class Predictor:
           {
               l <- length(as.numeric(input))
               input.msts <-msts(input, start=1, seasonal.periods = periods)
-              input_decom <-mstl(input.msts, s.window = 'periodic')
+              input_decom <-mstl(input.msts, s.window = 'periodic',robust=TRUE)
               data_mod <- as.numeric(input_decom[, 2])
               temp <- data_mod
               data_mod<-rollmedian(temp,(60*hours+1),align = 'right')
@@ -58,16 +57,16 @@ class Predictor:
               return (final)
           }
           time_series_original <- r_time_series
-          r_time_series <- preprocess_jumps(r_time_series, periods=c(1440), hours=8)
+          r_time_series <- preprocess_jumps(r_time_series, periods=c(1440,10080), hours=8)
           r_time_series <- as.numeric(r_time_series)
         ''')
 
         ro.r('''
           ###-------------------------------------------------------------------------###
-          ### Log transform data to ensure that we always have positive predictions. 
+          ### Log transform data to ensure that we always have positive predictions.
           ### In the case of abrupt drops in a metric the prediction may become negative
           ### which would be unacceptable and we take log transformation to prevent that.
-          ### We add a constant of 1 to deal with cases where the metric is 0, since log 0 
+          ### We add a constant of 1 to deal with cases where the metric is 0, since log 0
           ### is undefined.
           ###-------------------------------------------------------------------------###
           y<-r_time_series
@@ -79,7 +78,7 @@ class Predictor:
           ###-------------------------------------------------------------------------###
           ### Do decomposition based prediction for the next 60 minutes.
           ###-------------------------------------------------------------------------###
-          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic")
+          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic",robust=TRUE)
           ###-------------------------------------------------------------------------###
           ###  Transform the predictions back to the original form by exponentiating and
           ###  subtracting 1. The convert to multiple seasonality time series object.
@@ -114,13 +113,12 @@ class Predictor:
             var1<-sqrt(sum((abs(y[(lead+1):(l)]-y[(1):(l-lead)])^2))/l)        
             return(var1)        
           }
-      
+
           sd1<-variance(as.numeric(time_series_original))   
           sd2<-sd(as.numeric(time_series_original))
         ''')
 
-        self.standard_dev_upper = ro.r('as.numeric(sd1)')
-        self.standard_dev_lower = ro.r('as.numeric(sd2)')
+        self.standard_dev = ro.r('as.numeric(sd1)')
         self.forecast = ro.r('as.numeric(out2.ts)')
 
         ro.r('rm(stlf_out,data.ts, f1, out2.ts, sd1, x, y, y_temp, y_temp_smoothed)')
@@ -130,10 +128,11 @@ class Predictor:
     def predict(self):
         lgbPreds = self.forecast
 
-        lower_limit = lgbPreds - (self.deviations * self.standard_dev_lower)
-        upper_limit = lgbPreds + (self.deviations * self.standard_dev_upper)
+        lower_limit = lgbPreds - (self.deviations * self.standard_dev)
+        upper_limit = lgbPreds + (self.deviations * self.standard_dev)
 
         lower_limit = [max(i, 0.0) for i in lower_limit]
 
         return (lower_limit, upper_limit)
+
 

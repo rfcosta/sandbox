@@ -9,6 +9,7 @@ class Panel():
         self.deep_link = panel['deep_link']
         self.title = panel['title']
         self.base_metric_name = panel['base_metric_name']
+        self.data_source = panel['data_source']
         self.format = panel['format']
         self.alerting_enabled = panel['alerting_enabled'] if 'alerting_enabled' in panel else 'false'
         self.dynamic_alerting_enabled = panel['dynamic_alerting_enabled'] if 'dynamic_alerting_enabled' in panel else 'false'

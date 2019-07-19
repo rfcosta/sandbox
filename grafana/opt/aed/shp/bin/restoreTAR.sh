@@ -90,7 +90,7 @@ fi
 
 
 echo "# Database: $DATABASE  Retention: $RETENTION Day: $DAY"
-S3URL=$AWS_DATA_BUCKET/backups
+S3URL=$AWS_BACKUP_BUCKET/backups
 S3DIR="influx-backup-$DAY"
 echo " aws s3 cp  s3://$S3URL/$S3DIR/$S3TAR $S3TAR "
 sourceDIR=$PWD

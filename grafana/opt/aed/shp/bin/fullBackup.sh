@@ -36,7 +36,7 @@ fi
 
 
 [ -f /etc/profile.d/shp_env.sh ] && source /etc/profile.d/shp_env.sh
-# AWS_DATA_BUCKET=${AWS_BUCKET%-*}-data   # Special bucket for backup
+# AWS_BACKUP_BUCKET=${AWS_BUCKET%-*}-data   # Special bucket for backup
 
 # Get UTC timestamps
 NOW=$(date -u +"%Y%m%dT%H%M%SZ")  # Right now
@@ -61,7 +61,7 @@ TARBASE=$BKPDIR/tar/$TDY
 S3BASE="influx-backup"
 S3DIR="$S3BASE-$TDY"
 # Example: S3URL=s3-dev-us-west-2-shp-data/backups
-S3URL=${AWS_DATA_BUCKET}/backups
+S3URL=${AWS_BACKUP_BUCKET}/backups
 
 
 

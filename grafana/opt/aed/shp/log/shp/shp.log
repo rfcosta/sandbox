@@ -75,3 +75,905 @@ Traceback (most recent call last):
   File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
     raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
 IOError: Error in api_post_with_data: dashboards/db - {"message":"uid contains illegal characters"}
+2019-07-18 14:53:53,925 - [create_grafana_dashboards.py:706 - <module>() ] - ERROR - Failure: Fatal error when creating dashboards
+Traceback (most recent call last):
+  File "/opt/aed/shp/bin/create_grafana_dashboards.py", line 688, in <module>
+    admin_org_id = get_organization_id_by_name('Admin')
+  File "/opt/aed/shp/bin/create_grafana_dashboards.py", line 174, in get_organization_id_by_name
+    raise IOError("Error getting organization id: " + resp.text)
+IOError: Error getting organization id: {"message":"Organization not found"}
+2019-07-18 14:58:55,464 - [create_grafana_dashboards.py:706 - <module>() ] - ERROR - Failure: Fatal error when creating dashboards
+Traceback (most recent call last):
+  File "/opt/aed/shp/bin/create_grafana_dashboards.py", line 693, in <module>
+    create_service_dashboards(service_config, main_org_id, staging_org_id)
+  File "/opt/aed/shp/bin/create_grafana_dashboards.py", line 267, in create_service_dashboards
+    if (panel.data_source not in unique_sources):
+AttributeError: Panel instance has no attribute 'data_source'
+2019-07-18 15:02:22,140 - [create_grafana_dashboards.py:706 - <module>() ] - ERROR - Failure: Fatal error when creating dashboards
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 693, in <module>
+    create_service_dashboards(service_config, main_org_id, staging_org_id)
+  File "create_grafana_dashboards.py", line 267, in create_service_dashboards
+    if (panel.data_source not in unique_sources):
+AttributeError: Panel instance has no attribute 'data_source'
+2019-07-18 15:06:30,674 - [create_grafana_dashboards.py:710 - <module>() ] - ERROR - Failure: Fatal error when creating dashboards
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 697, in <module>
+    create_service_dashboards(service_config, main_org_id, staging_org_id)
+  File "create_grafana_dashboards.py", line 283, in create_service_dashboards
+    if panel.custCode:
+AttributeError: Panel instance has no attribute 'custCode'
+2019-07-18 15:15:14,299 - [create_grafana_dashboards.py:316 - create_service_dashboards() ] - ERROR - Dashboard creation error: SHS ECRS Synxis Mobile BE
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 313, in create_service_dashboards
+    create_single_dashboard(dash_text, service.name, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Failed to save dashboard"}
+2019-07-18 15:15:43,447 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: GetThere
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:15:57,024 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Teletype Message Gateway
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:16:07,254 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Flight Plan Manager
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:16:19,916 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Supplier Message Management
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:16:30,173 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Sabre Customer Virtual Private Network
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:16:41,637 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Sabre Web Services
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:16:53,710 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Airline Inventory
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:17:05,962 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Liberty
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:17:20,835 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Trip PNR
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:17:32,785 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Payment Solutions
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:17:43,650 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Event Notification System
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:17:54,675 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: MySabre
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:18:05,817 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Enhanced FTP Gateway
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:18:17,394 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Sabre Common-use Network Gateway (SCNG)
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:18:31,572 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Flight Internet Crew Access
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:18:43,632 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Multi Access Platform
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:18:54,772 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Sabre common Translator
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:19:05,597 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Darwin
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:19:15,685 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: IntelliSell
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:19:26,395 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Tokenizer
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:19:39,206 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Enterprise Session and Security Manager
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:19:53,122 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Ticketing - Open Systems
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:20:03,570 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Supplier Side Gateway
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:20:14,602 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Air Availability
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:20:25,566 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Dedicated New Open Front End Processor
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:20:37,468 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: German Tour
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:20:50,891 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: ATSE Air Travel Shopping Engine
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:21:02,062 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Sabre Links Processor
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:21:12,613 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Single Sign On
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:21:23,665 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Security Access Services
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:21:34,223 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: SynXis
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:21:46,130 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Sabre Sonic Web
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:21:56,417 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Check-In - Open Systems
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:22:11,676 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: CENTIVA
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:22:23,512 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Web Access Manager
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:22:34,938 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Air Schedules
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:22:44,974 - [create_grafana_dashboards.py:591 - create_aggregated_dashboards() ] - ERROR - Dashboard creation error: Community Portal
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 588, in create_aggregated_dashboards
+    create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:22:56,931 - [create_grafana_dashboards.py:381 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL Average Processing Time
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 378, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + type_label, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Average Processing Time alert, datasource=kpi"}
+2019-07-18 15:23:13,087 - [create_grafana_dashboards.py:381 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL Transaction Count
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 378, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + type_label, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Transaction Count alert, datasource=kpi"}
+2019-07-18 15:23:24,434 - [create_grafana_dashboards.py:381 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL Error Count
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 378, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + type_label, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Error Count alert, datasource=kpi"}
+2019-07-18 15:23:36,213 - [create_grafana_dashboards.py:381 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL Error Rate
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 378, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + type_label, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Error Rate alert, datasource=kpi"}
+2019-07-18 15:23:53,939 - [create_grafana_dashboards.py:436 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL service_supplied
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 433, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + source, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Average Processing Time alert, datasource=kpi"}
+2019-07-18 15:24:06,305 - [create_grafana_dashboards.py:436 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL appdynamics
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 433, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + source, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Average Processing Time alert, datasource=kpi"}
+2019-07-18 15:24:17,219 - [create_grafana_dashboards.py:436 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL zabbix
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 433, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + source, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Average Processing Time alert, datasource=kpi"}
+2019-07-18 15:24:28,425 - [create_grafana_dashboards.py:436 - create_shp_health_dashboards() ] - ERROR - Dashboard creation error: ALL viz
+Traceback (most recent call last):
+  File "create_grafana_dashboards.py", line 433, in create_shp_health_dashboards
+    create_single_dashboard(dash_text, "ALL " + source, org_id, dash_uid, folder_name)
+  File "create_grafana_dashboards.py", line 220, in create_single_dashboard
+    resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
+  File "/opt/aed/shp/lib/grafana/dashboards.py", line 40, in create_dashboard
+    id = self.helper.api_post_with_data('dashboards/db', json)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 49, in wrapped_f
+    return Retrying(*dargs, **dkw).call(f, *args, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 212, in call
+    raise attempt.get()
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 247, in get
+    six.reraise(self.value[0], self.value[1], self.value[2])
+  File "/usr/local/lib/python2.7/dist-packages/retrying.py", line 200, in call
+    attempt = Attempt(fn(*args, **kwargs), attempt_number, False)
+  File "/opt/aed/shp/lib/grafana/helper.py", line 67, in api_post_with_data
+    raise IOError("Error in api_post_with_data: " + function + " - " + resp.text)
+IOError: Error in api_post_with_data: dashboards/db - {"message":"Alert validation error: Data source used by alert rule not found, alertName=Average Processing Time alert, datasource=kpi"}
