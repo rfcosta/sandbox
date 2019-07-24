@@ -1,0 +1,107 @@
+{
+  "aliasColors": {},
+  "bars": false,
+  "dashLength": 10,
+  "dashes": false,
+  "datasource": "kpi",
+  "fill": 0,
+  "gridPos": {
+    "h": 7,
+    "w": 8,
+    "x": <<GRID_X>>,
+    "y": <<GRID_Y>>
+  },
+  "hideTimeOverride": false,
+  "id": <<PANEL_ID>>,
+  "interval": "60s",
+  "legend": {
+    "avg": false,
+    "current": false,
+    "max": false,
+    "min": false,
+    "show": true,
+    "total": false,
+    "values": false
+  },
+  "lines": true,
+  "linewidth": 3,
+  "links": [
+  ],
+  "nullPointMode": "null",
+  "percentage": false,
+  "pointradius": 5,
+  "points": false,
+  "renderer": "flot",
+  "seriesOverrides": [],
+  "spaceLength": 10,
+  "stack": false,
+  "steppedLine": false,
+  "targets": [
+    {
+      "alias": "",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "null"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "query": "SELECT \"<<METRIC_TYPE>>\" FROM \"days\".\"metric\" WHERE (\"type\" = '<<METRIC_TYPE>>' AND \"time\" > now() - 30d AND \"source\"='<<DATA_SOURCE>>') AND $timeFilter GROUP BY \"ci\"\n",
+      "rawQuery": true,
+      "refId": "A",
+      "resultFormat": "time_series"
+    }
+  ],
+  "thresholds": [],
+  "timeFrom": null,
+  "timeRegions": [],
+  "timeShift": null,
+  "title": "<<TITLE>>",
+  "tooltip": {
+    "shared": true,
+    "sort": 0,
+    "value_type": "individual"
+  },
+  "transparent": true,
+  "type": "graph",
+  "xaxis": {
+    "buckets": null,
+    "mode": "time",
+    "name": null,
+    "show": true,
+    "values": []
+  },
+  "yaxes": [
+    {
+      "format": "ms",
+      "label": null,
+      "logBase": 1,
+      "max": null,
+      "min": 0,
+      "show": true
+    },
+    {
+      "format": "short",
+      "label": null,
+      "logBase": 1,
+      "max": null,
+      "min": null,
+      "show": true
+    }
+  ],
+  "yaxis": {
+    "align": false,
+    "alignLevel": null
+  }
+}

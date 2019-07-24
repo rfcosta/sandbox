@@ -47,7 +47,7 @@ class Predictor:
           {
               l <- length(as.numeric(input))
               input.msts <-msts(input, start=1, seasonal.periods = periods)
-              input_decom <-mstl(input.msts, s.window = 'periodic',robust=TRUE)
+              input_decom <-mstl(input.msts, s.window = 'periodic')
               data_mod <- as.numeric(input_decom[, 2])
               temp <- data_mod
               data_mod<-rollmedian(temp,(60*hours+1),align = 'right')
@@ -57,7 +57,7 @@ class Predictor:
               return (final)
           }
           time_series_original <- r_time_series
-          r_time_series <- preprocess_jumps(r_time_series, periods=c(1440,10080), hours=8)
+          r_time_series <- preprocess_jumps(r_time_series, periods=c(1440), hours=8)
           r_time_series <- as.numeric(r_time_series)
         ''')
 
@@ -78,7 +78,7 @@ class Predictor:
           ###-------------------------------------------------------------------------###
           ### Do decomposition based prediction for the next 60 minutes.
           ###-------------------------------------------------------------------------###
-          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic",robust=TRUE)
+          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic")
           ###-------------------------------------------------------------------------###
           ###  Transform the predictions back to the original form by exponentiating and
           ###  subtracting 1. The convert to multiple seasonality time series object.
@@ -86,7 +86,7 @@ class Predictor:
           out2.ts<-msts((exp(stlf_out$mean)-1),start=1,seasonal.periods=periods)
           ###-------------------------------------------------------------------------###
           ### The predictions are very jagged and rough and represent the jagged nature of
-          ### the data. So we apply loess smoothing to the final prediction. But in order 
+          ### the data. So we apply loess smoothing to the final prediction. But in order
           ### do so we recombine to the original time series first. Then we do loess
           ### smoothing over the entire data set combined with predictions. The we extract
           ### only the smoothes version of the predictions.
@@ -98,23 +98,23 @@ class Predictor:
           sd1<-sd((as.numeric(r_time_series)-head(y_temp_smoothed$fitted,length(y))))
         ''')
 
-        ro.r('''       
+        ro.r('''
           ###-------------------------------------------------------------------------###
-          ### Calculate an "standard deviation (sd)" type number to use for upper and lower 
-          ### bounds. Using a regular sd of residuals were not appropriate and gave bands 
-          ### that we too low so we create a function called variance that looks at 
+          ### Calculate an "standard deviation (sd)" type number to use for upper and lower
+          ### bounds. Using a regular sd of residuals were not appropriate and gave bands
+          ### that we too low so we create a function called variance that looks at
           ### seasonal random walk walk residuals for a lead time of 5040 minutes (3.5 days)
           ###-------------------------------------------------------------------------###
           variance<-function(y) {
             lead<-5040
             l<-length(y)
             recent<-y[(lead+1):(l)]
-            past<-y[(1):(l-lead)]       
-            var1<-sqrt(sum((abs(y[(lead+1):(l)]-y[(1):(l-lead)])^2))/l)        
-            return(var1)        
+            past<-y[(1):(l-lead)]
+            var1<-sqrt(sum((abs(y[(lead+1):(l)]-y[(1):(l-lead)])^2))/l)
+            return(var1)
           }
 
-          sd1<-variance(as.numeric(time_series_original))   
+          sd1<-variance(as.numeric(time_series_original))
           sd2<-sd(as.numeric(time_series_original))
         ''')
 
@@ -134,5 +134,3 @@ class Predictor:
         lower_limit = [max(i, 0.0) for i in lower_limit]
 
         return (lower_limit, upper_limit)
-
-
