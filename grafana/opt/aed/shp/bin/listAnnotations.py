@@ -16,48 +16,51 @@ sys.path.append('/opt/aed/shp/lib/grafana')
 import shputil
 from helper import Helper
 
-
-def encode(service):
-    service_name = service.replace(" -", "-")
-    service_name = service_name.replace("- ", "-")
-    service_name = service_name.replace("_", "-")
-    service_name = service_name.replace(" ", "-")
-    return service_name
-
-def convert_utc_to_epoch(timestamp_string):
-    '''Use this function to convert utc to epoch'''
-    print (timestamp_string)
-    try:
-        timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S:%fZ')
-    except Exception:
-        try:
-            timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S.%fZ')
-        except Exception:
-            timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%SZ')
-
-    epoch = int(calendar.timegm(timestamp.utctimetuple()))
-    print (epoch)
-    return str(epoch) + '000000000'
-
-
-def LoadJson(json_filename):
-    """Load JSON file.
-    Raises ValueError if JSON is invalid.
-
-    :filename: path to file containing query
-    :returns: dic
-    """
-    try:
-        with open(json_filename) as json_file:
-            return json.load(json_file)
-    except ValueError as err:
-        return dict()
-
-class AnnotationsUtil():
+class AlertAnnotationUtil():
 
     LOG_LEVEL_DEFAULT = DEBUG
     NAME_DEFAULT = __name__
     INSTANCE_DEFAULT = "sabredev2"
+
+    @staticmethod
+    def encode(service):
+        service_name = service.replace(" -", "-")
+        service_name = service_name.replace("- ", "-")
+        service_name = service_name.replace("_", "-")
+        service_name = service_name.replace(" ", "-")
+        return service_name
+
+    @staticmethod
+    def convert_utc_to_epoch(timestamp_string):
+        '''Use this function to convert utc to epoch'''
+        print (timestamp_string)
+        try:
+            timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S:%fZ')
+        except Exception:
+            try:
+                timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S.%fZ')
+            except Exception:
+                timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%SZ')
+
+        epoch = int(calendar.timegm(timestamp.utctimetuple()))
+        print (epoch)
+        return str(epoch) + '000000000'
+
+
+    @staticmethod
+    def LoadJson(json_filename):
+        """Load JSON file.
+        Raises ValueError if JSON is invalid.
+
+        :filename: path to file containing query
+        :returns: dic
+        """
+        try:
+            with open(json_filename) as json_file:
+                return json.load(json_file)
+        except ValueError as err:
+            return dict()
+
 
 
     def __init__(self, *args, **kwargs):
@@ -287,7 +290,7 @@ if __name__ == "__main__":
 
     options_from_json = dict()
     if options.options_file:
-        options_from_json = LoadJson(options.options_file)
+        options_from_json = AlertAnnotationUtil.LoadJson(options.options_file)
 
     # The following onlyt works on Python 2:
     # options_from_json.update(  (ky, val) for (ky,val) in options.__dict__.iteritems() if val  )
@@ -330,7 +333,7 @@ if __name__ == "__main__":
     _example_dashboardId = 220
     _example_panelId     = 2
 
-    autl = AnnotationsUtil(orgId=options.orgId, instanceName=options.instance)
+    autl = AlertAnnotationUtil(orgId=options.orgId, instanceName=options.instance)
 
     _dashAnnotations = autl.getAnnotationsOnDashboardPanel(dashboardId=options.dashboardId, panelId=options.panelId)
     _numberOfAnnotationsReturned = len(_dashAnnotations)
