@@ -256,16 +256,9 @@ class AlertAnnotationUtil():
             raise Exception ("makeURI missing parameters")
         pass
 
-        _URI = "<a target=\"_blank\" href='https://{0}.service-now.com/nav_to.do?uri={1}.do?sys_id={2}'>{3}</a>: {4}".format(
+        _URI = "<a target=\"_blank\" href='https://{0}.service-now.com/{1}.do?sys_id={2}'>{3}</a>: {4}".format(
                self.instanceName, type, sys_id, number, short_description
                )
-
-        _URI2 = "<a target=\"_blank\" href='https://" + self.instanceName + \
-               ".service-now.com/nav_to.do?uri=" + type + ".do?sys_id=" + \
-               sys_id + "'>" + \
-               number + \
-               "</a>" + \
-               ": " + short_description
 
         return _URI
 
