@@ -3,6 +3,7 @@
 import urllib
 import calendar
 import os
+import copy
 import json
 import sys
 from datetime import datetime
@@ -150,6 +151,13 @@ class AlertAnnotationUtil():
                           panelId    = kwargs.get('panelId',0),
                           limit      = kwargs.get('limit',self.limit)
                           )
+            _from = kwargs.get('fromTime')
+            _to   = kwargs.get('toTime')
+            if _from:
+                params['from'] = str(_from) + '000'
+            if _to:
+                params['to']   = str(_to)   + '999'
+
 
             resp = self.helper.api_get_with_params("annotations", params)
             _annotationsFromGrafana = json.loads(resp.content)
@@ -177,16 +185,16 @@ class AlertAnnotationUtil():
 
         return returnText
 
-    def updateAnnotation(self, annotationRequest, region, **kwargs):
+    def updateAnnotation(self, annotation, **kwargs):
 
         # Verify if we need to perform 2 updates
         returnText = ''
-        annotationId = region[0]['id']
+        annotationId = annotation['id']
         try:
-            aupdatedata = dict(text     = annotationRequest['text'],
-                               time     = annotationRequest['time'],
+            aupdatedata = dict(text     = annotation['text'],
+                               time     = annotation['time'],
                                isRegion = False,
-                               tags     = annotationRequest['tags']
+                               tags     = annotation['tags']
                                )
             _updateResponse = self.helper.api_put_with_data('annotations/' + str(annotationId), aupdatedata)
             returnText = str(_updateResponse.text)
@@ -246,14 +254,20 @@ class AlertAnnotationUtil():
 
         if not type or not sys_id or not number or not short_description:
             raise Exception ("makeURI missing parameters")
+        pass
 
-        _URI = "<a target=\"_blank\" href='https://" + self.instanceName + \
+        _URI = "<a target=\"_blank\" href='https://{0}.service-now.com/nav_to.do?uri={1}.do?sys_id={2}'>{3}</a>: {4}".format(
+               self.instanceName, type, sys_id, number, short_description
+               )
+
+        _URI2 = "<a target=\"_blank\" href='https://" + self.instanceName + \
                ".service-now.com/nav_to.do?uri=" + type + ".do?sys_id=" + \
                sys_id + "'>" + \
                number + \
                "</a>" + \
                ": " + short_description
-        pass
+
+        return _URI
 
 if __name__ == "__main__":
 
@@ -270,11 +284,14 @@ if __name__ == "__main__":
     # parser.add_option("-u", "--url",       dest="url"         , help="Influx URL"       , default='http://localhost:8086/write?db=kpi')
 
     parser.add_option("-o", "--options",   dest="options_file", help="Options json file", default='')
+    parser.add_option("-i", "--instance",  dest="instance"   , help="SNOW Instance"    ,  default="sabredev2")
     parser.add_option("-f", "--file",      dest="jsonFile"    , help="Output json file",  default='listAnnotations.json')
     parser.add_option("-d", "--dashboard", dest="dashboardId", help="Dashboard Id"     ,  default="220")
     parser.add_option("-a", "--panel",     dest="panelId",     help="Panel Id"         ,  default="2")
-    parser.add_option("-g", "--org",       dest="orgId"      , help="Org Id"           ,  default="2")
-    parser.add_option("-i", "--instance",  dest="instance"   , help="Grafana Instance" ,  default="localhost")
+    parser.add_option("-r", "--org",       dest="orgId"      , help="Org Id"           ,  default="2")
+    parser.add_option("-t", "--time",      dest="time"       , help="From Time"        ,  default="1564598378")
+    parser.add_option("-e", "--timeEnd",   dest="timeEnd"    , help="To Time"          ,  default="1564598378")
+    parser.add_option("-g", "--grafana",   dest="grafana"    , help="Grafana Instance" ,  default="localhost")
     parser.add_option("-p", "--port",      dest="port"       , help="Grafana Port"     ,  default="3000")
     parser.add_option("-l", "--limit",     dest="limit"      , help="Limit of records" ,  default="100" )
     parser.add_option("-u", "--user",      dest="user"       , help="Grafana User"      , default='Admin')
@@ -320,7 +337,7 @@ if __name__ == "__main__":
     grafana_url = URLTEMPLATE.format(
         options.user,
         options.pswd,
-        options.instance,
+        options.grafana,
         options.port,
         options.orgId,
         options.limit,
@@ -335,42 +352,23 @@ if __name__ == "__main__":
 
     autl = AlertAnnotationUtil(orgId=options.orgId, instanceName=options.instance)
 
-    _dashAnnotations = autl.getAnnotationsOnDashboardPanel(dashboardId=options.dashboardId, panelId=options.panelId)
+    _dashAnnotations = autl.getAnnotationsOnDashboardPanel(dashboardId=options.dashboardId, \
+                                                           panelId=options.panelId, \
+                                                           fromTime=options.time, toTime=options.timeEnd \
+                                                          )
     _numberOfAnnotationsReturned = len(_dashAnnotations)
 
     autl.loggger.info("** Ann returned %d" % (_numberOfAnnotationsReturned))
 
-    #
+    _incident   = 'INC2543646'
+    _instance   = 'sabredev2'
+    _inc_sys_id = 'b3783ae8dbcffb0821421ffa6896194d'
+    _inc_descr  = '[Alert3450155] Service Health Portal: WARNING: Payment Internet Payment Engine Transaction Count is 35 which is below the dynamic threshold'
 
-    # first_line = 1
-    #
-    # size = os.stat(options.csv).st_size
-    # print ("FILE: " + options.csv + ", Size: " + str(size))
-    #
-    # if (size > 100):
-    #     with open(options.csv) as f:
-    #         for line in f:
-    #             print (line)
-    #             if first_line == 1:
-    #                 first_line = 0
-    #                 continue
-    #             line = line.rstrip()
-    #
-    #             (when, service, count) = line.split(',', 3)
-    #             service = encode(options.service)
-    #             when = str(convert_utc_to_epoch(when))
-    #             tags = "ci=" + service + ",key=" + options.key + ",source=" + options.source + ",type=" + options.metric
-    #             values = options.metric + "=" + count
-    #             data = "metric," + tags + " " + values + " " + when
-    #
-    #             print ("SERVICE: " + service          )
-    #             print ("Type: " + str(options.metric) )
-    #             print ("DATA: " + data                )
-    #
-    #             command = "curl -s -i -XPOST " + influx_url + " --data-binary \"" + data + "\""
-    #             print (command)
-    #             os.system(command)
-    #         pass
-    #     pass
-    # pass
-    #
+    _annotation = copy.deepcopy(_dashAnnotations[0])
+    _annotation['text'] = autl.makeURI(sys_id=_inc_sys_id, number=_incident, short_description=_inc_descr)
+
+
+
+    response = autl.updateAnnotation( _annotation )
+
