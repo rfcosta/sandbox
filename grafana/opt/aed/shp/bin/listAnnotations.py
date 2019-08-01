@@ -265,17 +265,7 @@ class AlertAnnotationUtil():
 if __name__ == "__main__":
 
     parser = OptionParser(add_help_option=False)
-    parser.add_option("-h",   "--help",      action="help")
-    # parser.add_option("-o",   "--options",   dest="options_file", help="Options json file", default='')
-    # parser.add_option("-v",   "--service",   dest="service"     , help="Service"          , default='')
-    # parser.add_option("-k",   "--key",       dest="key"         , help="Key"              , default='')
-    # parser.add_option("-m",   "--metric",    dest="metric"      , help="Metric"           , default='')
-    # parser.add_option("-s",   "--source",    dest="source",
-    #                      help='Data Source (AppDynamics | VIZ | Zabbix | Service Supplied)',
-    #                      type="choice", choices=["AppDynamics", "VIZ", "Zabbix", "Service Supplied", ""], default=''
-    #                  )
-    # parser.add_option("-u", "--url",       dest="url"         , help="Influx URL"       , default='http://localhost:8086/write?db=kpi')
-
+    parser.add_option("-h", "--help",      action="help")
     parser.add_option("-o", "--options",   dest="options_file", help="Options json file", default='')
     parser.add_option("-i", "--instance",  dest="instance"   , help="SNOW Instance"    ,  default="sabredev2")
     parser.add_option("-f", "--file",      dest="jsonFile"    , help="Output json file",  default='listAnnotations.json')
