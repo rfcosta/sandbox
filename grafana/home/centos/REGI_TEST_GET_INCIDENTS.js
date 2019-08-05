@@ -74,7 +74,7 @@ GlideRecord.prototype.isDate = function(property) {
 // Ref: https://community.servicenow.com/community?id=community_blog&sys_id=b96c2ea1dbd0dbc01dcaf3231f9619b9
 
 
-
+var QLIIMT = 2;
 var QALRT = 'source=Service Health Portal' +
 	'^stateINOpen,Reopen,Flapping' +
 	'^sys_created_on>=javascript:gs.beginningOfLast30Minutes()^OR' +
@@ -86,7 +86,10 @@ var TALRT = 'em_alert';
 var DATAO = { incidents: {}, alerts: {} };
 
 var alrt = new GlideRecord(TALRT);
-alrt.setLimit(1);
+if (QLIMIT > 0) {
+	alrt.setLimit(QLIMIT);
+}
+
 alrt.addEncodedQuery(QALRT);
 alrt.query();
 var NALRT = alrt.getRowCount();
