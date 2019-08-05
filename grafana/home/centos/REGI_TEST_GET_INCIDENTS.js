@@ -18,13 +18,14 @@ GlideRecord.prototype.toObject = function(record) {
 	var recordToPackage = record || this;
 	var packageToSend = {};
 	for (var property in recordToPackage) {
-		var pValue  = recordToPackage[property].getDisplayValue();
+		var pValue         = recordToPackage[property].getValue();
+		var pDisplayValue  = recordToPackage[property].getDisplayValue();
 		var pString = recordToPackage[property].toString();
 
-		if ('function' != typeof recordToPackage[property] && pValue) {
+		if ('function' != typeof recordToPackage[property] && pDisplayValue) {
 			try {
-				if ( this.isSysId( pString ) && (pValue != pString) ) {
-					packageToSend[property] = { sys_id: pString, displayValue: pValue};
+				if ( this.isSysId( pString ) && (pDisplayValue != pString) ) {
+					packageToSend[property] = { sys_id: pString, displayValue: pDisplayValue};
 				}
 				else if ( this.isDate( pString ) ) {
 					var epoch = new GlideDateTime( recordToPackage[property] ).getNumericValue();
@@ -36,11 +37,13 @@ GlideRecord.prototype.toObject = function(record) {
 				else if (!isNaN( pString )) {
 					packageToSend[ property ] = Number( pString );
 				}
-				else if ( (pValue != pString) ) {
-					packageToSend[property] = { value: pString, displayValue: pValue};
+				else if ( (pDisplayValue != pString) ) {
+					packageToSend[property] = { value: pString, displayValue: pDisplayValue};
 				}
 				else {
-					packageToSend[property] = pString;
+					//packageToSend[property] = pString;
+					packageToSend[property] = pValue;
+
 				}
 			}
 			catch(err){}
@@ -73,8 +76,11 @@ GlideRecord.prototype.isDate = function(property) {
 // Based on script include published at
 // Ref: https://community.servicenow.com/community?id=community_blog&sys_id=b96c2ea1dbd0dbc01dcaf3231f9619b9
 
+var PRINT = function(m) {
 
-var QLIIMT = 2;
+};
+
+var QLIMIT = 2;
 var QALRT = 'source=Service Health Portal' +
 	'^stateINOpen,Reopen,Flapping' +
 	'^sys_created_on>=javascript:gs.beginningOfLast30Minutes()^OR' +
