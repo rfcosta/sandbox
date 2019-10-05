@@ -8,13 +8,12 @@ class Predictor:
     def __init__(self, metric, historical_values, seasonal_periods, deviations, minutes_to_predict):
         self.metric = metric
         self.historical_values = historical_values
-        print "Seasonal Periods: ", seasonal_periods
+        print("Seasonal Periods: ", seasonal_periods)
         self.seasonal_periods = seasonal_periods
         self.deviations = deviations
         self.minutes_to_predict = minutes_to_predict
         self.time_series_columns = list()
         self.load_training_data()
-
 
     def load_training_data(self):
         for point_in_time in self.historical_values:
@@ -78,7 +77,7 @@ class Predictor:
           ###-------------------------------------------------------------------------###
           ### Do decomposition based prediction for the next 60 minutes.
           ###-------------------------------------------------------------------------###
-          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic")
+          stlf_out<-stlf(data.ts,h=minutes_to_predict,s.window="periodic",method='naive')
           ###-------------------------------------------------------------------------###
           ###  Transform the predictions back to the original form by exponentiating and
           ###  subtracting 1. The convert to multiple seasonality time series object.
@@ -86,7 +85,7 @@ class Predictor:
           out2.ts<-msts((exp(stlf_out$mean)-1),start=1,seasonal.periods=periods)
           ###-------------------------------------------------------------------------###
           ### The predictions are very jagged and rough and represent the jagged nature of
-          ### the data. So we apply loess smoothing to the final prediction. But in order
+          ### the data. So we apply loess smoothing to the final prediction. But in order 
           ### do so we recombine to the original time series first. Then we do loess
           ### smoothing over the entire data set combined with predictions. The we extract
           ### only the smoothes version of the predictions.
@@ -100,9 +99,9 @@ class Predictor:
 
         ro.r('''
           ###-------------------------------------------------------------------------###
-          ### Calculate an "standard deviation (sd)" type number to use for upper and lower
-          ### bounds. Using a regular sd of residuals were not appropriate and gave bands
-          ### that we too low so we create a function called variance that looks at
+          ### Calculate an "standard deviation (sd)" type number to use for upper 
+          ### bounds. Using a regular sd of residuals were not appropriate and gave bands 
+          ### that we too low so we create a function called variance that looks at 
           ### seasonal random walk walk residuals for a lead time of 5040 minutes (3.5 days)
           ###-------------------------------------------------------------------------###
           variance<-function(y) {
@@ -115,22 +114,23 @@ class Predictor:
           }
 
           sd1<-variance(as.numeric(time_series_original))
-          sd2<-sd(as.numeric(time_series_original))
+          sd2<-sd(as.numeric(time_series_original),na.rm = TRUE)
         ''')
 
-        self.standard_dev = ro.r('as.numeric(sd1)')
+        self.standard_dev_upper = ro.r('as.numeric(sd1)')
+        self.standard_dev_lower = ro.r('as.numeric(sd2)')
+
         self.forecast = ro.r('as.numeric(out2.ts)')
 
         ro.r('rm(stlf_out,data.ts, f1, out2.ts, sd1, x, y, y_temp, y_temp_smoothed)')
         ro.r('gc()')
 
-
     def predict(self):
-        lgbPreds = self.forecast
+        lgb_preds = self.forecast
 
-        lower_limit = lgbPreds - (self.deviations * self.standard_dev)
-        upper_limit = lgbPreds + (self.deviations * self.standard_dev)
+        lower_limit = lgb_preds - (self.deviations * self.standard_dev_lower)
+        upper_limit = lgb_preds + (self.deviations * self.standard_dev_upper)
 
         lower_limit = [max(i, 0.0) for i in lower_limit]
 
-        return (lower_limit, upper_limit)
+        return lower_limit, upper_limit

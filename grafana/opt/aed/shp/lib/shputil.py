@@ -1,4 +1,3 @@
-import os
 import json
 import logging
 import logging.config
@@ -6,17 +5,13 @@ from requests.auth import HTTPBasicAuth
 
 config_file = "/opt/aed/shp/conf/alerting-config.json"
 
+
 def get_config():
     try:
-        config = json.load(open(config_file))
-        return config
+        return json.load(open(config_file))
     except:
-        print "Error reading config file " + config_file
+        print("Error reading config file " + config_file)
         exit(1)
-
-
-def get_proxy():
-    return { "https" : "http://proxy.us-west-2.dev.int:3128" }
 
 
 def get_appdynamics_base_api_url():
@@ -28,7 +23,8 @@ def get_appdynamics_auth():
 
 
 def get_servicenow_base_api_url():
-    return "https://" + config["servicenow_user"] + ":" + config["servicenow_pass"] + "@" + config["servicenow_instance"] + ".service-now.com/api/now/table/"
+    return "https://" + config["servicenow_user"] + ":" + config["servicenow_pass"] + "@" + \
+           config["servicenow_instance"] + ".service-now.com/api/now/table/"
 
 
 def get_grafana_base_api_url():
@@ -43,7 +39,8 @@ def get_influxdb_base_url():
     return config["influxdb_url"]
 
 
-def configure_logging(logFile):
-    logging.config.fileConfig(logFile)
+def configure_logging(log_file):
+    logging.config.fileConfig(log_file)
+
 
 config = get_config()
