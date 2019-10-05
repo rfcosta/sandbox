@@ -39,6 +39,8 @@ unique_sources = []
 unique_types = []
 type_labels = {}
 
+dashboards_to_preserve = ( "InfluxDB", "Alerts", "Grafana", "Transaction Counts by Source", "Main" )
+
 def load_template(fname):
     with open(config["base_dir"] + "templates/" + fname, 'r') as myfile:
         data = myfile.read()
@@ -138,7 +140,7 @@ def remove_obsolete_dashboards(org_id_array):
         all_dashboards = dashboards[org_id].get_dashboards()
         for uid, title in all_dashboards.items():
             try:
-                if 'Main' not in title:
+                if title not in dashboards_to_preserve:
                     if org_id in used_dashboards:
                         if uid not in used_dashboards[org_id]:
                             print("Removing Dash: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
@@ -336,8 +338,8 @@ def create_shp_health_dashboards(service_cfg, org_id):
         counter = 0
 
         for service in service_cfg.get_services():
-            if service.state == 'undefined':
-                logging.debug("Skipping unconfigured service: " + service.name)
+            if service.state != 'validated':
+                logging.debug("Skipping non-Validated service: " + service.name)
                 continue
 
             for panel in sorted(service.panels, key=sortable_customers):
@@ -391,8 +393,8 @@ def create_shp_health_dashboards(service_cfg, org_id):
         counter = 0
 
         for service in service_cfg.get_services():
-            if service.state == 'undefined':
-                logging.debug("Skipping unconfigured service: " + service.name)
+            if service.state != 'validated':
+                logging.debug("Skipping non-Validated service: " + service.name)
                 continue
 
             for panel in sorted(service.panels, key=sortable_customers):

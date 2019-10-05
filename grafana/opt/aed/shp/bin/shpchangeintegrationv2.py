@@ -44,22 +44,32 @@ def process_annotations(cls):
 
             if key in cls.existingAnnotations:
                 _existingChange = cls.existingAnnotations[key]
-                _existingRegion = max(_existingChange.keys())
+                _existingRegion = max(_existingChange.keys())  # For new Grafana the regioId is initialized with -1
+                _match = True
 
-                if len(_existingChange[_existingRegion]) > 0:
-                    _annotationStart = _existingChange[_existingRegion][0]
+                if _existingRegion < 0: # New Grafana
+                    _uniqueAnnotation = _existingChange[_existingRegion][0]
+                    _match = (_uniqueAnnotation['text']      == _newAnnotation['text']) and \
+                             (_uniqueAnnotation['time']      == _newAnnotation['time']) and \
+                             (_uniqueAnnotation['timeEnd']   == _newAnnotation['timeEnd'])
+                    pass
                 else:
-                    _annotationStart = dict(text='Missing annotation', time=0, dashboardId=_dashboardId, panelId=_panelId)
+                    if len(_existingChange[_existingRegion]) > 0:
+                        _annotationStart = _existingChange[_existingRegion][0]
+                    else:
+                        _annotationStart = dict(text='Missing annotation', time=0, dashboardId=_dashboardId, panelId=_panelId)
+                    pass
+
+                    if len(_existingChange[_existingRegion]) > 1:
+                        _annotationEnd   = _existingChange[_existingRegion][1]
+                    else:
+                        _annotationEnd    = dict(text=_annotationStart['text'], time=0, dashboardId=_dashboardId, panelId=_panelId)
+                    pass
+
+                    _match = (_newAnnotation['text']   == _annotationStart['text']) and (_newAnnotation['text']   == _annotationEnd['text'])   and \
+                             (_annotationStart['time'] == _newAnnotation['time'])   and (_annotationEnd['time']   == _newAnnotation['timeEnd'])
                 pass
 
-                if len(_existingChange[_existingRegion]) > 1:
-                    _annotationEnd   = _existingChange[_existingRegion][1]
-                else:
-                    _annotationEnd    = dict(text=_annotationStart['text'], time=0, dashboardId=_dashboardId, panelId=_panelId)
-                pass
-
-                _match = (_newAnnotation['text']   == _annotationStart['text']) and (_newAnnotation['text']   == _annotationEnd['text'])   and \
-                         (_annotationStart['time'] == _newAnnotation['time'])   and (_annotationEnd['time']   == _newAnnotation['timeEnd'])
                 if _match:
                     cls.loggger.info("** Annotation Region %d matched therefore will not be updated" % (_existingRegion))
                 else:

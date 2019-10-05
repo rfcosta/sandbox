@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+[[ $(whoami) == "centos" ]] || { sudo su - centos -c "$0 $*";exit; }
+
 [ -f /etc/profile.d/shp_env.sh ] && source /etc/profile.d/shp_env.sh
 
 DATABASE=kpi
@@ -37,11 +39,13 @@ echo " "
 echo "# Commands to merge the data into database to be executed on any data node:"
 echo " influx"
 echo " USE restored_${DATABASE}_now.days"
-echo " ALTER RETENTION POLICY days ON kpi DURATION 34d"
+echo " ALTER RETENTION POLICY days ON kpi DURATION 42d"
 echo " SELECT * INTO ${DATABASE}..:MEASUREMENT FROM /.*/ GROUP BY *"
 echo " ALTER RETENTION POLICY days ON kpi DURATION 32d"
 echo " USE restored_${DATABASE}_now.months"
+echo " ALTER RETENTION POLICY days ON kpi DURATION 432d"
 echo " SELECT * INTO ${DATABASE}..:MEASUREMENT FROM /.*/ GROUP BY *"
+echo " ALTER RETENTION POLICY days ON kpi DURATION 392d"
 echo " USE restored_${DATABASE}_now.years"
 echo " SELECT * INTO ${DATABASE}..:MEASUREMENT FROM /.*/ GROUP BY *"
 echo " DROP DATABASE restored_${DATABASE}_now"

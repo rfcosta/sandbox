@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+[[ $(whoami) == "centos" ]] || { sudo su - centos -c "$0";exit; }
+
 [ -f /etc/profile.d/shp_env.sh ] && source /etc/profile.d/shp_env.sh
 
 DATABASE=kpi
@@ -23,7 +25,10 @@ fi
 [ ! -d $BKPNOWDIR ] && mkdir -p $BKPNOWDIR
 
 unset http_proxy
+unset HTTP_PROXY
 unset https_proxy
+unset HTTPS_PROXY
+
 influxd-ctl backup -full -db $DATABASE $BKPNOWDIR
 tar -cvf $TARBASE/$TARFILE $BKPNOWDIR
 aws s3 sync $TARBASE/ s3://$S3URL/$S3DIR/

@@ -1,7 +1,4 @@
-from panel import Panel
-
-
-class Customer():
+class Customer:
 
     def __init__(self, service, customer_code, customer_name, customer_sys_id):
         self.state = service.state
@@ -15,18 +12,15 @@ class Customer():
         self.report_grouping = 'Customers'
         self.dashboard_uid = self.get_dashboard_uid()
 
-
     def get_dashboard_uid(self):
         if self.sys_id != 'None':
             return self.sys_id
-        return self.code + self.state # backwards compatibility
-
+        return self.code + self.state   # backwards compatibility
 
     def is_validated(self):
         if self.state == 'validated':
             return True
         return False
-
 
     def is_alerting(self):
         if self.state == 'validated':
@@ -35,10 +29,8 @@ class Customer():
             return True
         return False
 
-
     def add_panel(self, panel):
         self.panels.append(panel)
-
 
     def __str__(self):
         s = ("Customer Name:   " + self.name.encode('ascii', 'ignore') + '\n' +

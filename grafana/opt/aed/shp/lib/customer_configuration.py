@@ -1,4 +1,3 @@
-import json
 import sys
 import copy
 
@@ -7,17 +6,16 @@ from customer import Customer
 
 sys.path.append('/opt/aed/shp/lib')
 
-class CustomerConfiguration():
+
+class CustomerConfiguration:
 
     @staticmethod
     def sortable_names(x):
         return x.name
 
-
     @staticmethod
     def sortable_customers(x):
         return x.name
-
 
     def __init__(self, service_configuration, all='ALL'):
 
@@ -47,7 +45,6 @@ class CustomerConfiguration():
         for _cust_uid in self.customers_db:
             _customer = self.customers_db[_cust_uid]
             self.customers.append(_customer)
-
 
     def get_customers(self):
         return sorted(self.customers, key=self.sortable_customers)

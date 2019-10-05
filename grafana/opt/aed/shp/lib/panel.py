@@ -1,8 +1,9 @@
 from threshold import Threshold
 
-class Panel():
-    def __init__(self, panel, panelKey, use_configured_panelIDs, service_name):
-        self.use_configured_panelIDs = use_configured_panelIDs
+
+class Panel:
+    def __init__(self, panel, panel_key, use_configured_panel_ids, service_name):
+        self.use_configured_panelIDs = use_configured_panel_ids
         self.thresholds = []
         self.service_name = service_name
         self.display_state = panel['display_state']
@@ -35,7 +36,7 @@ class Panel():
         self.dynamic_threshold_violation_occurrences = panel[
             'dynamic_threshold_violation_occurrences'] if 'dynamic_threshold_violation_occurrences' in panel else self.threshold_violation_occurrences
         self.metric_type = panel['metric_type']
-        self.panelKey = panelKey
+        self.panelKey = panel_key
         self.kpi = panel['kpi']
         self.panel_id = self.get_panel_id(panel)
         self.load_thresholds(panel)
@@ -61,7 +62,7 @@ class Panel():
             return '5'
         if self.metric_type == 'error_rate':
             return '6'
-        print "Unable to determine panel id for metric type"
+        print("Unable to determine panel id for metric type")
 
     def load_thresholds(self, panel):
         thresholds = panel['thresholds']

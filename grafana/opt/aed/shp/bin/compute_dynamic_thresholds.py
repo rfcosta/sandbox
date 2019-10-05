@@ -32,6 +32,9 @@ ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7
 
 MAX_SEASONS_CACHE_AGE = ONE_WEEK_IN_SECONDS
 
+MAX_DEVIATIONS = 6
+MIN_DEVIATIONS = 1
+
 def get_db_connection():
     influx_host = config['influxdb_host']
     influx_port = config['influxdb_port']
@@ -190,6 +193,30 @@ def get_seasons(service_name, metric, key, when):
     return seasons
 
 
+def get_standard_deviations(service_config, configured_standard_deviations):
+    try:
+        deviations_adjustment = service_config.dynamic_alerting_deviations_adjustment
+        standard_deviations = configured_standard_deviations + int(deviations_adjustment)
+    except Exception, e:
+        print "dynamic_alerting_deviations_adjustment is invalid: ", deviations_adjustment
+        standard_deviations = configured_standard_deviations
+
+    if standard_deviations > MAX_DEVIATIONS:
+        print standard_deviations, "> MAX_DEVIATIONS - Using ", MAX_DEVIATIONS
+        standard_deviations = MAX_DEVIATIONS
+
+    if standard_deviations < MIN_DEVIATIONS:
+        print standard_deviations, "<  MIN_DEVIATIONS - Using ", MIN_DEVIATIONS
+        standard_deviations = MIN_DEVIATIONS
+
+    if standard_deviations != configured_standard_deviations:
+        print "Using modified number of deviations:", standard_deviations, " was ", configured_standard_deviations
+    else:
+        print "Using configured number of deviations:", standard_deviations
+
+    return standard_deviations
+
+
 def calculate_dynamic_thresholds(service_config, service_name, when):
     service = service_config.get_service(service_name)
 
@@ -202,7 +229,7 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
             cache_id = get_cache_id(service_name, metric, key)
             print "ID:", cache_id
 
-            standard_deviations = panel.thresholds.standard_deviations
+            standard_deviations = get_standard_deviations(service_config, panel.thresholds.standard_deviations)
             seasonal_periods = get_seasons(service_name, metric, key, when)
             predictor = get_predictor(service_name, metric, key, standard_deviations, seasonal_periods, when)
             dynamic_thresholds = predictor.predict()

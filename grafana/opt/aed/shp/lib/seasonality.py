@@ -2,10 +2,10 @@ import numpy as np
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 
-
 DAILY_AND_WEEKLY = [1440, 10080]
 DAILY_ONLY = [1440]
 DEFAULT = [15]
+
 
 class Seasonality:
 
@@ -13,16 +13,15 @@ class Seasonality:
         is_daily = self.has_seasonality(historical_values, 1440)
         is_weekly = self.has_seasonality(historical_values, 10080)
 
-        print "Daily ?", is_daily
-        print "Weekly ?", is_weekly
+        print("Daily ?", is_daily)
+        print("Weekly ?", is_weekly)
 
-        if (is_weekly):
+        if is_weekly:
             self.seasons = DAILY_AND_WEEKLY
-        elif (is_daily):
+        elif is_daily:
             self.seasons = DAILY_ONLY
         else:
             self.seasons = DEFAULT
-
 
     def has_seasonality(self, historical_values, timespan):
         time_series_columns = list()
@@ -115,11 +114,6 @@ class Seasonality:
 
         return ro.r('as.logical(ret)')
 
-
     def get_seasons(self):
-        print "Seasons:", self.seasons
+        print("Seasons:", self.seasons)
         return self.seasons
-
-
-
-
