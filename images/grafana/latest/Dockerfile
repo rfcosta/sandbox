@@ -3,11 +3,11 @@ FROM grafana/grafana:$GRAFANA_TAG
 USER root
 RUN echo 'root:root' | chpasswd
 #
-RUN apt-get update
-RUN apt-get install -y vim
-RUN apt-get install -y nano
+#-- RUN apt-get update
+#-- RUN apt-get install -y vim
+#-- RUN apt-get install -y nano
 
-RUN apt-get install -y python
+#-- RUN apt-get install -y python
 #
 # Network problem getching files at random made unreliable to
 # install PIP from here. lines commented out
@@ -18,13 +18,13 @@ RUN apt-get install -y python
 #RUN pip install retrying
 
 
-RUN [ ! -d /home/grafana ] && mkdir /home/grafana
-RUN mkdir /var/log/shp
-RUN chown grafana:grafana /home/grafana
-RUN chown grafana:grafana /var/log/shp
+#--- RUN [ ! -d /home/grafana ] && mkdir /home/grafana
+#--- RUN mkdir /var/log/shp
+#--- RUN chown grafana:grafana /home/grafana
+#--- RUN chown grafana:grafana /var/log/shp
 
 USER grafana
-RUN touch /var/log/shp/shp.log
+#--- RUN touch /var/log/shp/shp.log
 #
 #RUN apt-get install -y openssh-server
 #RUN mkdir /var/run/sshd
