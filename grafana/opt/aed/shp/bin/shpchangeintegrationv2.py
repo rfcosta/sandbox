@@ -47,7 +47,7 @@ def process_annotations(cls):
                 _existingRegion = max(_existingChange.keys())  # For new Grafana the regioId is initialized with -1
                 _match = True
 
-                if _existingRegion < 0: # New Grafana
+                if len(_existingChange[_existingRegion]) == 1: # New Grafana
                     _uniqueAnnotation = _existingChange[_existingRegion][0]
                     _match = (_uniqueAnnotation['text']      == _newAnnotation['text']) and \
                              (_uniqueAnnotation['time']      == _newAnnotation['time']) and \

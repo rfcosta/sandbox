@@ -156,13 +156,16 @@ class AnnotationsUtil():
             self.existingAnnotations.setdefault(_key, dict())
 
             _regionId = grafanaAnnotation.get('regionId',-1)  # New Version of Grafana doesn't have regionId
+            _annotationKey = _regionId if _regionId > 0 else grafanaAnnotation.get('id',-1)
+
             _changeOnPanel = self.existingAnnotations[_key]
 
             _ignore = False
-            _changeOnPanel.setdefault(_regionId, [])
+            _changeOnPanel.setdefault(_annotationKey, [])
 
             # only need to del region dupes it there are regions.
-            # There's no regionId on new Grafana so duplicates are naturaly overriden on _key
+            # There's no regionId on new Grafana so duplicates are naturaly overriden
+            # since the hashkey _annotationKey is the unique annotation Id
             if _regionId > 0 and not dupes:
                 _latestRegionId = max(_changeOnPanel.keys())
 
@@ -173,7 +176,7 @@ class AnnotationsUtil():
                 pass
             pass
 
-            if _regionId in _changeOnPanel:
+            if _annotationKey in _changeOnPanel:
                 _annotationSubset = dict(id=None, time=None, timeEnd=None, dashboardId=None, panelId=None, regionId=None, text=None)
                 dictSetValues = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
                 _annotationSubset = dictSetValues(grafanaAnnotation, set(_annotationSubset))
@@ -181,13 +184,13 @@ class AnnotationsUtil():
                 _change = self.parseChange(_text)
                 _annotationSubset['change'] = _change
 
-                if len(_changeOnPanel[_regionId]) > 0 and _annotationSubset['id'] > _changeOnPanel[_regionId][0]['id']:
-                    _changeOnPanel[_regionId].append(_annotationSubset)
+                if len(_changeOnPanel[_annotationKey]) > 0 and _annotationSubset['id'] > _changeOnPanel[_annotationKey][0]['id']:
+                    _changeOnPanel[_annotationKey].append(_annotationSubset)
                 else:
-                    _changeOnPanel[_regionId].insert(0, _annotationSubset)
+                    _changeOnPanel[_annotationKey].insert(0, _annotationSubset)
                 pass
 
-                return _changeOnPanel[_regionId]
+                return _changeOnPanel[_annotationKey]
             pass
 
         return False
