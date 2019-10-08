@@ -4,11 +4,11 @@ USER root
 RUN echo 'root:root' | chpasswd
 #
 #
-apk update
-apk add vim
-apk add nano
-apk add python
-apk add py-pip
+RUN apk update
+RUN apk add vim
+RUN apk add nano
+RUN apk add python
+RUN apk add py-pip
 #
 #
 # apt-get not used since grafana went to ubuntu alpine
