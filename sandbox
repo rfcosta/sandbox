@@ -22,7 +22,11 @@ sandbox () {
     case $2 in
       influxdb | chronograf | kapacitor | telegraf | flux | grafana)
         echo "Entering /bin/bash session in the $2 container..."
-        docker-compose exec $2 /bin/bash
+        if [ "x$3" = "x" ] ; then
+             docker-compose exec $2 /bin/bash
+        else
+            docker-compose exec -u $3 $2 /bin/bash
+        fi
         ;;
       *)
         echo "sandbox enter (influxdb||chronograf||kapacitor||telegraf||flux||grafana)"

@@ -3,6 +3,19 @@ FROM grafana/grafana:$GRAFANA_TAG
 USER root
 RUN echo 'root:root' | chpasswd
 #
+#
+apk update
+apk add vim
+apk add nano
+apk add python
+apk add py-pip
+#
+#
+# apt-get not used since grafana went to ubuntu alpine
+#
+#
+#
+#
 #-- RUN apt-get update
 #-- RUN apt-get install -y vim
 #-- RUN apt-get install -y nano
@@ -13,19 +26,21 @@ RUN echo 'root:root' | chpasswd
 # install PIP from here. lines commented out
 # Use root after sandbox enter grafana to manually install PIP, REQUESTS and RETRYING
 
-#RUN apt-get install -y python-pip  --fix-missing
-#RUN pip install requests
-#RUN pip install retrying
+# RUN apt-get install -y python-pip  --fix-missing
+
+RUN pip install requests
+RUN pip install retrying
 
 
-#--- RUN [ ! -d /home/grafana ] && mkdir /home/grafana
-#--- RUN mkdir /var/log/shp
-#--- RUN chown grafana:grafana /home/grafana
-#--- RUN chown grafana:grafana /var/log/shp
+RUN [ ! -d /home/grafana ] && mkdir /home/grafana
+RUN mkdir -p /var/log/shp
+RUN chown grafana:grafana /home/grafana
+RUN chown grafana:grafana /var/log/shp
 
 USER grafana
-#--- RUN touch /var/log/shp/shp.log
-#
+RUN touch /var/log/shp/shp.log
+
+#----------------------------------------------#
 #RUN apt-get install -y openssh-server
 #RUN mkdir /var/run/sshd
 #
