@@ -32,7 +32,7 @@ RUN pip install requests
 RUN pip install retrying
 
 
-RUN [ ! -d /home/grafana ] && mkdir /home/grafana
+RUN mkdir -p /home/grafana
 RUN mkdir -p /var/log/shp
 RUN chown grafana:grafana /home/grafana
 RUN chown grafana:grafana /var/log/shp
