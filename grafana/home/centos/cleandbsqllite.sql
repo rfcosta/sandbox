@@ -1,0 +1,6 @@
+-- delete  from dashboard_version where version > 1;
+-- select count(*) from dashboard_version;
+-- vacuum
+-- select count(*), min(epoch), max(epoch), (epoch / 86400000 * 86400000) as DAY from annotation group by (epoch / 86400000 * 86400000);
+-- delete from annotation where epoch < 1563408000000;
+-- vacuum
