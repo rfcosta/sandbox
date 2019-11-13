@@ -39,8 +39,8 @@ try:
             _countResult = tbl.fetchone()
         _result = cur.fetchone()
 
-except lite.Error, e:
-    print "Error {}:".format(e.args[0])
+except lite.Error as e:
+    print ("Error {}:".format(e.args[0]))
     sys.exit(1)
 
 finally:
