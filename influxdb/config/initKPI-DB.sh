@@ -1,5 +1,7 @@
 #!/bin/sh
-# INIT kpi database
+# ********************
+#   INIT kpi database
+# ********************
 
 alias ifx='influx -host 127.0.0.1 -port 8086 -execute '
 ifx "SHOW DATABASES"

@@ -1,3 +1,5 @@
-chronograf/data/
-influxdb/data/
-kapacitor/data/
+# Include data directories to be saved on git
+# uncomment the following lines to ignore those folders
+# chronograf/data/
+# influxdb/data/
+# kapacitor/data/
