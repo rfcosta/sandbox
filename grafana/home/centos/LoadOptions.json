@@ -1,0 +1,29 @@
+{
+    "csvtype": "export",
+
+    "csv0"        : "/Users/regi/Library/Preferences/PyCharm2019.2/scratches/Lewisville_Transaction_Count.csv",
+    "service0"    : "SH Deploy",
+    "key0"        : "lewisville_transaction_count",
+    "metrictitle0": "Transaction Count",
+    "source0"     : "Service Supplied",
+
+    "csv1"        : "grafana-ds-prometheus_samples_scraped_west.csv",
+    "key1"        : "prometheus_samples_scraped_west",
+    "metric1"     : "transaction_count",
+    "metrictitle1": "Transaction Count",
+    "source1"     : "Prometheus",
+
+    "csv2"         : "grafana_error_count_shp.csv",
+    "key2"         : "error_count",
+    "metric2"      : "error_count",
+    "metrictitle2" : "Error Count",
+    "source2"      : "AppDynamics",
+    
+    "csv"         : "grafana_average_processing_time_shp.csv",
+    "key"         : "avg_processing_time",
+    "metric"      : "avg_processing_time",
+    "metrictitle" : "Average Processing Time",
+    "source"      : "AppDynamics",
+
+    "service": "Service Health Portal"
+}
