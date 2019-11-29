@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 import urllib
 import calendar
@@ -7,6 +7,9 @@ import json
 import sys
 from datetime import datetime
 from optparse import OptionParser
+import csv
+import copy
+import re
 
 def encode(service):
     service_name = service.replace(" -", "-")
@@ -15,17 +18,25 @@ def encode(service):
     service_name = service_name.replace(" ", "-")
     return service_name
 
+def encode2(service):
+    service_name = service.replace(" ", "\\ ")
+    return service_name
+
+
 
 def convert_utc_to_epoch(timestamp_string):
     '''Use this function to convert utc to epoch'''
     print (timestamp_string)
     try:
         timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S:%fZ')
-    except Exception:
+    except Exception as E1:
         try:
             timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S.%fZ')
-        except Exception:
-            timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%SZ')
+        except Exception as E2:
+            try:
+                timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%SZ')
+            except Exception as E3:
+                timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S %z')
 
     epoch = int(calendar.timegm(timestamp.utctimetuple()))
     print (epoch)
@@ -52,6 +63,7 @@ if __name__ == "__main__":
     parser = OptionParser(add_help_option=False)
     parser.add_option("-h",   "--help",      action="help")
     parser.add_option("-f",   "--file",      dest="csv"         , help="Input data file"  , default='')
+    parser.add_option("-t",   "--csvtype",   dest="csvtype"     , help="Input data format", default='export')
     parser.add_option("-o",   "--options",   dest="options_file", help="Options json file", default='')
     parser.add_option("-v",   "--service",   dest="service"     , help="Service"          , default='')
     parser.add_option("-k",   "--key",       dest="key"         , help="Key"              , default='')
@@ -93,11 +105,67 @@ if __name__ == "__main__":
     influx_url = options.url # "http://localhost:8086/write?db=kpi"
 
     first_line = 1
+    column_names = []
+    rowObject = {}
+
+    _sources = {"AppDynamics": "AppDynamics", "Service Supplied": "ServiceSupplied", "Prometheus": "Prometheus"}
+    _service = encode2(options.service)
+    # _service = '"{}"'.format(options.service)
+    _type = str(options.metric)
+    _source = _sources[options.source] if options.source in _sources else _sources['Service Supplied']
+    _key = str(options.key)
 
     size = os.stat(options.csv).st_size
     print ("FILE: " + options.csv + ", Size: " + str(size))
 
-    if (size > 100):
+    if (size > 100 and options.csvtype == 'export'):
+        with open(options.csv, 'rt')as f:
+            data = csv.reader(f, delimiter=';', doublequote=0, lineterminator='\n')
+
+            for row in data:
+                if first_line == 1:
+                    for col in row:
+                        # on first record the 1st column header starts with a couple of invidible chars
+                        doublequoteisat = col.find('"')
+                        if doublequoteisat > 0:
+                            cname = col[doublequoteisat+1: -1]
+                        else:
+                            cname = str(col)
+
+                        column_names.append(cname)
+                        rowObject[cname] = ""
+                    first_line = 0
+                    continue
+                pass
+
+                thisRow = copy.copy(rowObject)
+                for (cindex, cvalue) in enumerate(row):
+                    if cvalue == 'null':
+                        cvalue = ''
+                    thisRow[column_names[cindex]] = cvalue
+
+                print(json.dumps(thisRow, indent=4))
+
+                _count = thisRow[options.metrictitle]
+                if not _count.isdigit():
+                    continue
+
+                when = str(convert_utc_to_epoch(thisRow["Time"]))
+                tags = "ci=" + _service + ",key=" + _key + ",source=" + _source + ",type=" + _type
+                values = _type + "=" + _count
+                data = "metric," + tags + " " + values + " " + when
+
+                print ("SERVICE: {}, Type: {}, DATA: {}".format(_service, _type, data))
+
+                command = "curl -s -i -XPOST " + influx_url + " --data-binary \"" + data + "\""
+                print (command)
+                os.system(command)
+                pass
+            pass
+        pass
+    pass
+
+    if (size > 100 and options.csvtype != 'export'):
         with open(options.csv) as f:
             for line in f:
                 print (line)
@@ -107,9 +175,8 @@ if __name__ == "__main__":
                 line = line.rstrip()
 
                 (when, service, count) = line.split(',', 3)
-                service = encode(options.service)
                 when = str(convert_utc_to_epoch(when))
-                tags = "ci=" + service + ",key=" + options.key + ",source=" + options.source + ",type=" + options.metric
+                tags = "ci=" + _service + ",key=" + _key + ",source=" + _source + ",type=" + _type
                 values = options.metric + "=" + count
                 data = "metric," + tags + " " + values + " " + when
 

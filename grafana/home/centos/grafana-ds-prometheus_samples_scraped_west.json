@@ -1,0 +1,864 @@
+{
+  "datasource": "kpi",
+  "alert": {
+    "conditions": [
+      {
+        "evaluator": {
+          "params": [
+            0
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "and"
+        },
+        "query": {
+          "params": [
+            "C",
+            "8m",
+            "now"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "count"
+        },
+        "type": "query"
+      },
+      {
+        "evaluator": {
+          "params": [
+            0
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "or"
+        },
+        "query": {
+          "params": [
+            "I",
+            "8m",
+            "now"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "count"
+        },
+        "type": "query"
+      }
+    ],
+    "executionErrorState": "keep_state",
+    "frequency": "10s",
+    "handler": 1,
+    "name": "Transaction Count alert",
+    "noDataState": "ok",
+    "notifications": []
+  },
+  "aliasColors": {},
+  "bars": false,
+  "dashLength": 10,
+  "dashes": false,
+  "fill": 0,
+  "gridPos": {
+    "h": 7,
+    "w": 8,
+    "x": 16,
+    "y": 0
+  },
+  "hideTimeOverride": false,
+  "id": 2000,
+  "interval": "60s",
+  "legend": {
+    "avg": false,
+    "current": false,
+    "max": false,
+    "min": false,
+    "show": true,
+    "total": false,
+    "values": false
+  },
+  "lines": true,
+  "linewidth": 3,
+  "links": [
+    {
+      "url": "https://sabre.service-now.com/x_sahr_health_port_graph_panels.do?sys_id=6c842d43dbc580d0295870d9af961935",
+      "title": "ServiceNow Configuration",
+      "targetBlank": true
+    }
+  ],
+  "nullPointMode": "null",
+  "percentage": false,
+  "pointradius": 5,
+  "points": false,
+  "renderer": "flot",
+  "seriesOverrides": [
+    {
+      "alias": "Transaction Count",
+      "color": "#c15c17",
+      "linewidth": 3,
+      "zindex": 3
+    },
+    {
+      "alias": "Transaction Count months",
+      "color": "#c15c17",
+      "legend": false,
+      "linewidth": 3,
+      "zindex": 3
+    },
+    {
+      "alias": "Transaction Count years",
+      "color": "#c15c17",
+      "legend": false,
+      "linewidth": 3,
+      "zindex": 3
+    },
+    {
+      "alias": "Upper Threshold",
+      "color": "rgb(255, 242, 0)",
+      "linewidth": 2,
+      "zindex": 2
+    },
+    {
+      "alias": "Upper Threshold months",
+      "color": "rgb(255, 242, 0)",
+      "legend": false,
+      "linewidth": 2,
+      "zindex": 2
+    },
+    {
+      "alias": "Upper Threshold years",
+      "color": "rgb(255, 242, 0)",
+      "legend": false,
+      "linewidth": 2,
+      "zindex": 2
+    },
+    {
+      "alias": "Lower Trend",
+      "color": "#0a437c",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Upper Trend",
+      "color": "#1f78c1",
+      "fillBelowTo": "Lower Trend",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Lower Trend months",
+      "color": "#0a437c",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Upper Trend months",
+      "color": "#1f78c1",
+      "fillBelowTo": "Lower Trend months",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Lower Trend years",
+      "color": "#0a437c",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Upper Trend years",
+      "color": "#1f78c1",
+      "fillBelowTo": "Lower Trend years",
+      "legend": false,
+      "lines": false,
+      "zindex": 1
+    },
+    {
+      "alias": "Lower Threshold",
+      "color": "#f4d598",
+      "lines": true,
+      "linewidth": 2,
+      "zindex": 2
+    },
+    {
+      "alias": "Lower Threshold months",
+      "color": "#f4d598",
+      "legend": false,
+      "linewidth": 2,
+      "zindex": 2
+    },
+    {
+      "alias": "Lower Threshold years",
+      "color": "#f4d598",
+      "legend": false,
+      "linewidth": 2,
+      "zindex": 2
+    }
+  ],
+  "spaceLength": 10,
+  "stack": false,
+  "steppedLine": false,
+  "targets": [
+    {
+      "alias": "Transaction Count",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "null"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "A",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "transaction_count"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [
+              95
+            ],
+            "type": "percentile"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": ">",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        }
+      ]
+    },
+    {
+      "alias": "Transaction Count months",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "none"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "months",
+      "refId": "F",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "transaction_count"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [
+              95
+            ],
+            "type": "percentile"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        }
+      ]
+    },
+    {
+      "alias": "Transaction Count years",
+      "dsType": "influxdb",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "none"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "years",
+      "refId": "H",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "transaction_count"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [
+              95
+            ],
+            "type": "percentile"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 360d"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        }
+      ]
+    },
+    {
+      "alias": "",
+      "groupBy": [
+        {
+          "params": [
+            "2m"
+          ],
+          "type": "time"
+        }
+      ],
+      "hide": true,
+      "measurement": "alert",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "C",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "dash"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "count"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "level",
+          "operator": "=",
+          "value": "CRITICAL"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "",
+      "groupBy": [
+        {
+          "params": [
+            "2m"
+          ],
+          "type": "time"
+        }
+      ],
+      "hide": true,
+      "measurement": "alert",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "I",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "dash"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "count"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "level",
+          "operator": "=",
+          "value": "WARNING"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Upper Threshold",
+      "groupBy": [],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "D",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_static_upper"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": ">",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Upper Threshold months",
+      "groupBy": [],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "months",
+      "refId": "J",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_static_upper"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Lower Trend",
+      "groupBy": [],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "B",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_dynamic_lower"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Upper Trend",
+      "groupBy": [],
+      "hide": false,
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "E",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_dynamic_upper"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Lower Threshold",
+      "groupBy": [],
+      "hide": false,
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "days",
+      "refId": "G",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_static_lower"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Lower Threshold months",
+      "groupBy": [],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "months",
+      "refId": "L",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_static_lower"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": ">",
+          "value": "now() - 360d"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    },
+    {
+      "alias": "Lower Threshold years",
+      "groupBy": [],
+      "measurement": "metric",
+      "orderByTime": "ASC",
+      "policy": "years",
+      "refId": "M",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "threshold_static_lower"
+            ],
+            "type": "field"
+          }
+        ]
+      ],
+      "tags": [
+        {
+          "key": "ci",
+          "operator": "=",
+          "value": "Service Health Portal"
+        },
+        {
+          "condition": "AND",
+          "key": "key",
+          "operator": "=",
+          "value": "prometheus_samples_scraped_west"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": "<",
+          "value": "now() - 360d"
+        },
+        {
+          "condition": "AND",
+          "key": "type",
+          "operator": "=",
+          "value": "transaction_count"
+        }
+      ]
+    }
+  ],
+  "thresholds": [
+    {
+      "colorMode": "critical",
+      "fill": false,
+      "line": false,
+      "op": "gt",
+      "value": 1
+    }
+  ],
+  "timeFrom": null,
+  "timeShift": null,
+  "title": "Prometheus Samples Scraped West",
+  "tooltip": {
+    "shared": true,
+    "sort": 0,
+    "value_type": "individual"
+  },
+  "transparent": true,
+  "type": "graph",
+  "xaxis": {
+    "buckets": null,
+    "mode": "time",
+    "name": null,
+    "show": true,
+    "values": []
+  },
+  "yaxes": [
+    {
+      "format": "short",
+      "label": null,
+      "logBase": 1,
+      "max": null,
+      "min": 0,
+      "show": true
+    },
+    {
+      "format": "short",
+      "label": null,
+      "logBase": 1,
+      "max": null,
+      "min": null,
+      "show": true
+    }
+  ],
+  "options": {
+    "dataLinks": []
+  },
+  "yaxis": {
+    "align": false,
+    "alignLevel": null
+  },
+  "fillGradient": 0,
+  "timeRegions": []
+}

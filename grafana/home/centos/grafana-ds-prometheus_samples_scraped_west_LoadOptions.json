@@ -1,0 +1,14 @@
+{
+    "csv0"   : "/Users/regi/Library/Preferences/PyCharm2019.2/scratches/Lewisville_Transaction_Count.csv",
+    "service0": "SH Deploy",
+    "key0"    : "lewisville_transaction_count",
+    "metrictitle0": "Transaction Count",
+    "source0" : "Service Supplied",
+    "csv"    : "grafana-ds-prometheus_samples_scraped_west.csv",
+    "service": "Service Health Portal",
+    "key"    : "prometheus_samples_scraped_west",
+    "metric" : "transaction_count",
+    "metrictitle": "Transaction Count",
+    "source" : "Prometheus",
+    "csvtype": "export"
+}

@@ -17,7 +17,7 @@ def encode(service):
 
 def convert_utc_to_epoch(timestamp_string):
     '''Use this function to convert utc to epoch'''
-    print timestamp_string
+    print (timestamp_string)
     try:
        timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S:%fZ')
     except Exception:
@@ -27,7 +27,7 @@ def convert_utc_to_epoch(timestamp_string):
            timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%SZ')
 
     epoch = int(calendar.timegm(timestamp.utctimetuple()))
-    print epoch
+    print (epoch)
     return str(epoch) + '000000000'
 
 
@@ -37,7 +37,7 @@ parser.add_option("--metrics_file", dest="metrics_file", default="")
 
 metrics_file = options.metrics_file
 
-print "METRICS FILE: " + metrics_file
+print ("METRICS FILE: " + metrics_file)
 (service, key, metric) = metrics_file.split('^', 3)
 metric = metric.replace(".csv", "")
 type = metric
@@ -48,28 +48,28 @@ first_line = 1
 
 
 size = os.stat(metrics_file).st_size
-print "FILE: " + metrics_file + ", Size: " + str(size)
+print ("FILE: " + metrics_file + ", Size: " + str(size))
 
 if (size > 100):
     with open(metrics_file) as f:
         for line in f:
-            print line
+            print (line)
             if first_line == 1:
                 first_line = 0
                 continue
             line = line.rstrip()
 
             (when, service, count) = line.split(',', 3)
-            print "SERVICE: " + service
+            print ("SERVICE: " + service)
             service = encode(service)
             when = str(convert_utc_to_epoch(when))
-            print "Type: " + str(type)
+            print ("Type: " + str(type))
             tags = "ci=" + service + ",key=" + key + ",source=AppDynamics,type=" + metric
             values = type + "=" + count
             data = "metric," + tags + " " + values + " " + when
-            print "DATA: " + data
+            print ("DATA: " + data)
 
             command = "curl -s -i -XPOST " + influx_url + " --data-binary \"" + data + "\"" 
-            print command
+            print (command)
             os.system(command)
  
