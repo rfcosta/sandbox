@@ -19,11 +19,18 @@
     "metrictitle2" : "Error Count",
     "source2"      : "AppDynamics",
     
-    "csv"         : "grafana_average_processing_time_shp.csv",
-    "key"         : "avg_processing_time",
-    "metric"      : "avg_processing_time",
-    "metrictitle" : "Average Processing Time",
-    "source"      : "AppDynamics",
+    "csv3"         : "grafana_average_processing_time_shp.csv",
+    "key3"         : "avg_processing_time",
+    "metric3"      : "avg_processing_time",
+    "metrictitle3" : "Average Processing Time",
+    "source3"      : "AppDynamics",
+
+    "csv"        : "grafana-ds-prometheus_samples_scraped_west_1202.csv",
+    "key"        : "prometheus_samples_scraped_west",
+    "metric"     : "transaction_count",
+    "metrictitle": "Transaction Count",
+    "source"     : "Prometheus",
+
 
     "service": "Service Health Portal"
 }
