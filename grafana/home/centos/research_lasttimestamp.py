@@ -1,7 +1,14 @@
 #!/usr/bin/python3
 
 import json
+import requests
+from retrying import retry
 
+DEFAULTS = dict(url       = "http://localhost:8086/query?db=kpi",
+                timeout   = 10,
+                timeframe = "7d",
+                query     = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", mean("error_count") AS "mean_error_count", mean("transaction_count") AS "mean_transaction_count" FROM "kpi"."days"."metric" WHERE time > now() - {} GROUP BY ci, time(1m) FILL(none)',
+                )
 
 def convert_utc_to_epoch(timestamp_string):
     '''Use this function to convert utc to epoch'''
@@ -102,24 +109,49 @@ def influxQuerySimulated(filename="influxResponse.json"):
     return influxseries
 pass
 
+
+@retry(stop_max_delay=10000, wait_fixed=2000)
+def influxQuery(timeframe   = DEFAULTS['timeframe'],
+                url         = DEFAULTS['url'],
+                query       = DEFAULTS['query'],
+                timeout     = DEFAULTS['timeout']
+                ):
+
+    influxQuery = dict(q=query.format(timeframe))
+    headers = {'content-type': 'application/json'}
+
+    resp = requests.get(url, params=influxQuery, headers=headers, timeout=timeout)
+    if resp.status_code != 200:
+        print("Failed: ", resp)
+        raise IOError("Error failed to get response from Influx -> " + resp.text)
+
+    influxJsonResponse = json.loads(resp.content)
+    influxResults       = influxJsonResponse['results'][0]
+    influxstatement_id  = influxResults["statement_id"]
+    influxseries        = influxResults["series"]
+
+    return influxseries
+
+
 def calcCiMostRecentTimestampFromJson(jsonData):
     ciTimeTable = {}  # Key -> ci
     colDict = {}
 
     for seriesItem in jsonData: # Series Item contains data for each CI
-        name, tags, columns, values = seriesItem.items()
 
-        (_, name)    = name
-        (_, tags)    = tags
-        (_, columns) = columns
-        (_, values)  = values
+        # name, tags, columns, values = seriesItem.items()
+        # (_, name)    = name
+        # (_, tags)    = tags
+        # (_, columns) = columns
+        # (_, values)  = values
 
-        if "metric" != name:
-            continue
-        pass
+        name    = seriesItem.get('name', '')
+        tags    = seriesItem.get('tags', dict())
+        _ci     = tags.get("ci", '')
+        columns = seriesItem.get('columns', [])
+        values  = seriesItem.get('values', [])
 
-        _ci = tags.get("ci", '')
-        if not _ci:
+        if name != 'metric' or not _ci or len(columns) == 0 or len(values) == 0:
             continue
         pass
 
@@ -183,7 +215,10 @@ if __name__ == "__main__":
 
     # influxCsvResults = influxQuerySimulatedCsv()
     # timeTableResults = calcCiMostRecentTimestampFromCsv(influxCsvResults)
-    influxJsonResults = influxQuerySimulated()
+    # influxJsonResults = influxQuerySimulated()
+
+    influxJsonResults = influxQuery(timeframe='7d')
+
     timeTableResults = calcCiMostRecentTimestampFromJson(influxJsonResults)
     print("**** timeTableResults ****")
     print(json.dumps(timeTableResults, indent=4))
