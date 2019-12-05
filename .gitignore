@@ -2,8 +2,7 @@
 venv/
 grafana/home/.DS_Store
 .DS_Store
-# Include data directories to be saved on git
-# uncomment the following lines to ignore those folders
-# chronograf/data/
-# influxdb/data/
-# kapacitor/data/
+# Exclude data directories to be saved on git
+ chronograf/data/
+ influxdb/data/
+ kapacitor/data/
