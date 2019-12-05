@@ -1,0 +1,47 @@
+centos@ip-10-123-210-77 ~]$ for i in 30m 1h 2h 4h 6h 8h 12h 1d 2d; do echo $i; export TIME_FRAME=$i; time python3 reducedTimeTable.py | grep 'real'; done
+30m
+
+real    0m0.298s
+user    0m0.187s
+sys     0m0.025s
+1h
+
+real    0m0.340s
+user    0m0.233s
+sys     0m0.021s
+2h
+
+real    0m0.476s
+user    0m0.321s
+sys     0m0.018s
+4h
+
+real    0m0.841s
+user    0m0.515s
+sys     0m0.020s
+6h
+
+real    0m1.561s
+user    0m0.848s
+sys     0m0.044s
+8h
+
+real    0m1.634s
+user    0m1.029s
+sys     0m0.059s
+12h
+
+real    0m2.452s
+user    0m1.539s
+sys     0m0.048s
+1d
+
+real    0m4.722s
+user    0m2.950s
+sys     0m0.035s
+2d
+
+real    0m9.194s
+user    0m5.177s
+sys     0m0.124s
+[centos@ip-10-123-210-77 ~]$
