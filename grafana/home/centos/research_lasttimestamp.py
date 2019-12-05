@@ -2,13 +2,32 @@
 
 import json
 import requests
+import os
+
+
 from retrying import retry
 
-DEFAULTS = dict(url       = "http://localhost:8086/query?db=kpi",
+
+
+INFLUXHOST = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
+INFLUXPORT = "8086"
+#INFLUXHOST = "localhost"
+
+no_proxy = os.environ["no_proxy"]
+NO_PROXY = os.environ["NO_PROXY"]
+http_proxy = os.environ["http_proxy"]
+
+print("no_proxy: {}".format(no_proxy))
+print("NO_PROXY: {}".format(NO_PROXY))
+print("http_proxy: {}".format(http_proxy))
+
+
+DEFAULTS = dict(url       = "http://{}:{}/query?db=kpi".format(INFLUXHOST, INFLUXPORT),
                 timeout   = 10,
                 timeframe = "7d",
                 query     = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", mean("error_count") AS "mean_error_count", mean("transaction_count") AS "mean_transaction_count" FROM "kpi"."days"."metric" WHERE time > now() - {} GROUP BY ci, time(1m) FILL(none)',
                 )
+
 
 def convert_utc_to_epoch(timestamp_string):
     '''Use this function to convert utc to epoch'''
