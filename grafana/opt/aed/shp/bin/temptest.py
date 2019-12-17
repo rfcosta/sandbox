@@ -30,4 +30,7 @@ aggregate_org_id = 3
 
 service_config = ServiceConfiguration()
 
+for service in service_config.services:
+    print("Service name: {}, state: {}".format(service.name, service.state))
+
 print("*** END TEST ***")
