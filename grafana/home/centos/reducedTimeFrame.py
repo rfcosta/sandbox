@@ -6,6 +6,9 @@ import os
 
 from retrying import retry
 
+import sys
+
+print('Python %s on %s' % (sys.version, sys.platform))
 TIME_FRAME = os.environ.get("TIME_FRAME", "4h")
 
 no_proxy = os.environ.get("no_proxy",'')
@@ -16,8 +19,8 @@ print("no_proxy: {}".format(no_proxy))
 print("NO_PROXY: {}".format(NO_PROXY))
 print("http_proxy: {}".format(http_proxy))
 
-#INFLUXHOST = "localhost"
-INFLUXHOST = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
+INFLUXHOST = "localhost"
+#INFLUXHOST = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
 INFLUXPORT = "8086"
 
 
