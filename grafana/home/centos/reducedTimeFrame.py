@@ -75,7 +75,7 @@ def influxQuery(timeframe   = DEFAULTS['timeframe'], # 1h
     influxJsonResponse = json.loads(resp.content)
     influxResults       = influxJsonResponse['results'][0]
     influxstatement_id  = influxResults["statement_id"]
-    influxseries        = influxResults["series"]
+    influxseries        = influxResults.get("series", {})
 
     return influxseries
 

@@ -1,18 +1,19 @@
 import sys
 import os
 import json
-import datetime
-import argparse
-import base64
 import requests
-import re
-import copy
-import time
-#import pytz
+
+# import datetime
+# import argparse
+# import base64
+# import re
+# import copy
+# import time
+# #import pytz
+# from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
 
 from retrying import retry
 from aws_util import AwsUtil
-from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
 
 
 sys.path.append('.')
@@ -21,7 +22,7 @@ AWS = AwsUtil(__name__)
 loggger = AWS.loggger
 
 
-class InfluxUtil():
+class InfluxUtil:
 
     def __init__(self):
 
@@ -29,8 +30,8 @@ class InfluxUtil():
         self.INFLUXHOST = "localhost"
         # INFLUXHOST    = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
         self.INFLUXPORT = "8086"
-        self.url        =  "http://{}:{}/query?db=kpi".format(self.INFLUXHOST, self.INFLUXPORT)
-        self.timeout    = 30
+        self.url = "http://{}:{}/query?db=kpi".format(self.INFLUXHOST, self.INFLUXPORT)
+        self.timeout = 30
         self.timeframe  = self.TIME_FRAME
         self.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time",\
                              mean("error_count")         AS "mean_error_count",\
@@ -40,8 +41,8 @@ class InfluxUtil():
                              GROUP BY ci, time(1m) \
                              FILL(none)'
 
-        self.no_proxy   = os.environ.get("no_proxy", '')
-        self.NO_PROXY   = os.environ.get("NO_PROXY", '')
+        self.no_proxy = os.environ.get("no_proxy", '')
+        self.NO_PROXY = os.environ.get("NO_PROXY", '')
         self.http_proxy = os.environ.get("http_proxy", '')
 
         loggger.debug(  "no_proxy: {}".format(self.no_proxy))
@@ -81,10 +82,10 @@ class InfluxUtil():
     @retry(stop_max_delay=10000, wait_fixed=2000)
     def influxQuery(self, timeframe = '', url = '', query  = '', timeout = ''):
 
-        _timeframe = timeframe | self.timeframe
-        _url       = url       | self.url
-        _query     = query     | self.query
-        _timeout   = timeout   | self.timeout
+        _timeframe = timeframe or self.timeframe
+        _url = url or self.url
+        _query = query or self.query
+        _timeout = timeout or self.timeout
 
         loggger.debug ("******* TIMEFRAME ***** " + timeframe)
         loggger.debug (url)
@@ -161,14 +162,14 @@ class InfluxUtil():
 
 
 
-    def calcCiMostRecentTimestampFromCsv(csvData):
+    def calcCiMostRecentTimestampFromCsv(self,csvData):
         ciTimeTable = {} # Key -> ci
 
         csvRows = csvData['results']['data']
         for row in csvRows:
             _ci         = row["ci"]
             _timestamp  = row["time"]
-            _epoch      = convert_utc_to_epoch(_timestamp)
+            _epoch      = self.convert_utc_to_epoch(_timestamp)
 
             ciTimeTable.setdefault(_ci, dict(ci=_ci, timestamp= _timestamp, epoch=_epoch))
 

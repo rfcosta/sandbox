@@ -14,8 +14,8 @@ from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
 
 from botocore.config import Config
 
-LOG_LEVEL_DEFAULT=DEBUG
-NAME_DEFAULT=__name__
+LOG_LEVEL_DEFAULT = DEBUG
+NAME_DEFAULT = __name__
 
 class AwsUtil(object):
 
