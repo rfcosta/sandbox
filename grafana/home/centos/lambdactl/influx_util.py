@@ -24,12 +24,12 @@ loggger = AWS.loggger
 
 class InfluxUtil:
 
-    def __init__(self):
+    def __init__(self, host='', timeFrame='4h', port='8086'):
 
-        self.TIME_FRAME = os.environ.get("TIME_FRAME", "4h")
-        self.INFLUXHOST = "localhost"
+        self.TIME_FRAME = os.environ.get("TIME_FRAME", timeFrame)
+        self.INFLUXHOST = host  or "localhost"
         # INFLUXHOST    = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
-        self.INFLUXPORT = "8086"
+        self.INFLUXPORT = port
         self.url = "http://{}:{}/query?db=kpi".format(self.INFLUXHOST, self.INFLUXPORT)
         self.timeout = 30
         self.timeframe  = self.TIME_FRAME
