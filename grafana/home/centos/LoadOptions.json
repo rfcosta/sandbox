@@ -27,7 +27,8 @@
 
     "csv4"         : "grafana-ds-prometheus_samples_scraped_west_1202.csv",
     "csv5"         : "grafana-ds-prometheus_samples_scraped_west_1217.csv",
-    "csv"          : "grafana-ds-prometheus_samples_scraped_west_1218.csv",
+    "csv6"         : "grafana-ds-prometheus_samples_scraped_west_1218.csv",
+    "csv"          : "grafana-ds-prometheus_samples_scraped_west_0113.csv",
     "key"          : "prometheus_samples_scraped_west",
     "metric"       : "transaction_count",
     "metrictitle"  : "Transaction Count",

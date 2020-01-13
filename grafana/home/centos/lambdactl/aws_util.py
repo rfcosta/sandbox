@@ -6,8 +6,17 @@ import base64
 import re
 import argparse
 import json
-import urlparse
-import httplib
+
+# import urlparse
+try:
+    from urllib.parse import urlparse           # Python 3
+except ImportError:
+     from urlparse import urlparse, parse_qs    # Python 2
+
+try:
+    from http.client import HTTPSConnection     # Python 3
+except ImportError:
+    from httplib import HTTPSConnection         # Python 2
 
 import logging
 from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
@@ -186,7 +195,8 @@ class AwsUtil(object):
         if 'ResponseURL' in request and request['ResponseURL']:
             url = urlparse.urlparse(request['ResponseURL'])
             body = json.dumps(response)
-            https = httplib.HTTPSConnection(url.hostname)
+            # https = httplib.HTTPSConnection(url.hostname)
+            https = HTTPSConnection(url.hostname)
             https.request('PUT', url.path+'?'+url.query, body)
 
         return response

@@ -97,7 +97,7 @@ class InfluxUtil:
         loggger.debug(json.dumps(_influxQuery, indent=4))
 
 
-        resp = requests.get(url, params=_influxQuery, headers=_headers, timeout=_timeout)
+        resp = requests.get(_url, params=_influxQuery, headers=_headers, timeout=_timeout)
         if resp.status_code != 200:
             print("Failed: ", resp)
             raise IOError("Error failed to get response from Influx -> " + resp.text)

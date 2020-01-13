@@ -1,4 +1,7 @@
+#!/bin/env python3
 
+# import sys
+# sys.path.append('.')
 
 from influx_util import InfluxUtil
 from aws_util import AwsUtil
@@ -43,6 +46,10 @@ pass
 
 
 if __name__ == "__main__":
-    ciTimeTable = getTimeTable()
 
+    influxHost = "localhost"
+    influxTimeFrame = "4h"
+    ciTimeTable = getTimeTable(host=influxHost, timeFrame=influxTimeFrame)
+
+    loggger.debug("**** END TEST ****")
 
