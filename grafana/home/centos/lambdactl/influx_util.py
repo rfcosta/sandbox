@@ -24,6 +24,8 @@ loggger = AWS.loggger
 
 class InfluxUtil:
 
+    #todo: Query needs to be built from all given metrics for that dashboard ? What happens with dashboards with multiple error_count for example?
+
     def __init__(self, host='', timeFrame='4h', port='8086'):
 
         self.TIME_FRAME = os.environ.get("TIME_FRAME", timeFrame)
@@ -111,7 +113,10 @@ class InfluxUtil:
 
 
     def calcCiMostRecentTimestampFromJson(self,jsonData):
-        ciTimeTable = {}  # Key -> ci
+
+        loggger.debug(json.dumps(jsonData, indent=4))
+
+        ciTimeTable = {}  # Key -> [ci, panel key]
         colDict = {}
 
         for seriesItem in jsonData: # Series Item contains data for each CI
@@ -133,10 +138,13 @@ class InfluxUtil:
             pass
 
             if len(colDict.keys()) == 0:
+                # Build table of column index -> columns names
                 for columnIndex, columnName in enumerate(columns):
                     colDict.setdefault(columnIndex, columnName)
                 pass
             pass
+
+            loggger.debug(json.dumps(colDict, indent=4))
 
             for valuerow in values:
                 thisRow = {}
@@ -144,15 +152,22 @@ class InfluxUtil:
                     thisRow[colDict[_colx]] = _colvalue
                 pass
 
-                _timestamp = thisRow["time"]
-                _epoch = self.convert_utc_to_epoch(_timestamp)
+                loggger.debug(json.dumps(thisRow, indent=4))
 
-                ciTimeTable.setdefault(_ci, dict(ci=_ci, timestamp=_timestamp, epoch=_epoch))
+                for _col in thisRow.keys():
+                    if _col == "time":
+                        continue
+                    _timestamp = thisRow["time"]
+                    _epoch = self.convert_utc_to_epoch(_timestamp)
+                    _metricKey = "{}:{}".format(_ci, _col)
 
-                if _epoch > ciTimeTable[_ci]["epoch"]:
-                   ciTimeTable[_ci]["epoch"]     = _epoch
-                   ciTimeTable[_ci]["timestamp"] = _timestamp
-                pass
+
+                    ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, timestamp=_timestamp, epoch=_epoch))
+
+                    if _epoch > ciTimeTable[_metricKey]["epoch"]:
+                       ciTimeTable[_metricKey]["epoch"]     = _epoch
+                       ciTimeTable[_metricKey]["timestamp"] = _timestamp
+                    pass
             pass
 
         pass
@@ -179,6 +194,8 @@ class InfluxUtil:
                 pass
             pass
         pass
+
+        loggger.debug(json.dumps(dict(ciTimeTable=ciTimeTable), indent=4))
 
         return dict(ciTimeTable=ciTimeTable)
         pass
