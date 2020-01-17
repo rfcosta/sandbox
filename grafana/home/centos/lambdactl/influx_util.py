@@ -26,21 +26,33 @@ class InfluxUtil:
 
     #todo: Query needs to be built from all given metrics for that dashboard ? What happens with dashboards with multiple error_count for example?
 
-    def __init__(self, host='', timeFrame='4h', port='8086'):
+    def __init__(self, host='', timeFrame='4h', port='8086', timeout=10):
 
+        self.http_proxy = 'www-ad-proxy.sabre.com'
         self.TIME_FRAME = os.environ.get("TIME_FRAME", timeFrame)
         self.INFLUXHOST = host  or "localhost"
         # INFLUXHOST    = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
         self.INFLUXPORT = port
         self.url = "http://{}:{}/query?db=kpi".format(self.INFLUXHOST, self.INFLUXPORT)
-        self.timeout = 30
+        self.timeout = timeout
         self.timeframe  = self.TIME_FRAME
-        self.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time",\
+        self.old_query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time",\
                              mean("error_count")         AS "mean_error_count",\
                              mean("transaction_count")   AS "mean_transaction_count" \
                              FROM "kpi"."days"."metric" \
                              WHERE time > now() - {} \
                              GROUP BY ci, time(1m) \
+                             FILL(none)'
+
+        self.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
+                             mean("count")               AS "mean_count", \
+                             mean("error_count")         AS "mean_error_count", \
+                             mean("error_rate")          AS "mean_error_rate", \
+                             mean("transaction_count")   AS "mean_transaction_count" \
+                             FROM "kpi"."days"."metric" \
+                             WHERE time > now() - {} \
+                             AND   time < now() \
+                             GROUP BY "ci", "key", time(1m) \
                              FILL(none)'
 
         self.no_proxy = os.environ.get("no_proxy", '')
@@ -130,6 +142,7 @@ class InfluxUtil:
             name    = seriesItem.get('name', '')
             tags    = seriesItem.get('tags', dict())
             _ci     = tags.get("ci", '')
+            _key    = tags.get("key", '')
             columns = seriesItem.get('columns', [])
             values  = seriesItem.get('values', [])
 
@@ -149,7 +162,15 @@ class InfluxUtil:
             for valuerow in values:
                 thisRow = {}
                 for _colx, _colvalue in enumerate(valuerow):
-                    thisRow[colDict[_colx]] = _colvalue
+                    if _colx == 0:
+                        thisRow[colDict[_colx]] = _colvalue
+
+                    if type( _colvalue )  == 'None':
+                        pass
+                    else:
+                        thisRow['value'] = _colvalue
+                        pass
+                    pass
                 pass
 
                 loggger.debug(json.dumps(thisRow, indent=4))
@@ -158,20 +179,23 @@ class InfluxUtil:
                     if _col == "time":
                         continue
                     _timestamp = thisRow["time"]
+                    _value     = thisRow["value"]
                     _epoch = self.convert_utc_to_epoch(_timestamp)
-                    _metricKey = "{}:{}".format(_ci, _col)
+                    _metricKey = "{}|{}".format(_ci, _key)
 
 
-                    ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, timestamp=_timestamp, epoch=_epoch))
+                    ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
 
                     if _epoch > ciTimeTable[_metricKey]["epoch"]:
-                       ciTimeTable[_metricKey]["epoch"]     = _epoch
-                       ciTimeTable[_metricKey]["timestamp"] = _timestamp
+                        ciTimeTable[_metricKey]["epoch"]     = _epoch
+                        ciTimeTable[_metricKey]["timestamp"] = _timestamp
+                        ciTimeTable[_metricKey]["value"]     = _value
                     pass
             pass
 
         pass
 
+        loggger.debug(json.dumps(ciTimeTable, indent=4))
         return dict(ciTimeTable=ciTimeTable)
     pass
 

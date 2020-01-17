@@ -60,6 +60,7 @@ pass
 if __name__ == "__main__":
 
     # Unit test Modules
+    influxHost = "influx-elb-0000.us-west-2.teo.dev.ascint.sabrecirrus.com"
     influxHost = "localhost"
     influxTimeFrame = "12h"
     AWSVARS.dumpEnvironmentVars()
