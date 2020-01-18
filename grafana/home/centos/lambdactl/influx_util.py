@@ -26,10 +26,10 @@ class InfluxUtil:
 
     #todo: Query needs to be built from all given metrics for that dashboard ? What happens with dashboards with multiple error_count for example?
 
-    def __init__(self, host='', timeFrame='4h', port='8086', timeout=10):
+    def __init__(self, host='', timeframe='4h', port='8086', timeout=10):
 
         self.http_proxy = 'www-ad-proxy.sabre.com'
-        self.TIME_FRAME = os.environ.get("TIME_FRAME", timeFrame)
+        self.TIME_FRAME = os.environ.get("TIME_FRAME", timeframe)
         self.INFLUXHOST = host  or "localhost"
         # INFLUXHOST    = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
         self.INFLUXPORT = port

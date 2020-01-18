@@ -2,7 +2,8 @@
 
 import sys
 import os
-import time
+# import time
+
 # sys.path.append('.')
 
 from influx_util import InfluxUtil
@@ -18,14 +19,11 @@ AWSVARS = AwsVars(AWS)
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-
-
-
-def getTimeTable(host='', timeFrame='4h', port='8086'):
+def getTimeTable(host='', timeframe='4h', port='8086'):
 
     loggger.debug("**** START ****")
 
-    nflxu = InfluxUtil(host=host, timeFrame=timeFrame, port=port)
+    nflxu = InfluxUtil(host=host, timeframe=timeframe, port=port)
 
     # influxCsvResults = influxQuerySimulatedCsv()
     # timeTableResults = calcCiMostRecentTimestampFromCsv(influxCsvResults)
@@ -60,12 +58,11 @@ pass
 if __name__ == "__main__":
 
     # Unit test Modules
-    influxHost = "influx-elb-0000.us-west-2.teo.dev.ascint.sabrecirrus.com"
+    influxAwsHost = "influx-elb-0000.us-west-2.teo.dev.ascint.sabrecirrus.com"
     influxHost = "localhost"
-    influxTimeFrame = "12h"
+    influxTimeframe = "3h"
     AWSVARS.dumpEnvironmentVars()
 
-    ciTimeTable = getTimeTable(host=influxHost, timeFrame=influxTimeFrame)
+    ciTimeTable = getTimeTable(host=influxHost, timeframe=influxTimeframe)
 
     loggger.debug("**** END UNIT TEST ****")
-
