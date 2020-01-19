@@ -41,7 +41,7 @@ class InfluxUtil:
                              mean("transaction_count")   AS "mean_transaction_count" \
                              FROM "kpi"."days"."metric" \
                              WHERE time > now() - {} \
-                             GROUP BY ci, time(1m) \
+                             GROUP BY ci, key, type time(1m) \
                              FILL(none)'
 
         self.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
@@ -52,7 +52,7 @@ class InfluxUtil:
                              FROM "kpi"."days"."metric" \
                              WHERE time > now() - {} \
                              AND   time < now() \
-                             GROUP BY "ci", "key", time(1m) \
+                             GROUP BY "source", "ci", "key", time(1m) \
                              FILL(none)'
 
         self.no_proxy = os.environ.get("no_proxy", '')

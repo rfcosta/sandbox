@@ -2,6 +2,7 @@
 
 import sys
 import os
+import json
 # import time
 
 # sys.path.append('.')
@@ -51,6 +52,40 @@ pass
 
 
 def handler():
+
+    AWSVARS.dumpEnvironmentVars()
+
+    #PROXY = AWS.proxyUrl
+    #INFLUXHOST = AWS.influxHost
+    #INFLUXTIMEFRAME = AWSVARS.InfluxQryTimeFrame
+
+    PROXY = ''
+    INFLUXHOST = "localhost"
+    INFLUXTIMEFRAME = "24h"
+
+    ServiceConfiguration = {"result": {}}
+    try:
+        ServiceConfiguration = AWS.loadS3File(AWSVARS.s3Bucket_name, AWSVARS.snowFileName, proxy=PROXY)
+        #loggger.debug(json.dumps(ServiceConfiguration, indent=4))
+    except Exception as E:
+        loggger.error("S3 File ERROR: {}".format(str(E)))
+
+    servicesObject = ServiceConfiguration['result'].get('services',{})
+    services       = [ (sky, servicesObject[sky]) for sky in servicesObject.keys()]
+
+    for (ci, svc) in services:
+        loggger.debug("**** CI {} ****".format(ci))
+        loggger.debug(json.dumps(svc, indent=4))
+        for (source, key, type, )  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
+            loggger("source: {}, ci: {}, key: {}, type: {}".format(source, ci, key, type))
+            pass
+        pass
+    pass
+
+
+    # ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME)
+    # loggger.debug(json.dumps(ciTimeTable, indent=4))
+
     pass
 pass
 
@@ -58,11 +93,7 @@ pass
 if __name__ == "__main__":
 
     # Unit test Modules
-    influxAwsHost = "influx-elb-0000.us-west-2.teo.dev.ascint.sabrecirrus.com"
-    influxHost = "localhost"
-    influxTimeframe = "3h"
-    AWSVARS.dumpEnvironmentVars()
+    loggger.debug("----- START UNIT TEST -----")
+    handler()
 
-    ciTimeTable = getTimeTable(host=influxHost, timeframe=influxTimeframe)
-
-    loggger.debug("**** END UNIT TEST ****")
+    loggger.debug("----- END UNIT TEST -----")

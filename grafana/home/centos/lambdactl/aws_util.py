@@ -216,7 +216,9 @@ class AwsUtil(object):
             file_content = content_object.get()['Body'].read().decode(s3Format)
             json_content = json.loads(file_content)
         except Exception as e:
-            self.loggger.error("S3 File not found: " + e.message)
+            self.loggger.error("S3 File ERROR: {}".format(str(e)))
+            # self.loggger.error("S3 File not found: {} {}".format(s3BucketName, s3FileName))
+            raise e
 
         self.resetProxy()
 
