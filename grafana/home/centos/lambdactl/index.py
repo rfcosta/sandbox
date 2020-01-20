@@ -3,6 +3,7 @@
 import sys
 import os
 import json
+import copy
 # import time
 
 # sys.path.append('.')
@@ -66,32 +67,59 @@ def handler():
     ServiceConfiguration = {"result": {}}
     try:
         ServiceConfiguration = AWS.loadS3File(AWSVARS.s3Bucket_name, AWSVARS.snowFileName, proxy=PROXY)
-        #loggger.debug(json.dumps(ServiceConfiguration, indent=4))
+        loggger.debug(json.dumps(ServiceConfiguration, indent=4))
     except Exception as E:
         loggger.error("S3 File ERROR: {}".format(str(E)))
 
     servicesObject = ServiceConfiguration['result'].get('services',{})
-    services       = [ (sky, servicesObject[sky]) for sky in servicesObject.keys()]
 
-    service_map = dict()
-    for (ci, svc) in services:
-        # loggger.debug("**** CI {} ****".format(ci))
-        # loggger.debug(json.dumps(svc, indent=4))
-        for (source, key, type, )  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
-            loggger.debug("source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(source, ci, key, type))
-            service_map.setdefault(source, {})
-            service_map[source].setdefault(ci, dict(type=type, keys=[], ci=ci, source=source))
-            service_map[source][ci]["keys"].append(key)
+    if servicesObject.keys().__len__() > 0:
+        services       = [ (sky, servicesObject[sky]) for sky in servicesObject.keys()]
+
+        # Create a service map dictionary grouping all by source, ci
+        service_map = dict()
+        last_updated = ServiceConfiguration["result"]["last_updated"]
+        _global           = copy.deepcopy(ServiceConfiguration['result']["global"])
+        _topLevelServices = [copy.deepcopy(x) for x in ServiceConfiguration["result"]["topLevelServices"]]
+        _svc_property_names = ["state","knowledge_article","report_grouping","service_config_sys_id","uid"]
+
+        for (ci, svc) in services:
+            loggger.debug("SVC ==> " + json.dumps(svc, indent=4))
+            for (source, key, type)  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
+                loggger.debug("source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(source, ci, key, type))
+
+                service_map.setdefault(source, dict(config=dict(), map=dict()))
+                service_map[source]["map"].setdefault(ci, dict(type=type, keys=[], ci=ci, source=source))
+                service_map[source]["map"][ci]["keys"].append(key)
+
+                # From big configuration data, create a small config for this particular source
+                service_map[source]["config"].setdefault\
+                    ("result",
+                            {"global": _global,
+                             "services": {},
+                             "topLevelServices": _topLevelServices,
+                             "last_updated": last_updated
+                            }
+                    )
+                _empty_service = {"panels": {} }
+                for p in _svc_property_names:
+                    _empty_service[p] = svc[p]
+
+                service_map[source]["config"]["result"]["services"].setdefault(ci, _empty_service)
+                # service_map[source]["config"]["result"]["services"][ci]["panels"].setdefault(key, copy.deepcopy(servicesObject[ci]["panels"][key]))
+                _panel = copy.deepcopy(svc["panels"][key])
+                service_map[source]["config"]["result"]["services"][ci]["panels"].setdefault(key, _panel)
+
+                pass
             pass
         pass
-    pass
-    loggger.debug(json.dumps(service_map, indent=4))
+        loggger.debug(json.dumps(service_map, indent=4))
 
-    # ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME)
-    # loggger.debug(json.dumps(ciTimeTable, indent=4))
+        # ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME)
+        # loggger.debug(json.dumps(ciTimeTable, indent=4))
 
+        pass
     pass
-pass
 
 
 if __name__ == "__main__":
