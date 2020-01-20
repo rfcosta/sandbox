@@ -73,15 +73,19 @@ def handler():
     servicesObject = ServiceConfiguration['result'].get('services',{})
     services       = [ (sky, servicesObject[sky]) for sky in servicesObject.keys()]
 
+    service_map = dict()
     for (ci, svc) in services:
-        loggger.debug("**** CI {} ****".format(ci))
-        loggger.debug(json.dumps(svc, indent=4))
+        # loggger.debug("**** CI {} ****".format(ci))
+        # loggger.debug(json.dumps(svc, indent=4))
         for (source, key, type, )  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
-            loggger("source: {}, ci: {}, key: {}, type: {}".format(source, ci, key, type))
+            loggger.debug("source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(source, ci, key, type))
+            service_map.setdefault(source, {})
+            service_map[source].setdefault(ci, dict(type=type, keys=[], ci=ci, source=source))
+            service_map[source][ci]["keys"].append(key)
             pass
         pass
     pass
-
+    loggger.debug(json.dumps(service_map, indent=4))
 
     # ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME)
     # loggger.debug(json.dumps(ciTimeTable, indent=4))
