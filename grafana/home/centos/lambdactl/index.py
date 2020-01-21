@@ -93,8 +93,8 @@ def handler():
                 loggger.debug("source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(source, ci, key, type))
 
                 service_map.setdefault(source, {})
-                service_map[source].setdefault(ci, dict(config=dict(), map=dict()))
-                service_map[source][ci].setdefault("map", dict(types=[], keys=[], ci=ci, source=source))
+                service_map[source].setdefault(ci, dict(config=dict(), map=dict(types=[], keys=[], ci=ci, source=source)))
+                #service_map[source][ci].setdefault("map", dict(types=[], keys=[], ci=ci, source=source))
                 if type not in service_map[source][ci]["map"]["types"]:
                     service_map[source][ci]["map"]["types"].append(type)
                 service_map[source][ci]["map"]["keys"].append(key)
@@ -120,7 +120,8 @@ def handler():
                 pass
             pass
         pass
-        loggger.debug(json.dumps(service_map, indent=4))
+        # loggger.debug(json.dumps(service_map, indent=4))
+        print(json.dumps(service_map))
 
         for type in service_map.keys():
             for _ci in service_map[type].keys():

@@ -45,7 +45,7 @@ class InfluxUtil:
                              GROUP BY ci, key, type time(1m) \
                              FILL(none)'
 
-        self.static.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
+        self.static_query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
                              mean("count")               AS "mean_count", \
                              mean("error_count")         AS "mean_error_count", \
                              mean("error_rate")          AS "mean_error_rate", \
@@ -56,13 +56,10 @@ class InfluxUtil:
                              GROUP BY "source", "ci", "key", time(1m) \
                              FILL(none)'
 
-        self.query = 'SELECT {} FROM "kpi"."days"."metric" \
-                        WHERE time > now() - \{\} \
-                        AND time < now() \
-                        AND ci == "{}" \
+        _typesQuery = ", ".join(['mean("{}") AS "{}"'.format(t,t) for t in types])
+        self.query = 'SELECT {} FROM "kpi"."days"."metric" WHERE time > now() - {} AND time < now() AND ci = "{}" \
                         GROUP BY "source", "ci", "key", time(1m) \
-                        FILL(none)'\
-                     .format( str(['mean("{}") AS {}'.format(t,t) for t in types]), ci )
+                        FILL(none)'.format( _typesQuery, "{}", ci )
 
         self.no_proxy = os.environ.get("no_proxy", '')
         self.NO_PROXY = os.environ.get("NO_PROXY", '')
@@ -130,7 +127,7 @@ class InfluxUtil:
         influxJsonResponse  = json.loads(resp.content)
         influxResults       = influxJsonResponse['results'][0]
         influxstatement_id  = influxResults["statement_id"]
-        influxseries        = influxResults["series"]
+        influxseries        = influxResults.setdefault("series", [])  # Empty if no data
 
         return influxseries
 
