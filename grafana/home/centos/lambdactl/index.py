@@ -85,7 +85,7 @@ def handler():
         _data_sources = ["prometheus", "viz", "zabbix"]
 
         for (ci, svc) in services:
-            loggger.debug("SVC ==> " + json.dumps(svc, indent=4))
+            #loggger.debug("SVC ==> " + json.dumps(svc, indent=4))
             for (source, key, type)  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
                 if source not in _data_sources:
                     continue
@@ -121,12 +121,16 @@ def handler():
             pass
         pass
         # loggger.debug(json.dumps(service_map, indent=4))
-        print(json.dumps(service_map))
+        # print(json.dumps(service_map))
 
-        for type in service_map.keys():
-            for _ci in service_map[type].keys():
-                _types = service_map[type][_ci]["map"]["types"]
-                _keys  = service_map[type][_ci]["map"]["keys"]
+        for _type in service_map.keys():
+            if _type != 'prometheus':
+                continue
+            for _ci in service_map[_type].keys():
+                if _ci != 'Service Health Portal':
+                    continue
+                _types = service_map[_type][_ci]["map"]["types"]
+                _keys  = service_map[_type][_ci]["map"]["keys"]
                 _ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME, ci=_ci, types=_types)
                 loggger.debug("CI: {}, TimeTable: {}".format(_ci, json.dumps(_ciTimeTable)))
 

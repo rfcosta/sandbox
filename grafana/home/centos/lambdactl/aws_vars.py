@@ -24,7 +24,7 @@ class AwsVars(object):
         self.influxPort         = os.environ.get('influxPort',         "8086")
         self.influxUrl          = os.environ.get('influxUrl',          "http://influx-elb-0000.us-west-2.teo.dev.ascint.sabrecirrus.com:8086")
         self.proxyUrl           = os.environ.get('proxyUrl',           "http://proxy.us-west-2.teo.dev.ascint.sabrecirrus.com:3128")
-        self.InfluxQryTimeFrame = os.environ.get('InfluxQryTimeFrame', "3h")
+        self.InfluxQryTimeFrame = os.environ.get('InfluxQryTimeFrame', "24h")
 
 
     def dumpEnvironmentVars(self):

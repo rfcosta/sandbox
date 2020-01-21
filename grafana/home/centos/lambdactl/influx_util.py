@@ -57,7 +57,7 @@ class InfluxUtil:
                              FILL(none)'
 
         _typesQuery = ", ".join(['mean("{}") AS "{}"'.format(t,t) for t in types])
-        self.query = 'SELECT {} FROM "kpi"."days"."metric" WHERE time > now() - {} AND time < now() AND ci = "{}" \
+        self.query = 'SELECT {} FROM "kpi"."days"."metric" WHERE time > now() - {} AND time < now() AND "ci" = \'{}\' \
                         GROUP BY "source", "ci", "key", time(1m) \
                         FILL(none)'.format( _typesQuery, "{}", ci )
 
@@ -127,14 +127,14 @@ class InfluxUtil:
         influxJsonResponse  = json.loads(resp.content)
         influxResults       = influxJsonResponse['results'][0]
         influxstatement_id  = influxResults["statement_id"]
-        influxseries        = influxResults.setdefault("series", [])  # Empty if no data
+        influxseries        = influxResults.get("series", [])  # Empty if no data
 
         return influxseries
 
 
     def calcCiMostRecentTimestampFromJson(self,jsonData):
 
-        loggger.debug(json.dumps(jsonData, indent=4))
+        #loggger.debug(json.dumps(jsonData, indent=4))
 
         ciTimeTable = {}  # Key -> [ci, panel key]
         colDict = {}
