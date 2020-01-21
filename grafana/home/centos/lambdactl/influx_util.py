@@ -26,7 +26,8 @@ class InfluxUtil:
 
     #todo: Query needs to be built from all given metrics for that dashboard ? What happens with dashboards with multiple error_count for example?
 
-    def __init__(self, host='', timeframe='4h', port='8086', timeout=10):
+    def __init__(self, host='', timeframe='4h', port='8086', timeout=10,
+                 types=["avg_processing_time","error_count","transaction_count"], ci=''):
 
         self.http_proxy = 'www-ad-proxy.sabre.com'
         self.TIME_FRAME = os.environ.get("TIME_FRAME", timeframe)
@@ -44,7 +45,7 @@ class InfluxUtil:
                              GROUP BY ci, key, type time(1m) \
                              FILL(none)'
 
-        self.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
+        self.static.query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
                              mean("count")               AS "mean_count", \
                              mean("error_count")         AS "mean_error_count", \
                              mean("error_rate")          AS "mean_error_rate", \
@@ -55,6 +56,14 @@ class InfluxUtil:
                              GROUP BY "source", "ci", "key", time(1m) \
                              FILL(none)'
 
+        self.query = 'SELECT {} FROM "kpi"."days"."metric" \
+                        WHERE time > now() - \{\} \
+                        AND time < now() \
+                        AND ci == "{}" \
+                        GROUP BY "source", "ci", "key", time(1m) \
+                        FILL(none)'\
+                     .format( str(['mean("{}") AS {}'.format(t,t) for t in types]), ci )
+
         self.no_proxy = os.environ.get("no_proxy", '')
         self.NO_PROXY = os.environ.get("NO_PROXY", '')
         self.http_proxy = os.environ.get("http_proxy", '')
@@ -63,6 +72,8 @@ class InfluxUtil:
         loggger.debug(  "NO_PROXY: {}".format(self.NO_PROXY))
         loggger.debug("http_proxy: {}".format(self.http_proxy))
 
+    def getSqlQuery(self):
+        return self.query
 
     @staticmethod
     def load_file(filename):

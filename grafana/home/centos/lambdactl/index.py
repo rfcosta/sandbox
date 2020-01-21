@@ -21,11 +21,12 @@ AWSVARS = AwsVars(AWS)
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def getTimeTable(host='', timeframe='4h', port='8086'):
+def getTimeTable(host='', timeframe='4h', port='8086',
+                 types=["avg_processing_time","error_count","transaction_count"], ci=''):
 
-    loggger.debug("**** START ****")
+    nflxu = InfluxUtil(host=host, timeframe=timeframe, port=port, types=types, ci=ci)
 
-    nflxu = InfluxUtil(host=host, timeframe=timeframe, port=port)
+    loggger.debug(nflxu.getSqlQuery())
 
     # influxCsvResults = influxQuerySimulatedCsv()
     # timeTableResults = calcCiMostRecentTimestampFromCsv(influxCsvResults)
@@ -42,11 +43,10 @@ def getTimeTable(host='', timeframe='4h', port='8086'):
         _metricKey = prop['metricKey']
         _timestamp = prop['timestamp']
         _epoch     = prop['epoch']
-        print("{} {}  {} : {}".format(_timestamp, _epoch, _ci, _metricKey))
+        loggger.debug("{} {}  {} : {}".format(_timestamp, _epoch, _ci, _metricKey))
         pass
     pass
 
-    loggger.debug("**** END ****")
     return ciTimeTable
     pass
 pass
@@ -82,18 +82,25 @@ def handler():
         _global           = copy.deepcopy(ServiceConfiguration['result']["global"])
         _topLevelServices = [copy.deepcopy(x) for x in ServiceConfiguration["result"]["topLevelServices"]]
         _svc_property_names = ["state","knowledge_article","report_grouping","service_config_sys_id","uid"]
+        _data_sources = ["prometheus", "viz", "zabbix"]
 
         for (ci, svc) in services:
             loggger.debug("SVC ==> " + json.dumps(svc, indent=4))
             for (source, key, type)  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
+                if source not in _data_sources:
+                    continue
+
                 loggger.debug("source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(source, ci, key, type))
 
-                service_map.setdefault(source, dict(config=dict(), map=dict()))
-                service_map[source]["map"].setdefault(ci, dict(type=type, keys=[], ci=ci, source=source))
-                service_map[source]["map"][ci]["keys"].append(key)
+                service_map.setdefault(source, {})
+                service_map[source].setdefault(ci, dict(config=dict(), map=dict()))
+                service_map[source][ci].setdefault("map", dict(types=[], keys=[], ci=ci, source=source))
+                if type not in service_map[source][ci]["map"]["types"]:
+                    service_map[source][ci]["map"]["types"].append(type)
+                service_map[source][ci]["map"]["keys"].append(key)
 
                 # From big configuration data, create a small config for this particular source
-                service_map[source]["config"].setdefault\
+                service_map[source][ci]["config"].setdefault\
                     ("result",
                             {"global": _global,
                              "services": {},
@@ -105,15 +112,24 @@ def handler():
                 for p in _svc_property_names:
                     _empty_service[p] = svc[p]
 
-                service_map[source]["config"]["result"]["services"].setdefault(ci, _empty_service)
+                service_map[source][ci]["config"]["result"]["services"].setdefault(ci, _empty_service)
                 # service_map[source]["config"]["result"]["services"][ci]["panels"].setdefault(key, copy.deepcopy(servicesObject[ci]["panels"][key]))
                 _panel = copy.deepcopy(svc["panels"][key])
-                service_map[source]["config"]["result"]["services"][ci]["panels"].setdefault(key, _panel)
+                service_map[source][ci]["config"]["result"]["services"][ci]["panels"].setdefault(key, _panel)
 
                 pass
             pass
         pass
         loggger.debug(json.dumps(service_map, indent=4))
+
+        for type in service_map.keys():
+            for _ci in service_map[type].keys():
+                _types = service_map[type][_ci]["map"]["types"]
+                _keys  = service_map[type][_ci]["map"]["keys"]
+                _ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME, ci=_ci, types=_types)
+                loggger.debug("CI: {}, TimeTable: {}".format(_ci, json.dumps(_ciTimeTable)))
+
+
 
         # ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME)
         # loggger.debug(json.dumps(ciTimeTable, indent=4))
