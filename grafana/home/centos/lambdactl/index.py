@@ -4,7 +4,9 @@ import sys
 import os
 import json
 import copy
-# import time
+import time
+import datetime
+import re
 
 # sys.path.append('.')
 
@@ -19,6 +21,55 @@ loggger = AWS.loggger
 AWSVARS = AwsVars(AWS)
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+_XINTERVAL = re.compile("(\d+)([smhdw]*)")
+_UNITS = dict(s=1
+            , m=60
+            , h=60 * 60
+            , d=60 * 60 * 24
+            , w=60 * 60 * 24 * 7
+            )
+
+
+def epoch2date(epoch):
+    return datetime.datetime.fromtimestamp(float(epoch))
+
+
+def epochMinute(epoch):
+    return int(epoch) // 60 * 60
+
+
+def nowMinute():
+    pass
+
+def fmtTimestamp(epoch):
+    return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(epoch))
+
+def parsePeriod(pstr):
+    if pstr.isdigit():
+        return int(pstr)
+
+    number, unit = [60, 's']
+    tokens = _XINTERVAL.match(pstr)
+    if tokens:
+        number, unit = tokens.groups()
+        if number:
+            number = int(number)
+        if not unit:
+            unit = 's'
+        secondsInUnit = _UNITS.get(unit, 1)
+    else:
+        number = 60
+        secondsInUnit = 1
+    pass
+
+    intervalSeconds = number * secondsInUnit
+
+    loggger.debug("Interval %s, number %s, secondsInUnit %d, result: %d"
+                  % (pstr, str(number), secondsInUnit, intervalSeconds)
+                  )
+
+    return intervalSeconds
 
 
 def getTimeTable(host='', timeframe='4h', port='8086',
@@ -63,6 +114,11 @@ def handler():
     PROXY = ''
     INFLUXHOST = "localhost"
     INFLUXTIMEFRAME = "24h"
+
+    nowEpoch = int(time.time())
+    nowEpochMinute = epochMinute(nowEpoch)
+    intervalSeconds = parsePeriod(INFLUXTIMEFRAME)
+    backEpoch = nowEpochMinute - intervalSeconds
 
     ServiceConfiguration = {"result": {}}
     try:
@@ -133,6 +189,28 @@ def handler():
                 _keys  = service_map[_type][_ci]["map"]["keys"]
                 _ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME, ci=_ci, types=_types)
                 loggger.debug("CI: {}, TimeTable: {}".format(_ci, json.dumps(_ciTimeTable)))
+
+                _earlyEpochTime = backEpoch
+                _earlyTimeStamp = ''
+                _earlyValue     = 0
+
+                if _ciTimeTable.keys().get(_ci):
+                    if _ciTimeTable.get(_ci):
+                        # Find earliest minute
+                        for _key in _ciTimeTable[_ci].keys():
+                            if _ciTimeTable[_ci][_key]["epoch"] > _earlyEpochTime:
+                                _earlyEpochTime = _ciTimeTable[_ci][_key]["epoch"]
+                                _earlyTimeStamp = _ciTimeTable[_ci][_key]["timestamp"]
+                                _earlyValue     = _ciTimeTable[_ci][_key]["value"]
+                            pass
+                        pass
+                    pass
+                pass
+                if _earlyTimeStamp == '':
+                    _earlyTimeStamp = fmtTimestamp(_earlyEpochTime)
+                    pass
+
+
 
 
 

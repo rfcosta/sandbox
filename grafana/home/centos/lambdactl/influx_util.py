@@ -21,15 +21,6 @@ sys.path.append('.')
 AWS = AwsUtil(__name__)
 loggger = AWS.loggger
 
-_XINTERVAL = re.compile("(\d+)([smhdw]*)")
-_UNITS = dict(s=1
-            , m=60
-            , h=60 * 60
-            , d=60 * 60 * 24
-            , w=60 * 60 * 24 * 7
-            )
-
-
 class InfluxUtil:
 
     #todo: Query needs to be built from all given metrics for that dashboard ? What happens with dashboards with multiple error_count for example?
@@ -50,10 +41,6 @@ class InfluxUtil:
         self.timeout = timeout
         self.timeframe  = self.TIME_FRAME
 
-        self.nowEpoch           = int(time.time())
-        self.nowEpochMinute     = self.epochMinute(self.nowEpoch)
-        self.intervalSeconds    = self.parsePeriod(self.timeframe)
-        self.backEpoch          = self.nowEpochMinute - self.intervalSeconds
 
         self.old_query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time",\
                              mean("error_count")         AS "mean_error_count",\
@@ -86,52 +73,11 @@ class InfluxUtil:
         loggger.debug("no_proxy:        {}".format(self.no_proxy))
         loggger.debug("NO_PROXY:        {}".format(self.NO_PROXY))
         loggger.debug("http_proxy:      {}".format(self.http_proxy))
-        loggger.debug("timeframe:       {}".format(self.timeframe))
-        loggger.debug("nowEpoch:        {}".format(self.nowEpoch))
-        loggger.debug("nowEpochMinute:  {}".format(self.nowEpochMinute))
-        loggger.debug("intervalSeconds: {}".format(self.intervalSeconds))
-        loggger.debug("backEpoch:       {}".format(self.backEpoch))
 
         self.loggger = loggger
 
     def getSqlQuery(self):
         return self.query
-
-    def epoch2date(self, epoch):
-        return datetime.datetime.fromtimestamp(float(epoch))
-
-    def epochMinute(self, epoch):
-        return int(epoch) // 60 * 60
-
-    def nowMinute(self):
-        pass
-
-    def parsePeriod(self, pstr):
-
-        if pstr.isdigit():
-            return int(pstr)
-
-        number, unit = [60, 's']
-        tokens = _XINTERVAL.match(pstr)
-        if tokens:
-            number, unit = tokens.groups()
-            if number:
-                number = int(number)
-            if not unit:
-                unit = 's'
-            secondsInUnit = _UNITS.get(unit, 1)
-        else:
-            number = 60
-            secondsInUnit = 1
-        pass
-
-        intervalSeconds = number * secondsInUnit
-
-        loggger.debug( "Interval %s, number %s, secondsInUnit %d, result: %d"
-                     % (pstr, str(number), secondsInUnit, intervalSeconds)
-                     )
-
-        return intervalSeconds
 
     @staticmethod
     def load_file(filename):
@@ -196,9 +142,9 @@ class InfluxUtil:
     def calcCiMostRecentTimestampFromJson(self,jsonData):
 
         #loggger.debug(json.dumps(jsonData, indent=4))
-
-        ciTimeTable = {}  # Key -> [ci, panel key]
         colDict = {}
+
+        ciTimeTable = {}  # [ci] [key]
 
         for seriesItem in jsonData: # Series Item contains data for each CI
 
@@ -270,7 +216,8 @@ class InfluxUtil:
         return dict(ciTimeTable=ciTimeTable)
     pass
 
-
+    def calMostRecentTimestampOfCi(self):
+        pass
 
     def calcCiMostRecentTimestampFromCsv(self,csvData):
         ciTimeTable = {} # Key -> ci
