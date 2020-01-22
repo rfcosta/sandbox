@@ -2,13 +2,13 @@ import sys
 import os
 import json
 import requests
+import time
+import re
+import datetime
 
-# import datetime
 # import argparse
 # import base64
-# import re
 # import copy
-# import time
 # #import pytz
 # from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
 
@@ -21,13 +21,25 @@ sys.path.append('.')
 AWS = AwsUtil(__name__)
 loggger = AWS.loggger
 
+_XINTERVAL = re.compile("(\d+)([smhdw]*)")
+_UNITS = dict(s=1
+            , m=60
+            , h=60 * 60
+            , d=60 * 60 * 24
+            , w=60 * 60 * 24 * 7
+            )
+
 
 class InfluxUtil:
 
     #todo: Query needs to be built from all given metrics for that dashboard ? What happens with dashboards with multiple error_count for example?
 
     def __init__(self, host='', timeframe='4h', port='8086', timeout=10,
-                 types=["avg_processing_time","error_count","transaction_count"], ci=''):
+                 types=["avg_processing_time","error_count","transaction_count"], ci='Service Health Portal'):
+
+
+        self.ci = ci
+        self.types = types
 
         self.http_proxy = 'www-ad-proxy.sabre.com'
         self.TIME_FRAME = os.environ.get("TIME_FRAME", timeframe)
@@ -37,6 +49,12 @@ class InfluxUtil:
         self.url = "http://{}:{}/query?db=kpi".format(self.INFLUXHOST, self.INFLUXPORT)
         self.timeout = timeout
         self.timeframe  = self.TIME_FRAME
+
+        self.nowEpoch           = int(time.time())
+        self.nowEpochMinute     = self.epochMinute(self.nowEpoch)
+        self.intervalSeconds    = self.parsePeriod(self.timeframe)
+        self.backEpoch          = self.nowEpochMinute - self.intervalSeconds
+
         self.old_query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time",\
                              mean("error_count")         AS "mean_error_count",\
                              mean("transaction_count")   AS "mean_transaction_count" \
@@ -65,12 +83,55 @@ class InfluxUtil:
         self.NO_PROXY = os.environ.get("NO_PROXY", '')
         self.http_proxy = os.environ.get("http_proxy", '')
 
-        loggger.debug(  "no_proxy: {}".format(self.no_proxy))
-        loggger.debug(  "NO_PROXY: {}".format(self.NO_PROXY))
-        loggger.debug("http_proxy: {}".format(self.http_proxy))
+        loggger.debug("no_proxy:        {}".format(self.no_proxy))
+        loggger.debug("NO_PROXY:        {}".format(self.NO_PROXY))
+        loggger.debug("http_proxy:      {}".format(self.http_proxy))
+        loggger.debug("timeframe:       {}".format(self.timeframe))
+        loggger.debug("nowEpoch:        {}".format(self.nowEpoch))
+        loggger.debug("nowEpochMinute:  {}".format(self.nowEpochMinute))
+        loggger.debug("intervalSeconds: {}".format(self.intervalSeconds))
+        loggger.debug("backEpoch:       {}".format(self.backEpoch))
+
+        self.loggger = loggger
 
     def getSqlQuery(self):
         return self.query
+
+    def epoch2date(self, epoch):
+        return datetime.datetime.fromtimestamp(float(epoch))
+
+    def epochMinute(self, epoch):
+        return int(epoch) // 60 * 60
+
+    def nowMinute(self):
+        pass
+
+    def parsePeriod(self, pstr):
+
+        if pstr.isdigit():
+            return int(pstr)
+
+        number, unit = [60, 's']
+        tokens = _XINTERVAL.match(pstr)
+        if tokens:
+            number, unit = tokens.groups()
+            if number:
+                number = int(number)
+            if not unit:
+                unit = 's'
+            secondsInUnit = _UNITS.get(unit, 1)
+        else:
+            number = 60
+            secondsInUnit = 1
+        pass
+
+        intervalSeconds = number * secondsInUnit
+
+        loggger.debug( "Interval %s, number %s, secondsInUnit %d, result: %d"
+                     % (pstr, str(number), secondsInUnit, intervalSeconds)
+                     )
+
+        return intervalSeconds
 
     @staticmethod
     def load_file(filename):
@@ -98,7 +159,7 @@ class InfluxUtil:
                     timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S %z')
 
         epoch = int(calendar.timegm(timestamp.utctimetuple()))
-        return str(epoch) + '000000000'
+        return str(epoch) # + '000000000'
 
 
     @retry(stop_max_delay=10000, wait_fixed=2000)
@@ -189,15 +250,17 @@ class InfluxUtil:
                     _timestamp = thisRow["time"]
                     _value     = thisRow["value"]
                     _epoch = self.convert_utc_to_epoch(_timestamp)
-                    _metricKey = "{}|{}".format(_ci, _key)
 
+                    # _metricKey = "{}|{}".format(_ci, _key)
+                    # ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
 
-                    ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
+                    ciTimeTable.setdefault(_ci, dict())
+                    ciTimeTable.setdefault(_key, dict(ci=_ci, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
 
-                    if _epoch > ciTimeTable[_metricKey]["epoch"]:
-                        ciTimeTable[_metricKey]["epoch"]     = _epoch
-                        ciTimeTable[_metricKey]["timestamp"] = _timestamp
-                        ciTimeTable[_metricKey]["value"]     = _value
+                    if _epoch > ciTimeTable[_ci][_key]["epoch"]:
+                        ciTimeTable[_ci][_key]["epoch"]     = _epoch
+                        ciTimeTable[_ci][_key]["timestamp"] = _timestamp
+                        ciTimeTable[_ci][_key]["value"]     = _value
                     pass
             pass
 
