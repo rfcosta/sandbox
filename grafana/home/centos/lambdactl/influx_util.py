@@ -105,7 +105,7 @@ class InfluxUtil:
                     timestamp = datetime.strptime(timestamp_string, '%Y-%m-%dT%H:%M:%S %z')
 
         epoch = int(calendar.timegm(timestamp.utctimetuple()))
-        return str(epoch) # + '000000000'
+        return epoch
 
 
     @retry(stop_max_delay=10000, wait_fixed=2000)
@@ -196,9 +196,6 @@ class InfluxUtil:
                     _timestamp = thisRow["time"]
                     _value     = thisRow["value"]
                     _epoch = self.convert_utc_to_epoch(_timestamp)
-
-                    # _metricKey = "{}|{}".format(_ci, _key)
-                    # ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
 
                     ciTimeTable.setdefault(_ci, dict())
                     ciTimeTable[_ci].setdefault(_key, dict(ci=_ci, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))

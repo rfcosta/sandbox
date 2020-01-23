@@ -95,7 +95,7 @@ def getTimeTable(host='', timeframe='4h', port='8086',
             _epoch     = _dataPoint['epoch']
             _value     = _dataPoint['value']
 
-            loggger.debug("{} {}  {} : {} = {}".format(_timestamp, _epoch, _ci, _key, str(_value)))
+            loggger.debug("{} {}  {} : {} = {}".format(_timestamp, str(_epoch), _ci, _key, str(_value)))
             pass
         pass
     pass
@@ -193,7 +193,7 @@ def handler():
                 loggger.debug("CI: {}, TimeTable: {}".format(_ci, json.dumps(_ciTimeTable)))
 
                 _earlyEpochTime = backEpoch
-                _earlyTimeStamp = ''
+                _earlyTimeStamp = fmtTimestamp(_earlyEpochTime)
                 _earlyValue     = 0
 
                 _timeTableCi = _ciTimeTable.get(_ci)
@@ -207,9 +207,6 @@ def handler():
                         pass
                     pass
                 pass
-                if _earlyTimeStamp == '':
-                    _earlyTimeStamp = fmtTimestamp(_earlyEpochTime)
-                    pass
 
                 service_map[_type][_ci]["map"] = dict(time         =_earlyEpochTime,
                                                       timestamp    =_earlyTimeStamp,
