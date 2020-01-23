@@ -201,7 +201,7 @@ class InfluxUtil:
                     # ciTimeTable.setdefault(_metricKey, dict(ci=_ci, metricKey=_metricKey, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
 
                     ciTimeTable.setdefault(_ci, dict())
-                    ciTimeTable.setdefault(_key, dict(ci=_ci, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
+                    ciTimeTable[_ci].setdefault(_key, dict(ci=_ci, key=_key, timestamp=_timestamp, epoch=_epoch, value=_value))
 
                     if _epoch > ciTimeTable[_ci][_key]["epoch"]:
                         ciTimeTable[_ci][_key]["epoch"]     = _epoch

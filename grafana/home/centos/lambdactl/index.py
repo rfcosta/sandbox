@@ -89,12 +89,14 @@ def getTimeTable(host='', timeframe='4h', port='8086',
 
     loggger.debug("**** timeTableResults ****")
     ciTimeTable = timeTableResults['ciTimeTable']
-    for key, prop in ciTimeTable.items():
-        _ci        = prop['ci']
-        _metricKey = prop['metricKey']
-        _timestamp = prop['timestamp']
-        _epoch     = prop['epoch']
-        loggger.debug("{} {}  {} : {}".format(_timestamp, _epoch, _ci, _metricKey))
+    for _ci, _keyDict in ciTimeTable.items():
+        for _key, _dataPoint in _keyDict.items():
+            _timestamp = _dataPoint['timestamp']
+            _epoch     = _dataPoint['epoch']
+            _value     = _dataPoint['value']
+
+            loggger.debug("{} {}  {} : {} = {}".format(_timestamp, _epoch, _ci, _key, str(_value)))
+            pass
         pass
     pass
 
@@ -194,15 +196,14 @@ def handler():
                 _earlyTimeStamp = ''
                 _earlyValue     = 0
 
-                if _ciTimeTable.keys().get(_ci):
-                    if _ciTimeTable.get(_ci):
-                        # Find earliest minute
-                        for _key in _ciTimeTable[_ci].keys():
-                            if _ciTimeTable[_ci][_key]["epoch"] > _earlyEpochTime:
-                                _earlyEpochTime = _ciTimeTable[_ci][_key]["epoch"]
-                                _earlyTimeStamp = _ciTimeTable[_ci][_key]["timestamp"]
-                                _earlyValue     = _ciTimeTable[_ci][_key]["value"]
-                            pass
+                _timeTableCi = _ciTimeTable.get(_ci)
+                if _timeTableCi:
+                    # Find earliest minute
+                    for _key in _ciTimeTable[_ci].keys():
+                        if _ciTimeTable[_ci][_key]["epoch"] > _earlyEpochTime:
+                            _earlyEpochTime = _ciTimeTable[_ci][_key]["epoch"]
+                            _earlyTimeStamp = _ciTimeTable[_ci][_key]["timestamp"]
+                            _earlyValue     = _ciTimeTable[_ci][_key]["value"]
                         pass
                     pass
                 pass
@@ -210,8 +211,22 @@ def handler():
                     _earlyTimeStamp = fmtTimestamp(_earlyEpochTime)
                     pass
 
+                service_map[_type][_ci]["map"] = dict(time         =_earlyEpochTime,
+                                                      timestamp    =_earlyTimeStamp,
+                                                      timeend      = nowEpochMinute,
+                                                      timestampend = fmtTimestamp(nowEpochMinute)
+                                                    )
 
 
+
+        for _source in service_map.keys():
+            for _ci in service_map[_source].keys():
+                _keys  = service_map[_type][_ci]["map"]["keys"]
+                _types = service_map[_type][_ci]["map"]["types"]
+                loggger.debug("source: {0:16}, types: {3:20}, key: {2:50}, ci: {1} ".format(_source, _ci, str(_keys), str(_types)))
+                pass
+            pass
+        pass
 
 
         # ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME)
