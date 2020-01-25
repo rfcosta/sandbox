@@ -7,3 +7,5 @@ grafana/home/.DS_Store
 /chronograf/datab
 /kapacitor/data
 /chronograf/data
+/.idea/influxdata.iml
+/.idea/misc.xml
