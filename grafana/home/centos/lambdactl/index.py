@@ -10,15 +10,18 @@ import re
 
 # sys.path.append('.')
 
-from influx_util import InfluxUtil
+from logger_util import LoggerUtil
 from aws_util import AwsUtil
 from aws_vars import AwsVars
+from influx_util import InfluxUtil
+
 
 
 PYTHON = sys.version
-AWS = AwsUtil(__name__)
-loggger = AWS.loggger
-AWSVARS = AwsVars(AWS)
+LOG = LoggerUtil(__name__)
+AWS = AwsUtil()
+loggger = LOG.loggger
+AWSVARS = AwsVars()
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -109,13 +112,9 @@ def handler():
 
     AWSVARS.dumpEnvironmentVars()
 
-    #PROXY = AWS.proxyUrl
-    #INFLUXHOST = AWS.influxHost
-    #INFLUXTIMEFRAME = AWSVARS.InfluxQryTimeFrame
-
-    PROXY = ''
-    INFLUXHOST = "localhost"
-    INFLUXTIMEFRAME = "24h"
+    PROXY = AWSVARS.proxyUrl                        # for test: ''
+    INFLUXHOST = AWSVARS.influxHost                 # for test: 'localhost'
+    INFLUXTIMEFRAME = AWSVARS.InfluxQryTimeFrame    # for test: '24h'
 
     nowEpoch = int(time.time())
     nowEpochMinute = epochMinute(nowEpoch)
@@ -128,6 +127,7 @@ def handler():
         loggger.debug(json.dumps(ServiceConfiguration, indent=4))
     except Exception as E:
         loggger.error("S3 File ERROR: {}".format(str(E)))
+
 
     servicesObject = ServiceConfiguration['result'].get('services',{})
 
@@ -180,6 +180,7 @@ def handler():
         pass
         # loggger.debug(json.dumps(service_map, indent=4))
         # print(json.dumps(service_map))
+
 
         for _type in service_map.keys():
             if _type != 'prometheus':

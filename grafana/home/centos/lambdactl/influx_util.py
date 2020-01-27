@@ -13,13 +13,15 @@ import datetime
 # from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
 
 from retrying import retry
-from aws_util import AwsUtil
 
 
 sys.path.append('.')
 
-AWS = AwsUtil(__name__)
-loggger = AWS.loggger
+from logger_util import LoggerUtil
+
+
+LOG = LoggerUtil(__name__)
+loggger = LOG.loggger
 
 class InfluxUtil:
 

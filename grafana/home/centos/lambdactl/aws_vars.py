@@ -2,16 +2,18 @@ import os
 import sys
 import time
 
+from logger_util import LoggerUtil
+LOG = LoggerUtil(__name__)
+loggger = LOG.logger
 
 
 class AwsVars(object):
 
 
-    def __init__(self, awsutil):
+    def __init__(self):
 
         self.nowLocal           = time.localtime()
         self.nowGmt             = time.gmtime()
-        self.AWS = awsutil
 
         self.queueUrl           = os.environ.get('queueUrl',           "https://sqs.us-west-2.amazonaws.com/816835746341/shp-dev-queue-input-0000")
         self.snowFileName       = os.environ.get('snowFileName',       "cache/ServiceConfiguration.json")
@@ -29,9 +31,8 @@ class AwsVars(object):
 
     def dumpEnvironmentVars(self):
 
-        _loggger = self.AWS.loggger
-        _loggger.debug(' Environment vars:')
+        loggger.debug(' Environment vars:')
         for key in self.__dict__.keys():
-            _loggger.debug(" {0:24} {1}".format(key + ":", self.__dict__[key]))
+            loggger.debug(" {0:24} {1}".format(key + ":", self.__dict__[key]))
 
         return
