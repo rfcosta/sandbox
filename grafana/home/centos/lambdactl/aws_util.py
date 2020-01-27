@@ -227,6 +227,66 @@ class AwsUtil(object):
 
 
 
+    def invokeLambda(self, functionName='', invokationType='DryRun', payload={}, proxy='', timeout=10):
+
+        # Request
+        # Syntax
+        #
+        # response = client.invoke(
+        #     FunctionName='string',
+        #     InvocationType='Event' | 'RequestResponse' | 'DryRun',
+        #     LogType='None' | 'Tail',
+        #     ClientContext='string',
+        #     Payload=b'bytes' | file,
+        #     Qualifier='string'
+        # )
+
+
+        statusCodeOKPerInvokationType = dict(
+            DryRun=204,
+            Event=202,
+            RequestResponse=200
+        )
+
+        payloadString = json.dumps(payload)
+        self.loggger.debug("invokationType: {}, FunctionName: {}, Payload: {}, timeout: {}".format(invokationType, functionName, payloadString, timeout))
+
+        config_dict = {'connect_timeout': timeout, 'read_timeout': timeout}
+        _config = Config(**config_dict)
+
+        LAMBDA = boto3.client('lambda', config=_config)
+
+
+        self.setProxy(proxy)
+
+        try:
+            invokeResponse = LAMBDA.invoke(
+                FunctionName =functionName,
+                InvocationType =invokationType,
+                Payload = payloadString,
+                LogType = 'Tail',
+                #clientContext = "",
+                Qualifier = '',
+            )
+        except Exception as E:
+            self.loggger.error("Exception {} on invokeLambda".format(str(E)))
+            #traceback.print_exc()
+
+        self.resetProxy()
+
+        _ExecutedVersion  = invokeResponse.get('ExecutedVersion', '')
+        _Payload          = invokeResponse.get('PayLoad', '?')
+        _LogResult        = invokeResponse.get('LogResult', '')
+        _FunctionError    = invokeResponse.get('FunctionError', '')
+        _StatusCode       = invokeResponse.get('StatusCode', statusCodeOKPerInvokationType['DryRun'])
+
+        self.loggger.debug('Resp: ' + json.dumps(invokeResponse, indent=4))
+
+        if _StatusCode == statusCodeOKPerInvokationType[invokationType]:
+            return True
+
+        return False
+
 
 
 
