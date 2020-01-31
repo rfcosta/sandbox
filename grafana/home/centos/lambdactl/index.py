@@ -238,6 +238,9 @@ def handler(event, context):
                     pass
                 pass
 
+                #todo: The following statement is erasing the other properties of MAP
+                #todo: Should use update.
+
                 service_map[_source][_ci]["map"] = dict(time         =_earlyEpochTime,
                                                       timestamp    =_earlyTimeStamp,
                                                       timeend      = nowEpochMinute,
