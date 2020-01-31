@@ -1,10 +1,8 @@
-import sys
-import os
-import json
-import requests
-import time
-import re
-import datetime
+# import sys
+# import os
+# import time
+# import re
+# import datetime
 
 # import argparse
 # import base64
@@ -12,16 +10,19 @@ import datetime
 # #import pytz
 # from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
 
+import json
+import requests
+
 from retrying import retry
-
-
-sys.path.append('.')
-
+from aws_util import AwsUtil
+from aws_vars import AwsVars
 from logger_util import LoggerUtil
-
 
 LOG = LoggerUtil(__name__)
 loggger = LOG.loggger
+
+AWS = AwsUtil()
+AWSVARS = AwsVars()
 
 class InfluxUtil:
 
@@ -31,52 +32,26 @@ class InfluxUtil:
                  types=["avg_processing_time","error_count","transaction_count"], ci='Service Health Portal'):
 
 
-        self.ci = ci
-        self.types = types
+        self.loggger    = loggger
 
-        self.http_proxy = 'www-ad-proxy.sabre.com'
-        self.TIME_FRAME = os.environ.get("TIME_FRAME", timeframe)
-        self.INFLUXHOST = host  or "localhost"
-        # INFLUXHOST    = "influx-elb-1911.us-east-1.teo.dev.ascint.sabrecirrus.com"
-        self.INFLUXPORT = port
-        self.url = "http://{}:{}/query?db=kpi".format(self.INFLUXHOST, self.INFLUXPORT)
-        self.timeout = timeout
-        self.timeframe  = self.TIME_FRAME
+        self.ci         = ci
+        self.types      = types
+        self.timeout    = timeout
+
+        self.http_proxy = AWSVARS.proxyUrl
+        self.timeframe  = AWSVARS.influxQryTimeFrame
+        self.influxHost = AWSVARS.influxHost
+        self.influxPort = AWSVARS.influxPort
+
+        self.url = "http://{}:{}/query?db=kpi".format(self.influxHost, self.influxPort)
 
 
-        self.old_query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time",\
-                             mean("error_count")         AS "mean_error_count",\
-                             mean("transaction_count")   AS "mean_transaction_count" \
-                             FROM "kpi"."days"."metric" \
-                             WHERE time > now() - {} \
-                             GROUP BY ci, key, type time(1m) \
-                             FILL(none)'
-
-        self.static_query = 'SELECT mean("avg_processing_time") AS "mean_avg_processing_time", \
-                             mean("count")               AS "mean_count", \
-                             mean("error_count")         AS "mean_error_count", \
-                             mean("error_rate")          AS "mean_error_rate", \
-                             mean("transaction_count")   AS "mean_transaction_count" \
-                             FROM "kpi"."days"."metric" \
-                             WHERE time > now() - {} \
-                             AND   time < now() \
-                             GROUP BY "source", "ci", "key", time(1m) \
-                             FILL(none)'
 
         _typesQuery = ", ".join(['mean("{}") AS "{}"'.format(t,t) for t in types])
-        self.query = 'SELECT {} FROM "kpi"."days"."metric" WHERE time > now() - {} AND time < now() AND "ci" = \'{}\' \
+        self.query = 'SELECT {} FROM "kpi"."days"."metric" WHERE time > now() - {} AND time < now() - 1 AND "ci" = \'{}\' \
                         GROUP BY "source", "ci", "key", time(1m) \
                         FILL(none)'.format( _typesQuery, "{}", ci )
 
-        self.no_proxy = os.environ.get("no_proxy", '')
-        self.NO_PROXY = os.environ.get("NO_PROXY", '')
-        self.http_proxy = os.environ.get("http_proxy", '')
-
-        loggger.debug("no_proxy:        {}".format(self.no_proxy))
-        loggger.debug("NO_PROXY:        {}".format(self.NO_PROXY))
-        loggger.debug("http_proxy:      {}".format(self.http_proxy))
-
-        self.loggger = loggger
 
     def getSqlQuery(self):
         return self.query
@@ -135,7 +110,7 @@ class InfluxUtil:
 
         influxJsonResponse  = json.loads(resp.content)
         influxResults       = influxJsonResponse['results'][0]
-        influxstatement_id  = influxResults["statement_id"]
+        #influxstatement_id  = influxResults["statement_id"]
         influxseries        = influxResults.get("series", [])  # Empty if no data
 
         return influxseries
@@ -143,7 +118,7 @@ class InfluxUtil:
 
     def calcCiMostRecentTimestampFromJson(self,jsonData):
 
-        #loggger.debug(json.dumps(jsonData, indent=4))
+        # loggger.debug(json.dumps(jsonData, indent=4))
         colDict = {}
 
         ciTimeTable = {}  # [ci] [key]
@@ -174,7 +149,7 @@ class InfluxUtil:
                 pass
             pass
 
-            loggger.debug(json.dumps(colDict, indent=4))
+            # loggger.debug(json.dumps(colDict, indent=4))
 
             for valuerow in values:
                 thisRow = {}
@@ -190,7 +165,7 @@ class InfluxUtil:
                     pass
                 pass
 
-                loggger.debug(json.dumps(thisRow, indent=4))
+                # loggger.debug(json.dumps(thisRow, indent=4))
 
                 for _col in thisRow.keys():
                     if _col == "time":

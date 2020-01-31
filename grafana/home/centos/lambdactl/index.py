@@ -7,20 +7,22 @@ import copy
 import time
 import datetime
 import re
+import uuid
 
 # sys.path.append('.')
 
 from logger_util import LoggerUtil
+from influx_util import InfluxUtil
 from aws_util import AwsUtil
 from aws_vars import AwsVars
-from influx_util import InfluxUtil
-
 
 
 PYTHON = sys.version
+
 LOG = LoggerUtil(__name__)
-AWS = AwsUtil()
 loggger = LOG.loggger
+
+AWS = AwsUtil()
 AWSVARS = AwsVars()
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -108,13 +110,32 @@ def getTimeTable(host='', timeframe='4h', port='8086',
 pass
 
 
-def handler():
+def handler(event, context):
+
+    ERRORS = 0
+    handler_clock_start = time.time()
+
+
+    #  ----- Build a standard response -----
+
+    response = dict(Status = 'SUCCESS')
+
+    for prop in ['StackId', 'RequestId', 'LogicalResourceId', 'PhysicalResourceId']:
+        event.setdefault(prop, '')
+        response[prop] = event[prop]
+        pass
+    pass
+
+    if response['PhysicalResourceId'] == '':
+        response['PhysicalResourceId'] = str(uuid.uuid4())
+        pass
+    pass
 
     AWSVARS.dumpEnvironmentVars()
 
     PROXY = AWSVARS.proxyUrl                        # for test: ''
     INFLUXHOST = AWSVARS.influxHost                 # for test: 'localhost'
-    INFLUXTIMEFRAME = AWSVARS.InfluxQryTimeFrame    # for test: '24h'
+    INFLUXTIMEFRAME = AWSVARS.influxQryTimeFrame    # for test: '24h'
 
     nowEpoch = int(time.time())
     nowEpochMinute = epochMinute(nowEpoch)
@@ -123,11 +144,10 @@ def handler():
 
     ServiceConfiguration = {"result": {}}
     try:
-        ServiceConfiguration = AWS.loadS3File(AWSVARS.s3Bucket_name, AWSVARS.snowFileName, proxy=PROXY)
-        loggger.debug(json.dumps(ServiceConfiguration, indent=4))
+        ServiceConfiguration = AWS.loadS3File(AWSVARS.s3BucketName, AWSVARS.snowFileName, proxy=PROXY)
+        # loggger.debug(json.dumps(ServiceConfiguration, indent=4))
     except Exception as E:
         loggger.error("S3 File ERROR: {}".format(str(E)))
-
 
     servicesObject = ServiceConfiguration['result'].get('services',{})
 
@@ -142,23 +162,26 @@ def handler():
         _svc_property_names = ["state","knowledge_article","report_grouping","service_config_sys_id","uid"]
         _data_sources = ["prometheus", "viz", "zabbix"]
 
-        for (ci, svc) in services:
-            #loggger.debug("SVC ==> " + json.dumps(svc, indent=4))
-            for (source, key, type)  in  [(svc['panels'][pky]['data_source'], pky, svc['panels'][pky]['metric_type']) for pky in svc['panels'].keys()]:
-                if source not in _data_sources:
+        for (_ci, _svc) in services:
+            for (_source, _key, _type)  in  [(_svc['panels'][pky]['data_source'], pky, _svc['panels'][pky]['metric_type']) for pky in _svc['panels'].keys()]:
+                if _source not in _data_sources:
+                    loggger.debug("IGNORED ==> source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(_source, _ci, _key, _type))
                     continue
 
-                loggger.debug("source: {0:16}, type: {3:20}, key: {2:50}, ci: {1} ".format(source, ci, key, type))
+                # todo: check why "map"."keys" is not being initialized or erased
+                service_map.setdefault(_source, {})
+                service_map[_source].setdefault(_ci, dict(config=dict(), map=dict(types=[], keys=[], ci=_ci, source=_source)))
 
-                service_map.setdefault(source, {})
-                service_map[source].setdefault(ci, dict(config=dict(), map=dict(types=[], keys=[], ci=ci, source=source)))
-                #service_map[source][ci].setdefault("map", dict(types=[], keys=[], ci=ci, source=source))
-                if type not in service_map[source][ci]["map"]["types"]:
-                    service_map[source][ci]["map"]["types"].append(type)
-                service_map[source][ci]["map"]["keys"].append(key)
+                #service_map[source][_ci].setdefault("map", dict(types=[], keys=[], ci=_ci, source=_source))
+                if _type not in service_map[_source][_ci]["map"]["types"]:
+                    service_map[_source][_ci]["map"]["types"].append(_type)
+
+                # Keys are already unique within a CI but just in case, avoid dupes
+                if _key  not in service_map[_source][_ci]["map"]["keys"]:
+                    service_map[_source][_ci]["map"]["keys"].append(_key)
 
                 # From big configuration data, create a small config for this particular source
-                service_map[source][ci]["config"].setdefault\
+                service_map[_source][_ci]["config"].setdefault\
                     ("result",
                             {"global": _global,
                              "services": {},
@@ -168,12 +191,12 @@ def handler():
                     )
                 _empty_service = {"panels": {} }
                 for p in _svc_property_names:
-                    _empty_service[p] = svc[p]
+                    _empty_service[p] = _svc[p]
 
-                service_map[source][ci]["config"]["result"]["services"].setdefault(ci, _empty_service)
-                # service_map[source]["config"]["result"]["services"][ci]["panels"].setdefault(key, copy.deepcopy(servicesObject[ci]["panels"][key]))
-                _panel = copy.deepcopy(svc["panels"][key])
-                service_map[source][ci]["config"]["result"]["services"][ci]["panels"].setdefault(key, _panel)
+                service_map[_source][_ci]["config"]["result"]["services"].setdefault(_ci, _empty_service)
+                # service_map[_source]["config"]["result"]["services"][_ci]["panels"].setdefault(_key, copy.deepcopy(servicesObject[_ci]["panels"][_key]))
+                _panel = copy.deepcopy(_svc["panels"][_key])
+                service_map[_source][_ci]["config"]["result"]["services"][_ci]["panels"].setdefault(_key, _panel)
 
                 pass
             pass
@@ -182,14 +205,20 @@ def handler():
         # print(json.dumps(service_map))
 
 
-        for _type in service_map.keys():
-            if _type != 'prometheus':
-                continue
-            for _ci in service_map[_type].keys():
-                if _ci != 'Service Health Portal':
+        # Get data from InfluxDB for _source._ci that has keys and types
+        for _source in service_map.keys():
+            # if _source != 'prometheus':
+            #     continue
+            for _ci in service_map[_source].keys():
+                # if _ci != 'Service Health Portal':
+                #     continue
+                _types = service_map[_source][_ci]["map"]["types"]
+                _keys  = service_map[_source][_ci]["map"]["keys"]
+                if _types.__len__() == 0 or _keys.__len__() == 0:
+                    del service_map[_source][_ci]
                     continue
-                _types = service_map[_type][_ci]["map"]["types"]
-                _keys  = service_map[_type][_ci]["map"]["keys"]
+                    pass
+                pass
                 _ciTimeTable = getTimeTable(host=INFLUXHOST, timeframe=INFLUXTIMEFRAME, ci=_ci, types=_types)
                 loggger.debug("CI: {}, TimeTable: {}".format(_ci, json.dumps(_ciTimeTable)))
 
@@ -209,7 +238,7 @@ def handler():
                     pass
                 pass
 
-                service_map[_type][_ci]["map"] = dict(time         =_earlyEpochTime,
+                service_map[_source][_ci]["map"] = dict(time         =_earlyEpochTime,
                                                       timestamp    =_earlyTimeStamp,
                                                       timeend      = nowEpochMinute,
                                                       timestampend = fmtTimestamp(nowEpochMinute)
@@ -219,8 +248,8 @@ def handler():
 
         for _source in service_map.keys():
             for _ci in service_map[_source].keys():
-                _keys  = service_map[_type][_ci]["map"]["keys"]
-                _types = service_map[_type][_ci]["map"]["types"]
+                _keys  = service_map[_source][_ci]["map"]["keys"]
+                _types = service_map[_source][_ci]["map"]["types"]
                 loggger.debug("source: {0:16}, types: {3:20}, key: {2:50}, ci: {1} ".format(_source, _ci, str(_keys), str(_types)))
                 pass
             pass
@@ -233,11 +262,27 @@ def handler():
         pass
     pass
 
+    # ============================================================================================
+    # ======  SHOW PROCESS STATISTICS  ===========================================================
+    # ============================================================================================
+
+    handler_clock_end    = time.time()
+    handler_clock_duration = (int(handler_clock_end * 100) - int(handler_clock_start * 100))
+
+    loggger.info("*** START / STOP:   " + str(handler_clock_start)            + " --> " + str(handler_clock_end) + " ***")
+    loggger.info("*** CLOCK DURATION: " + str(handler_clock_duration / 100.0) + "  SECONDS ***")
+
+    loggger.info("*** END OF LAMBDA " + response['Status'] + ", ERRORS=" + str(ERRORS))
+
+    #============================================================================================
+
+    return AWS.send_response(event, response)
+
 
 if __name__ == "__main__":
 
     # Unit test Modules
     loggger.debug("----- START UNIT TEST -----")
-    handler()
+    handler({}, {})
 
     loggger.debug("----- END UNIT TEST -----")

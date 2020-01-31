@@ -18,35 +18,28 @@ try:
 except ImportError:
     import httplib                            # Python 2
 
-import logging
-from logging  import getLogger, DEBUG, INFO, WARNING, ERROR
+
+# import logging
+#from logging  import DEBUG, INFO, WARNING, ERROR
 
 from botocore.config import Config
 
-LOG_LEVEL_DEFAULT = DEBUG
-NAME_DEFAULT = __name__
+from logger_util import LoggerUtil
+LOG = LoggerUtil(__name__)
+
+loggger = LOG.loggger
 
 class AwsUtil(object):
 
-    def __init__(self, NAME=NAME_DEFAULT, LOG_LEVEL=LOG_LEVEL_DEFAULT):
+    def __init__(self, LOG_LEVEL=LOG.getLevel('DEBUG')):
 
-        _logger = getLogger(NAME)
-
-        if _logger.handlers.__len__() == 0:
-            _logger.propagate = 0
-            _formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s %(funcName)s:%(lineno)d: %(message)s')
-            _console_handler = logging.StreamHandler()
-            _console_handler.setFormatter(_formatter)
-            _logger.addHandler(_console_handler)
-
-        self.loggger = _logger
+        self.loggger = loggger
         self.loggger.setLevel(LOG_LEVEL)
 
         pass
 
     def validate_datetime(self,timestamp):
         _XNUMBER = re.compile(r'^\d+$')
-        # print(" %s type is %s" % (input, type(input).__name__))
         if type(timestamp).__name__ == 'datetime':
             return timestamp
 
@@ -102,7 +95,6 @@ class AwsUtil(object):
         self.setProxy(proxy)
 
         _config = Config(**config_dict)
-        self.loggger.debug("CONFIG " + str(_config))
 
 
         KMS = boto3.client('kms')
@@ -126,9 +118,6 @@ class AwsUtil(object):
         self.setProxy(proxy)
 
         _config = Config(**config_dict)
-
-        self.loggger.debug("CONFIG " + str(_config))
-
 
         SQS = boto3.client('sqs', config=_config)
 
@@ -206,11 +195,9 @@ class AwsUtil(object):
         self.setProxy(proxy)
 
         _config = Config(**config_dict)
-        self.loggger.log(DEBUG,"CONFIG " + str(_config))
 
         s3 = boto3.resource('s3')
         content_object = s3.Object(s3BucketName, s3FileName)
-        self.loggger.debug("content_object: " + str(content_object))
         json_content = {"result": {}}
         try:
             file_content = content_object.get()['Body'].read().decode(s3Format)
