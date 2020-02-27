@@ -1,0 +1,45 @@
+{
+  "logging": {
+    "version": 1,
+    "disable_existing_loggers": true,
+    "formatters": {
+      "standard": {
+        "class": "logging.Formatter",
+        "datefmt": "%I:%M:%S",
+        "format": "%(asctime)s- %(levelname)s - [%(filename)s:%(lineno)s - %(funcName)s() ] - %(message)s"
+      }
+    },
+    "handlers": {
+      "console": {
+        "level": "DEBUG",
+        "class": "logging.StreamHandler",
+        "formatter": "standard",
+        "stream": "ext://sys.stdout"
+      },
+      "events_handler": {
+        "level": "INFO",
+        "class": "logging.handlers.TimedRotatingFileHandler",
+        "formatter": "standard",
+        "when": "midnight",
+        "backupCount": 5,
+        "filename": "/opt/aed/shp/log/shp/events.log",
+        "encoding": "utf-8"
+      }
+     },
+    "loggers": {
+      "snow_events": {
+        "handlers": [
+          "events_handler"
+        ],
+        "propagate": 0
+      }
+    },
+    "root": {
+      "handlers": [
+        "console"
+      ],
+      "level": "DEBUG"
+    }
+  }
+}
+
