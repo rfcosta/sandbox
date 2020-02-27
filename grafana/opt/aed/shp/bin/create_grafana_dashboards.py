@@ -1,7 +1,6 @@
-#!/bin/env python
+#!/bin/env python3
 
 import json
-import logging
 import sys
 import copy
 import re
@@ -11,19 +10,16 @@ import requests
 try:
     from urllib import quote
 except ImportError:
-    from urllib.parse import quote    # Python3
-
+    from urllib.parse import quote  # Python3
 
 sys.path.append('/opt/aed/shp/lib')
 sys.path.append('/opt/aed/shp/lib/grafana')
 
 import shputil
 from service_configuration import ServiceConfiguration
-#from influxdb import InfluxDBClient
 from customer_configuration import CustomerConfiguration
 from folders import Folders
 from dashboards import Dashboards
-from helper import Helper
 
 sysidOK = re.compile('^[0-9A-Fa-f]{32,32}$')
 
@@ -39,12 +35,14 @@ unique_sources = []
 unique_types = []
 type_labels = {}
 
-dashboards_to_preserve = ( "InfluxDB", "Alerts", "Grafana", "Transaction Counts by Source", "Main" )
+dashboards_to_preserve = ("InfluxDB", "Alerts", "Grafana", "Transaction Counts by Source", "Main")
+
 
 def load_template(fname):
     with open(config["base_dir"] + "templates/" + fname, 'r') as myfile:
         data = myfile.read()
     return data
+
 
 def apply_parameters(objstr, parameters):
     for _keyName in parameters.keys():
@@ -54,60 +52,54 @@ def apply_parameters(objstr, parameters):
 
     return objstr
 
-def create_links(service):
 
-     # Template contains multiple links with multiple variables
-     # so for new variables, _PARAMS incremented with new vars
+def create_links(service):
+    # Template contains multiple links with multiple variables
+    # so for new variables, _PARAMS incremented with new vars
     _PARAMS = dict(servicenow_instance=config["servicenow_instance"],
                    dashboard_uid=service.dashboard_uid
                    )
-    _dashboard_template =  ""
+    _dashboard_template = ""
     if sysidOK.match(service.dashboard_uid):
-        _dashboard_template =  "single_dash_links_template.json"
+        _dashboard_template = "single_dash_links_template.json"
     else:
-        _dashboard_template =  "single_dash_links_customer.json"
+        _dashboard_template = "single_dash_links_customer.json"
 
     try:
         _links_text = load_template(_dashboard_template)
         _links_text = apply_parameters(_links_text, _PARAMS)
     except Exception as e:
-        logging.error("Dashboard Links creation error: " + e.message)
-        print("Dashboard Links creation error: " + e.message)
+        logger.exception("Dashboard Links creation error")
 
     return _links_text
 
 
 def create_panel_links(panel):
-
-
     # Template contains multiple links with multiple variables
     # so for new variables, _PARAMS incremented with new vars
-    _PARAMS = dict(servicenow_instance = config["servicenow_instance"],
-                   graph_panel_sys_id  = panel.graph_panel_sys_id
+    _PARAMS = dict(servicenow_instance=config["servicenow_instance"],
+                   graph_panel_sys_id=panel.graph_panel_sys_id
                    )
-
 
     _links_text = ''
     try:
         _links_text = load_template("single_panel_links_template.json")
         _links_text = apply_parameters(_links_text, _PARAMS)
     except Exception as e:
-        logging.error("Dashboard Panel Links creation error: " + e.message)
-        print("Dashboard Panel Links creation error: " + e.message)
+        logger.exception("Dashboard Panel Links creation error")
 
-    deep_link=panel.deep_link
+    deep_link = panel.deep_link
     if deep_link != '':
         try:
-            _deep_link_text  = load_template("single_panel_deep_link_template.json")
-            _DEEP_PARMS      = dict(deep_link=quote(deep_link, safe=':/?&'))
-            _deep_link_text  = apply_parameters(_deep_link_text, _DEEP_PARMS)
+            _deep_link_text = load_template("single_panel_deep_link_template.json")
+            _DEEP_PARMS = dict(deep_link=quote(deep_link, safe=':/?&=#'))
+            _deep_link_text = apply_parameters(_deep_link_text, _DEEP_PARMS)
             if _links_text != '':
                 _links_text = _links_text + ", " + _deep_link_text
             else:
                 _links_text = _deep_link_text
         except Exception as e:
-            logging.error("Dashboard Panel Deep Link creation error: " + e.message)
-            print("Dashboard Panel Deep Link creation error: " + e.message)
+            logger.exception("Dashboard Panel Deep Link creation error")
 
     return _links_text
 
@@ -137,36 +129,40 @@ def populate_panel(text, panel, grid_x, grid_y):
 
 def remove_obsolete_dashboards(org_id_array):
     for org_id in org_id_array:
+        if org_id == admin_org_id:
+            continue
         all_dashboards = dashboards[org_id].get_dashboards()
         for uid, title in all_dashboards.items():
             try:
                 if title not in dashboards_to_preserve:
                     if org_id in used_dashboards:
                         if uid not in used_dashboards[org_id]:
-                            print("Removing Dash: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
+                            logger.info("Removing Dash: {0} Title: {1} Org: {2}".format(uid, title, org_id))
                             dashboards[org_id].delete_dashboard(uid)
                     else:
-                        print("Removing Dash: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
+                        logger.info("Removing Dash: {0} Title: {1} Org: {2}".format(uid, title, org_id))
                         dashboards[org_id].delete_dashboard(uid)
-            except:
-                print("Something went wrong trying to delete dashboard with uid: " + str(uid) + " from org: " + str(org_id))
+            except Exception as e:
+                logger.exception("Something went wrong trying to delete dashboard with uid: {0} from org: {1}".format(uid, org_id))
 
 
 def remove_obsolete_folders(org_id_array):
     for org_id in org_id_array:
+        if org_id == admin_org_id:
+            continue
         all_folders = folders[org_id].get_folders()
         for uid, title in all_folders.items():
             try:
                 if org_id in used_folders:
                     if uid not in used_folders[org_id]:
                         if title != "General":
-                            print("Removing Folder: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
+                            logger.info("Removing Folder: {0} Title: {1} Org: {2}".format(uid, title, org_id))
                             folders[org_id].delete_folder(uid)
                 else:
-                    print("Removing Folder: " + str(uid) + " Title: " + title + " Org: ", str(org_id))
+                    logger.info("Removing Folder: {0} Title: {1} Org: {2}".format(uid, title, org_id))
                     folders[org_id].delete_folder(uid)
-            except:
-                print("Something went wrong trying to delete folder with uid: " + str(uid) + " from org: " + str(org_id))
+            except Exception as e:
+                logger.exception("Something went wrong trying to delete folder with uid: {0} from org: {1}".format(uid, org_id))
 
 
 def get_organization_id_by_name(organization):
@@ -191,22 +187,18 @@ def add_to_used_folders(org_id, folder_uid):
 
 
 def create_single_dashboard(dashboard_json, service_name, org_id, dash_uid, folder_name):
-    print("Creating dashboard for " + service_name + " in org " + str(org_id) + " folder=" + folder_name)
-
-
+    logger.info("Creating dashboard: {0} in org {1} folder={2}".format(service_name, org_id, folder_name))
     folders_for_organization = folders[org_id]
 
     folder_id = 0  # default to General folder
-
     if folder_name != "General":
         try:
             folder_id = folders_for_organization.get_folder_id(folder_name)
-        except Exception, e:
-            print("Folder not found for " + folder_name)
+        except Exception as e:
+            logger.exception("Folder not found for {0}".format(folder_name))
             folder_id = -1
-
-        if folder_id < 0:
-            print("Creating folder: " + folder_name + " for " + service_name + " in org " + str(org_id))
+        if ((folder_id is None) or (folder_id < 0)):
+            logger.error("Creating folder: {0} for {1} in org {2}".format(folder_name, service_name, org_id))
             folder_id = folders_for_organization.create_folder(folder_name)
 
     add_to_used_dashboards(org_id, dash_uid)
@@ -215,31 +207,27 @@ def create_single_dashboard(dashboard_json, service_name, org_id, dash_uid, fold
     request_data = dashboard_json.replace("<<FOLDER_ID>>", str(folder_id))
     request_data = request_data.replace("<<FOLDER_NAME>>", folder_name)
 
-    # print "service_name=" + service_name + ",  folder_id=" + str(folder_id)
+    # logger.debug("service_name={0}, folder_id={1}".format(service_name, folder_id))
 
     dashboards_for_organization = dashboards[org_id]
-
     resp = dashboards_for_organization.create_dashboard(str(dash_uid), json.loads(request_data))
 
     if resp.status_code != 200:
-        logging.error(
-            "Error creating dashboard for: " + service_name + ' in folder: ' + folder_name + ' - ' + resp.text)
-        print(
-            "Error creating dashboard for: " + service_name + ' in folder: ' + folder_name + ' - ' + resp.text)
+        msg = "Error creating dashboard: {0} in folder: {1} - {2}".format(service_name, folder_name, resp.text)
+        logger.error(msg)
     else:
-        logging.info("Dashboard created successfully: " + dash_uid)
-        print("Dashboard created successfully: " + dash_uid)
+        msg = "Dashboard created successfully: {0}".format(dash_uid)
+        logger.info(msg)
 
 
 def sortable_customers(x):
     if x.overall_service_metric == "true":
-       return ("A" + ':' +  x.panel_id)   # force to top
+        return "A" + ':' + x.panel_id  # force to top
     else:
-       return (x.customer_name + ':' + x.panel_id)
+        return x.customer_name + ':' + x.panel_id
 
 
 def create_service_dashboards(service_cfg, main_org, staging_org):
-
     # Need to fill lists of unique sources and types
     global unique_sources
     global unique_types
@@ -247,11 +235,11 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
 
     for service in service_cfg.get_services():
         if service.state == 'undefined':
-            logging.debug("Skipping unconfigured service: " + service.name)
+            logger.debug("Skipping unconfigured service: {0}".format(service.name))
             continue
 
-#        if "Sabre Web Services" not in service.name:
-#            continue
+        #        if "Sabre Web Services" not in service.name:
+        #            continue
 
         all_panels = ''
         comma = ''
@@ -263,10 +251,10 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
         for panel in sorted(service.panels, key=sortable_customers):
             if panel.display_state == 'Active':
                 # Add source and type to global lists, for later use
-                if (panel.metric_type not in unique_types):
+                if panel.metric_type not in unique_types:
                     unique_types.append(panel.metric_type)
                 type_labels[panel.metric_type] = panel.base_metric_name
-                if (panel.data_source not in unique_sources):
+                if panel.data_source not in unique_sources:
                     unique_sources.append(panel.data_source)
 
                 panel_count += 1
@@ -277,10 +265,10 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
                     all_panels = all_panels + comma + populate_panel(panel_text, panel, grid_x, grid_y)
                 else:
                     panel_copy = copy.copy(panel)
-                    custCode = 'unknown'
+                    customer_code = 'unknown'
                     if panel.customer_code:
-                        custCode = panel.customer_code
-                    panel_copy.title = panel.title + " - " + panel.customer_name + " (" + custCode + ")"
+                        customer_code = panel.customer_code
+                    panel_copy.title = panel.title + " - " + panel.customer_name + " (" + customer_code + ")"
                     all_panels = all_panels + comma + populate_panel(panel_text, panel_copy, grid_x, grid_y)
 
                 comma = ','
@@ -298,7 +286,6 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
         all_links = create_links(service)
         dash_text = dash_text.replace("<<LINKS>>", all_links)
 
-
         if service.is_validated():
             org_id = main_org
         else:
@@ -311,19 +298,17 @@ def create_service_dashboards(service_cfg, main_org, staging_org):
                 create_single_dashboard(dash_text, service.name, org_id, dash_uid, folder_name)
             except Exception:
                 # log it and move on to next dashboard
-                logging.error("Dashboard creation error: " + service.name, exc_info=True)
+                logger.exception("Dashboard creation error: {0}".format(service.name))
         else:
-            logging.info("No panels for service: " + service.name)
+            logger.info("No panels for service: {0}".format(service.name))
 
 
 # Creates dashboards with panels from many services, so they can be used to quickly assess
 # the overall health of SHP.
 def create_shp_health_dashboards(service_cfg, org_id):
-
     global unique_sources
     global unique_types
     global type_labels
-
 
     for metric_type in unique_types:
         folder_name = "Main SHP Health - Type Groups"
@@ -339,7 +324,7 @@ def create_shp_health_dashboards(service_cfg, org_id):
 
         for service in service_cfg.get_services():
             if service.state != 'validated':
-                logging.debug("Skipping non-Validated service: " + service.name)
+                logger.debug("Skipping non-Validated service: {0}".format(service.name))
                 continue
 
             for panel in sorted(service.panels, key=sortable_customers):
@@ -370,16 +355,14 @@ def create_shp_health_dashboards(service_cfg, org_id):
         # We don't need links on these graphs
         dash_text = dash_text.replace("<<LINKS>>", "")
 
-
         if panel_count > 0:
             try:
                 create_single_dashboard(dash_text, "ALL " + type_label, org_id, dash_uid, folder_name)
-            except Exception:
+            except:
                 # log it and move on to next dashboard
-                logging.error("Dashboard creation error: " + "ALL " + type_label, exc_info=True)
+                logger.exception("Dashboard creation error: All {0}".format(type_label))
         else:
-            logging.info("No panels defined?")
-
+            logger.info("No panels defined?")
 
     for source in unique_sources:
         folder_name = "Main SHP Health - Source Groups"
@@ -394,7 +377,7 @@ def create_shp_health_dashboards(service_cfg, org_id):
 
         for service in service_cfg.get_services():
             if service.state != 'validated':
-                logging.debug("Skipping non-Validated service: " + service.name)
+                logger.debug("Skipping non-Validated service: {0}".format(service.name))
                 continue
 
             for panel in sorted(service.panels, key=sortable_customers):
@@ -425,33 +408,34 @@ def create_shp_health_dashboards(service_cfg, org_id):
         # We don't need links on these graphs
         dash_text = dash_text.replace("<<LINKS>>", "")
 
-
         if panel_count > 0:
             try:
                 create_single_dashboard(dash_text, "ALL " + source, org_id, dash_uid, folder_name)
             except Exception:
                 # log it and move on to next dashboard
-                logging.error("Dashboard creation error: " + "ALL " + source, exc_info=True)
+                logger.exception("Dashboard creation error: ALL {0}".format(source))
         else:
-            logging.info("No panels defined?")
+            logger.info("No panels defined?")
 
     # Now, the dashboard with grouped panels (by ci)
+
+
 # TODO- this is going to take more.  The 'source' in panel definition is not exactly the same
 # TODO - as the 'source' in the database (appdynamics vs. AppDynamics)
 # TODO - probably need to query the DB to get list of unique sources with data in last X time
-  #  influx_measure = str(global_config["influxdb_metric_measure"])
-  #  influx_db = str(global_config["influxdb_db"])
-  #  influx_policy = str(global_config["influxdb_metric_policy"])
+#  influx_measure = str(global_config["influxdb_metric_measure"])
+#  influx_db = str(global_config["influxdb_db"])
+#  influx_policy = str(global_config["influxdb_metric_policy"])
 
-   # query = 'SHOW TAG VALUES ON "kpi" FROM "kpi"."days"."metric\"   WITH key = \"source\"'
-  #  query = 'SHOW TAG VALUES ON \"' + influx_db + '\" FROM \"' + influx_db + '\".\"' + influx_policy + '\".\"' + influx_measure + \
-  #          '\" WHERE time > now() - 24h WITH key = \"source\"'
+# query = 'SHOW TAG VALUES ON "kpi" FROM "kpi"."days"."metric\"   WITH key = \"source\"'
+#  query = 'SHOW TAG VALUES ON \"' + influx_db + '\" FROM \"' + influx_db + '\".\"' + influx_policy + '\".\"' + influx_measure + \
+#          '\" WHERE time > now() - 24h WITH key = \"source\"'
 
-  #  print(query)
-  #  rs = global_db_connection.query(query)
-  #  print(str(rs))
+#  logger.debug(query)
+#  rs = global_db_connection.query(query)
+#  logger.debug(str(rs))
 
-    #    all_panels = ''
+#    all_panels = ''
 #    panel_count = 0
 #    dashboard_name = "Type by Source"
 #    panel_id = 1
@@ -486,7 +470,7 @@ def create_shp_health_dashboards(service_cfg, org_id):
 #    dash_text = dash_text.replace("<<DASHBOARD_UID>>", dash_uid)
 #    dash_text = dash_text.replace("<<PANELS>>", all_panels)
 
-    # We don't need links on these graphs
+# We don't need links on these graphs
 #    dash_text = dash_text.replace("<<LINKS>>", "")
 
 #    folder_name = "Metric Source Aggregates"
@@ -496,9 +480,9 @@ def create_shp_health_dashboards(service_cfg, org_id):
 #            create_single_dashboard(dash_text, dashboard_name, org_id, dash_uid, folder_name)
 #        except Exception:
 #            # log it and move on to next dashboard
-#            logging.error("Dashboard creation error: " + dashboard_name, exc_info=True)
+#            logger.error("Dashboard creation error: " + dashboard_name, exc_info=True)
 #    else:
-#        logging.info("No panels defined?")
+#        logger.info("No panels defined?")
 
 
 def add_single_alert(ci_where, level, ref_id):
@@ -516,7 +500,7 @@ def add_single_target(ci_where, alias, ref_id):
 
 
 def create_aggregated_dashboards(service_cfg, agg_org_id):
-    for topLevelService in service_cfg.get_topLevelServices():
+    for topLevelService in service_cfg.get_top_level_services():
 
         all_targets = ''
 
@@ -576,17 +560,16 @@ def create_aggregated_dashboards(service_cfg, agg_org_id):
         dash_text = dash_text.replace("<<SERVICE_NAME>>", "Aggregate " + topLevelService.name)
         dash_text = dash_text.replace("<<DASHBOARD_UID>>", dash_uid)
         dash_text = dash_text.replace("<<PANELS>>", panel_text)
-
         dash_text = dash_text.replace("<<LINKS>>", "")  # No links for aggregated dashboards
 
         folder_name = topLevelService.report_grouping
 
         try:
-            # print(dash_text)
+            # logger.debug(dash_text)
             create_single_dashboard(dash_text, topLevelService.name, agg_org_id, dash_uid, folder_name)
         except Exception:
             # log it and move on to next dashboard
-            logging.error("Dashboard creation error: " + topLevelService.name, exc_info=True)
+            logger.exception("Dashboard creation error: {0}".format(topLevelService.name))
 
 
 def load_folders(org_id_array):
@@ -599,13 +582,12 @@ def load_dashboards(org_id_array):
         dashboards[org_id] = Dashboards(org_id)
 
 
-#===== Version of create_service_dashboards but for customers
+# ===== Version of create_service_dashboards but for customers
 def create_customer_dashboards(customers_cfg, main_org, staging_org):
-
     customers_list = customers_cfg.get_customers()
     for customer in customers_list:
         if customer.state == 'undefined':
-            logging.debug("Skipping unconfigured customer: " + customer.name)
+            logger.debug("Skipping unconfigured customer: {0}".format(customer.name))
             continue
 
         all_panels = ''
@@ -632,7 +614,7 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
                 grid_x = (counter % columns) * 8
                 grid_y = (counter / columns) * 20
 
-        dash_uid   = customer.dashboard_uid
+        dash_uid = customer.dashboard_uid
         dash_title = customer.name + " (" + customer.code + ")"
 
         dash_text = load_template("single_dashboard_template.json")
@@ -644,7 +626,6 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
         all_links = create_links(customer)
         dash_text = dash_text.replace("<<LINKS>>", all_links)
 
-
         if customer.is_validated():
             org_id = main_org
         else:
@@ -655,24 +636,19 @@ def create_customer_dashboards(customers_cfg, main_org, staging_org):
         if panel_count > 0:
             try:
                 create_single_dashboard(dash_text, customer.name, org_id, dash_uid, folder_name)
-            except Exception:
+            except:
                 # log it and move on to next dashboard
-                logging.error("Dashboard creation error: " + customer.name, exc_info=True)
+                logger.error("Dashboard creation error: {0}".format(customer.name))
         else:
-            logging.info("No panels for Customer: " + customer.name)
-
-#def get_db_connection():
-#    influx_host = global_config['influxdb_host']
-#    influx_port = global_config['influxdb_port']
-#    influx_db = global_config['influxdb_db'] + ".\"" + global_config['influxdb_metric_policy'] + "\"." + \
-#                global_config['influxdb_metric_measure']
-
-#    return InfluxDBClient(host=influx_host, port=influx_port, database=influx_db)
+            logger.info("No panels for Customer: {0}".format(customer.name))
 
 
-#============= MAIN =========================================================
+# ============= MAIN =========================================================
+
+shputil.check_logged_in_user('centos')
+
 config = shputil.get_config()
-shputil.configure_logging(config["logging_configuration_file"])
+logger = shputil.get_logger("dashboardCreation")
 
 main_org_id = 1
 staging_org_id = 2
@@ -682,7 +658,6 @@ admin_org_id = 4
 try:
     service_config = ServiceConfiguration()
     global_config = shputil.get_config()
- #   global_db_connection = get_db_connection()
 
     main_org_id = get_organization_id_by_name('Main%20Org%2E')
     staging_org_id = get_organization_id_by_name('Staging')
@@ -698,13 +673,12 @@ try:
 
     # Code for customers dashboard to turn on by uncommenting the following 2 lines
     customer_config = CustomerConfiguration(service_config)
-    create_customer_dashboards(customer_config,main_org_id, staging_org_id)
+    create_customer_dashboards(customer_config, main_org_id, staging_org_id)
 
     remove_obsolete_dashboards([main_org_id, staging_org_id, aggregate_org_id, admin_org_id])
     remove_obsolete_folders([main_org_id, staging_org_id, aggregate_org_id, admin_org_id])
 
-except Exception, e:
-    print(str(e))
-    logging.error("Failure: Fatal error when creating dashboards", exc_info=True)
+except Exception as e:
+    logger.exception("Failure: Fatal error when creating dashboards")
 
 sys.exit(0)

@@ -11,11 +11,8 @@ sys.path.append('/opt/aed/shp/lib')
 
 import requests
 import shputil
-import collections
 import dateutil.parser
 import time
-import logging
-from time import strftime
 from subprocess import call
 from select import select
 from service_configuration import ServiceConfiguration
@@ -29,7 +26,6 @@ def analyzeKapacitorAlert():
     alertData = ""
     # Defaulting fields so we don't have to keep checking in other functions
     singleAlert = {"alertSource": "kapacitor", "level": "", "id": "", "ci": "", "customer_code": ""}
-    kapacitorColumns = []
 
     # We don't want to block
     timeout = 0
@@ -104,7 +100,7 @@ def analyzeKapacitorAlert():
                             singleAlert["breach_type"] = "below"
                             singleAlert["breached_threshold"] = lower_threshold
 
-                        logging.debug("SingleAlert: " + str(singleAlert))
+                        logger.info("Service Alert: " + str(singleAlert))
                         return singleAlert
                 else:
                     raise KeyError("Alert data contains no columns: " + str(kapacitorAlerts))
@@ -129,7 +125,7 @@ def createServiceNowEvent(kapacitorAlert):
 
     # Do not send CLEAR events for now
     if level == 0:
-       logging.debug("Would have sent clear event: " + str(kapacitorAlert))
+       logger.debug("Would have sent clear event: " + str(kapacitorAlert))
        return
 
     service_name = global_ci.replace(" -", "-")
@@ -162,6 +158,15 @@ def createServiceNowEvent(kapacitorAlert):
         alertMessage = "Error Rate"
     elif kapacitorAlert["type"] == "avg_processing_time":
         alertMessage = "Processing Time"
+    elif kapacitorAlert["type"] == "count":
+        alertMessage = "Count"
+    elif kapacitorAlert["type"] == "percent":
+        alertMessage = "Percent"
+    elif kapacitorAlert["type"] == "currency":
+        alertMessage = "Currency"
+    else:
+        alertMessage = "Other Error"
+
 
     graph_title = alertMessage
     if global_panel.title:
@@ -325,11 +330,12 @@ def get_db_connection():
     return InfluxDBClient(host=influx_host, port=influx_port, database=influx_db)
 
 
-try:
-    os.environ['NO_PROXY'] = shputil.get_influxdb_base_url()
+os.environ['NO_PROXY'] = shputil.get_influxdb_base_url()
 
-    global_config = shputil.get_config()
-    shputil.configure_logging(global_config["logging_configuration_file"])
+global_config = shputil.get_config()
+logger = shputil.get_logger('snow_events')
+
+try:
     global_service_config = ServiceConfiguration()
     global_db_connection = get_db_connection()
 
@@ -351,8 +357,12 @@ try:
 
 # Do we need to drop seconds from the time (or maybe round) so we only have one breach per minute?
     alert_time = str(global_singleKapAlert["time"])
-    pattern = "%Y-%m-%dT%H:%M:%SZ"
-    global_grafanaTime = int(time.mktime(time.strptime(alert_time, pattern))) * 1000
+    try:
+        pattern = "%Y-%m-%dT%H:%M:%SZ"
+        global_grafanaTime = int(time.mktime(time.strptime(alert_time, pattern))) * 1000
+    except ValueError as ve:
+        pattern = "%Y-%m-%dT%H:%M:%S.%fZ"
+        global_grafanaTime = int(time.mktime(time.strptime(alert_time, pattern))) * 1000
     global_alertTime = global_grafanaTime * 1000000
 
     global_influx_db = str(global_config["influxdb_db"])
@@ -371,5 +381,5 @@ try:
         if 'CRITICAL' == str(global_singleKapAlert["level"]) or (0 > x_in_y(copy.copy(global_singleKapAlert), 'CRITICAL')):
             createServiceNowEvent(copy.copy(global_singleKapAlert))
 
-except Exception, e:
-    logging.error("Failure: Unable to process event", exc_info=True)
+except Exception as e:
+    logger.exception(e)

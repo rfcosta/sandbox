@@ -97,7 +97,7 @@ class ServiceConfiguration:
         for service in self.services:
             if service.name == service_name:
                 return service
-        raise KeyError("Unable to find service: " + str(service_name))
+        raise KeyError("Unable to find service: {0}".format(service_name))
 
     def __str__(self):
         s = 'Snow Application Version: ' + self.version + '\n\n'

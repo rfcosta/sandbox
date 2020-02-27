@@ -1,10 +1,7 @@
-#!/bin/env python
+#!/bin/env python3
 
 # This program reads the Service feed from Service Now and updates the static thresholds in influxdb
 
-import time
-import os
-import logging
 from influxdb import InfluxDBClient
 
 import sys
@@ -40,7 +37,7 @@ def write_thresholds_to_influx(client, ci, metric, panelKey, need_to_alert, warn
       }
     }
   ]
-  logging.debug(json_body)
+  logger.debug(json_body)
   client.write_points(json_body)
 
 def process_json(client, service_config):
@@ -80,9 +77,9 @@ def process_json(client, service_config):
 
 try:
     config = shputil.get_config()
-    shputil.configure_logging(config["logging_configuration_file"])
+    logger = shputil.get_logger("shp")
     client = InfluxDBClient(host=config['influxdb_host'], port=int(config['influxdb_port']), database=config['influxdb_db'])
     service_config = ServiceConfiguration()
     process_json(client, service_config)
-except Exception, e:
-    logging.error("Failure: Error processing service configurations", exc_info=True)
+except Exception as e:
+    logger.exception("Failure: Error processing service configurations")

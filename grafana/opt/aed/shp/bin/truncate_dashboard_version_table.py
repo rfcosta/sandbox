@@ -1,9 +1,13 @@
+#!/bin/env python3
+
 import sys
 import mysql.connector
 
 sys.path.append('/opt/aed/shp/lib')
 
 import shputil
+
+shputil.check_logged_in_user('centos')
 
 config = shputil.get_config()
 

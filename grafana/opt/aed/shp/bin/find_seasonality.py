@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 import sys
 
@@ -138,7 +138,7 @@ def process_metric(service, panel):
         return
 
     x = find_best_season(historical_data)[0]
-    print service_name, "-", key, "-", metric, "-", x
+    print(service_name + " - " + key + " - " + metric + " - " + x)
 
 
 config = shputil.get_config()
@@ -157,5 +157,5 @@ for service in service_config.get_services():
         try:
             process_metric(service, panel)
         except Exception as e:
-            print e
+            print(str(e))
 #    break

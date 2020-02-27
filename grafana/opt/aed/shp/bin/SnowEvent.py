@@ -9,28 +9,29 @@ import datetime
 import json
 from optparse import OptionParser
 import urllib2
-import logging
 
 import sys
+
 sys.path.append('/opt/aed/shp/lib')
 
 import shputil
 
 config = shputil.get_config()
-shputil.configure_logging(config["logging_configuration_file"])
+logger = shputil.get_logger('snow_events')
 
 snow_user = str(config["servicenow_user"])
 snow_pass = str(config["servicenow_pass"])
 snow_endpoint = "https://" + str(config["servicenow_instance"]) + ".service-now.com/api/now/table/em_event"
 
 proxy_handler = urllib2.ProxyHandler({
-              "http"  : str(config["http_proxy"]),
-              "https" : str(config["https_proxy"]),
-            })
+    "http": str(config["http_proxy"]),
+    "https": str(config["https_proxy"]),
+})
 
 opener = urllib2.build_opener(proxy_handler)
 # ...and install it globally so it can be used with urlopen.
 urllib2.install_opener(opener)
+
 
 def defineOptions():
     parser = OptionParser()
@@ -46,33 +47,39 @@ def defineOptions():
     parser.add_option("--messageKey", dest="messageKey", help="Message key", default="")
     parser.add_option("--node", dest="node", help="Name of the node", default="Default-Node")
     parser.add_option("--type", dest="type", help="Type of event", default="High Memory Utilization")
-    parser.add_option("--resource", dest="resource", help="Represents the resource event is associated with", default="Default-Disk")
+    parser.add_option("--resource", dest="resource", help="Represents the resource event is associated with",
+                      default="Default-Disk")
     parser.add_option("--severity", dest="severity", help="Severity of event", default="3")
     parser.add_option("--timeOfEvent", dest="timeOfEvent", help="Time of event in GMT format", default="")
-    parser.add_option("--description", dest="description", help="Event description", default="Default event description")
-    parser.add_option("--additionalInfo", dest="additionalInfo", help="Additional event information that can be used for third-party integration or other post-alert processing", default="{}")
-    parser.add_option("--ciIdentifier", dest="ciIdentifier", help="Optional JSON string that represents a configuration item", default="{}")
+    parser.add_option("--description", dest="description", help="Event description",
+                      default="Default event description")
+    parser.add_option("--additionalInfo", dest="additionalInfo",
+                      help="Additional event information that can be used for third-party integration or other post-alert processing",
+                      default="{}")
+    parser.add_option("--ciIdentifier", dest="ciIdentifier",
+                      help="Optional JSON string that represents a configuration item", default="{}")
 
     (options, args) = parser.parse_args()
     return options
 
+
 def execute():
-    if (options.timeOfEvent == ""):
-      options.timeOfEvent = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    if options.timeOfEvent == "":
+        options.timeOfEvent = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
     if options.eventClass == "":
         options.eventClass = options.source
 
     # US600640 - Brad doesn't want us sending message_key in the event ever
     options.messageKey = ""
-    #if options.messageKey == "":
+    # if options.messageKey == "":
     #    options.messageKey = options.source +"__" + options.node +"__" + options.type + "__" + options.resource
 
-    data = {"source" : options.source, "node" : options.node , "type" : options.type,
-            "resource" : options.resource, "severity" : options.severity,
-            "time_of_event" : options.timeOfEvent, "description" : options.description,
-            "additional_info" : options.additionalInfo, "ci_identifier" : options.ciIdentifier,
-            "event_class" : options.eventClass, "message_key": options.messageKey}
+    data = {"source": options.source, "node": options.node, "type": options.type,
+            "resource": options.resource, "severity": options.severity,
+            "time_of_event": options.timeOfEvent, "description": options.description,
+            "additional_info": options.additionalInfo, "ci_identifier": options.ciIdentifier,
+            "event_class": options.eventClass, "message_key": options.messageKey}
     data = json.dumps(data)
 
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
@@ -83,8 +90,9 @@ def execute():
     f.read()
     f.close()
 
+
 try:
-  options = defineOptions()
-  execute()
-except Exception, e:
-  logging.error("Failure: Unable to create ServiceNow event", exc_info=True)
+    options = defineOptions()
+    execute()
+except Exception as e:
+    logger.exception("Failure: Unable to create ServiceNow event")

@@ -150,7 +150,7 @@ if __name__ == "__main__":
                         cvalue = ''
                     thisRow[column_names[cindex]] = cvalue
 
-                print(json.dumps(thisRow, indent=4))
+                print(json.dumps(thisRow))
 
                 _count = thisRow[options.metrictitle]
                 if not _count.isdigit():

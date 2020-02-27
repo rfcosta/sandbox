@@ -117,20 +117,6 @@
       "zindex": 2
     },
     {
-      "alias": "Upper Threshold months",
-      "color": "rgb(255, 242, 0)",
-      "legend": false,
-      "linewidth": 2,
-      "zindex": 2
-    },
-    {
-      "alias": "Upper Threshold years",
-      "color": "rgb(255, 242, 0)",
-      "legend": false,
-      "linewidth": 2,
-      "zindex": 2
-    },
-    {
       "alias": "Lower Trend",
       "color": "#0a437c",
       "legend": false,
@@ -146,53 +132,9 @@
       "zindex": 1
     },
     {
-      "alias": "Lower Trend months",
-      "color": "#0a437c",
-      "legend": false,
-      "lines": false,
-      "zindex": 1
-    },
-    {
-      "alias": "Upper Trend months",
-      "color": "#1f78c1",
-      "fillBelowTo": "Lower Trend months",
-      "legend": false,
-      "lines": false,
-      "zindex": 1
-    },
-       {
-      "alias": "Lower Trend years",
-      "color": "#0a437c",
-      "legend": false,
-      "lines": false,
-      "zindex": 1
-    },
-    {
-      "alias": "Upper Trend years",
-      "color": "#1f78c1",
-      "fillBelowTo": "Lower Trend years",
-      "legend": false,
-      "lines": false,
-      "zindex": 1
-    },
-    {
       "alias": "Lower Threshold",
       "lines": true,
       "color": "#f4d598",
-      "linewidth": 2,
-      "zindex": 2
-    },
-    {
-      "alias": "Lower Threshold months",
-      "color": "#f4d598",
-      "legend": false,
-      "linewidth": 2,
-      "zindex": 2
-    },
-    {
-      "alias": "Lower Threshold years",
-      "color": "#f4d598",
-      "legend": false,
       "linewidth": 2,
       "zindex": 2
     }
@@ -320,6 +262,12 @@
           "key": "time",
           "operator": "<",
           "value": "now() - 30d"
+        },
+        {
+          "condition": "AND",
+          "key": "time",
+          "operator": ">",
+          "value": "now() - 360d"
         },
         {
           "condition": "AND",
@@ -537,56 +485,6 @@
         },
         {
           "condition": "AND",
-          "key": "time",
-          "operator": ">",
-          "value": "now() - 30d"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
-    },
-    {
-      "alias": "Upper Threshold months",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "months",
-      "refId": "J",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_static_upper"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 30d"
-        },
-        {
-          "condition": "AND",
           "key": "type",
           "operator": "=",
           "value": "<<METRIC_TYPE>>"
@@ -622,100 +520,6 @@
           "key": "key",
           "operator": "=",
           "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
-    },
-    {
-      "alias": "Lower Trend months",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "months",
-      "refId": "N",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_dynamic_lower"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 30d"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": ">",
-          "value": "now() - 360d"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
-    },
-          {
-      "alias": "Lower Trend years",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "years",
-      "refId": "O",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_dynamic_lower"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 360d"
         },
         {
           "condition": "AND",
@@ -765,100 +569,6 @@
       ]
     },
     {
-      "alias": "Upper Trend months",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "months",
-      "refId": "P",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_dynamic_upper"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 30d"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": ">",
-          "value": "now() - 360d"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
-    },
-        {
-      "alias": "Upper Trend years",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "years",
-      "refId": "Q",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_dynamic_upper"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 359d"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
-    },
-    {
       "alias": "Lower Threshold",
       "groupBy": [],
       "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
@@ -896,100 +606,6 @@
         }
       ],
       "hide": false
-    },
-        {
-      "alias": "Lower Threshold months",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "months",
-      "refId": "L",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_static_lower"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 30d"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": ">",
-          "value": "now() - 360d"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
-    },
-    {
-      "alias": "Lower Threshold years",
-      "groupBy": [],
-      "measurement": "<<INFLUXDB_METRIC_MEASURE>>",
-      "orderByTime": "ASC",
-      "policy": "years",
-      "refId": "M",
-      "resultFormat": "time_series",
-      "select": [
-        [
-          {
-            "params": [
-              "threshold_static_lower"
-            ],
-            "type": "field"
-          }
-        ]
-      ],
-      "tags": [
-        {
-          "key": "ci",
-          "operator": "=",
-          "value": "<<SERVICE_NAME>>"
-        },
-        {
-          "condition": "AND",
-          "key": "key",
-          "operator": "=",
-          "value": "<<PANEL_KEY>>"
-        },
-        {
-          "condition": "AND",
-          "key": "time",
-          "operator": "<",
-          "value": "now() - 360d"
-        },
-        {
-          "condition": "AND",
-          "key": "type",
-          "operator": "=",
-          "value": "<<METRIC_TYPE>>"
-        }
-      ]
     }
   ],
   "thresholds": [

@@ -1,8 +1,6 @@
-#!/bin/env python
+#!/bin/env python3
 
-import time
 import sys
-import json
 import os
 from influxdb import InfluxDBClient
 
@@ -14,7 +12,7 @@ import shputil
 
 def print_report(service, metric, key):
   query = 'SELECT ' + metric + ' FROM ' + db + "." + policy + "." + measure + ' WHERE ci=\'' + service + '\'' + ' AND "key"=\'' + key  + '\'' + ' AND "type"=\'' + metric + '\''
-  print "QUERY: " + query
+  print("QUERY: " + query)
   rs = client.query(query)
 
   service = service.replace('/','-')
@@ -31,7 +29,10 @@ def print_report(service, metric, key):
 
 # mainline
 
+shputil.check_logged_in_user('centos')
+
 os.system("rm FILES/*")
+
 config = shputil.get_config()
 
 client = InfluxDBClient(host=config['influxdb_host'], port=int(config['influxdb_port']), database=config['influxdb_db'])
@@ -50,11 +51,11 @@ for service in service_config.get_services():
    ci = service.name
    panels = service.panels
    for panel in panels:
-     print str(panel)
+     print(str(panel))
      key = panel.panelKey
      metric = panel.metric_type
      if key:
-       print "KEY: " + key + " SERVICE: " + ci
+       print("KEY: {0} SERVICE: {1}".format(key, ci))
        print_report(ci, metric, key)
 
 client.close()
