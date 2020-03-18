@@ -1,1 +1,379 @@
-{"result":{"global":{"version":"1.0.33"},"services":{"SAC Schedule Manager":{"panels":{"SchBridge_avg_processing_time":{"display_state":"Active","alerting_enabled":"false","viz_view":{"charts":[{"title":"SchBridge_avg_processing_time","tmMetrics":[{"valueType":"AVG","metricType":"STANDARD","bucket":25,"itemImpl":{"name":"mq-msg-proc-","type":"METRIC"},"tags":["DS-SCH",null,null,"Bridge","main",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":10800000,"granularity":1}},"SchBridge_error_count":{"display_state":"Active","alerting_enabled":"false","viz_view":{"charts":[{"title":"SchBridge_error_count","tmMetrics":[{"valueType":"CNT","metricType":"STANDARD","bucket":25,"itemImpl":{"name":"mq-msg-proc-failure-count#","type":"METRIC"},"tags":["DS-SCH",null,null,"Bridge","main",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":10800000,"granularity":1}},"SchMgr_error_count":{"display_state":"Active","alerting_enabled":"false","viz_view":{"charts":[{"title":"SchMgr_error_count","tmMetrics":[{"valueType":"CNT","metricType":"STANDARD","bucket":25,"itemImpl":{"name":"mq-msg-proc-failure-count#","type":"METRIC"},"tags":["DS-SCH",null,null,"<REGEX_AGGR>SCH.*","main",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":10800000,"granularity":1}},"SchBridge_transaction_count":{"display_state":"Active","alerting_enabled":"false","viz_view":{"charts":[{"title":"SchBridge_transaction_count","tmMetrics":[{"valueType":"CNT","metricType":"STANDARD","bucket":25,"itemImpl":{"name":"mq-msg-proc-","type":"METRIC"},"tags":["DS-SCH",null,null,"Bridge","main",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":10800000,"granularity":1}},"SchMgr_transaction_count":{"display_state":"Active","alerting_enabled":"false","viz_view":{"charts":[{"title":"SchMgr_transaction_count","tmMetrics":[{"valueType":"CNT","metricType":"STANDARD","bucket":25,"itemImpl":{"name":"mq-msg-proc-","type":"METRIC"},"tags":["DS-SCH",null,null,"<REGEX_AGGR>SCH.*","main",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":10800000,"granularity":1}},"SchMgr_avg_processing_time":{"display_state":"Active","alerting_enabled":"false","viz_view":{"charts":[{"title":"SchMgr_avg_processing_time","tmMetrics":[{"valueType":"AVG","metricType":"STANDARD","bucket":25,"itemImpl":{"name":"mq-msg-proc-","type":"METRIC"},"tags":["DS-SCH",null,null,"<REGEX_AGGR>SCH.*","main",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":10800000,"granularity":1}}},"state":"staging-no-alerting"},"Passenger Service System":{"panels":{"transaction_count_from_nofep":{"display_state":"Active","alerting_enabled":"true","viz_view":{"charts":[{"title":"transaction_count_from_nofep","tmMetrics":[{"valueType":"CNT","metricType":"OCM","bucket":0,"itemImpl":{"name":"messagesIn","type":"COUNT"},"tags":["NOFEP","<AGGREGATE>","<REGEX_AGGR>ps.*","PSS Host Data","<AGGREGATE>","<REGEX_AGGR>PS.*",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":7200000,"granularity":1}},"transaction_count_to_nofep":{"display_state":"Active","alerting_enabled":"true","viz_view":{"charts":[{"title":"transaction_count_to_nofep","tmMetrics":[{"valueType":"CNT","metricType":"OCM","bucket":0,"itemImpl":{"name":"messagesOut","type":"COUNT"},"tags":["NOFEP","<AGGREGATE>","<REGEX_AGGR>ps.*","PSS Host Data","<AGGREGATE>","<REGEX_AGGR>PS.*",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":7200000,"granularity":1}}},"state":"staging-no-alerting"},"TPNR PNR Services":{"panels":{"transaction_count":{"display_state":"Active","alerting_enabled":"true","viz_view":{"charts":[{"title":"transaction_count","tmMetrics":[{"valueType":"CNT","metricType":"OCM","bucket":2057,"itemImpl":{"name":"InMsgCnt","type":"COUNT"},"tags":["USG",null,null,"getReservationRQ",null,null,null,null,null,null,null,"AS",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":3600000,"granularity":1}},"error_count_2":{"display_state":"Active","alerting_enabled":"true","viz_view":{"charts":[{"title":"error_count_2","tmMetrics":[{"valueType":"CNT","metricType":"STANDARD","bucket":0,"itemImpl":{"name":"stdErrors","type":"COUNT"},"tags":["SSG","<AGGREGATE>","<AGGREGATE>","SSG:consumer",null,"<AGGREGATE>","<AGGREGATE>","<AGGREGATE>",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}],"x":0,"y":0,"viewType":"CHART"}],"editableOcmTags":[],"editableStdTags":[],"defaultTimeSpan":86400000,"granularity":1}}},"state":"validated"}},"last_updated":"2019-04-16 15:58:49"}}
+{
+    "result": {
+        "global": {
+            "version": "2.0.21"
+        },
+        "last_updated": "2020-02-27 19:19:15",
+        "services": {
+            "Cars Open Systems": {
+                "panels": {
+                    "transaction_count_content": {
+                        "alerting_enabled": "true",
+                        "display_state": "Active",
+                        "viz_view": {
+                            "charts": [
+                                {
+                                    "title": "transaction_count_content",
+                                    "tmMetrics": [
+                                        {
+                                            "bucket": 0,
+                                            "itemImpl": {
+                                                "name": "InMsgCnt",
+                                                "type": "COUNT"
+                                            },
+                                            "metricType": "OCM",
+                                            "tags": [
+                                                "NGCP-CONTENT",
+                                                "<AGGREGATE>",
+                                                "<AGGREGATE>",
+                                                "GetVehLocDetailRQ",
+                                                "<AGGREGATE>",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                            ],
+                                            "valueType": "CNT"
+                                        }
+                                    ],
+                                    "viewType": "CHART",
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            ],
+                            "defaultTimeSpan": 3600000,
+                            "editableOcmTags": [],
+                            "editableStdTags": [],
+                            "granularity": 1
+                        }
+                    },
+                    "transaction_count_core": {
+                        "alerting_enabled": "true",
+                        "display_state": "Active",
+                        "viz_view": {
+                            "charts": [
+                                {
+                                    "title": "transaction_count_core",
+                                    "tmMetrics": [
+                                        {
+                                            "bucket": 0,
+                                            "itemImpl": {
+                                                "name": "InMsgCnt",
+                                                "type": "COUNT"
+                                            },
+                                            "metricType": "OCM",
+                                            "tags": [
+                                                "NGCP-CORE",
+                                                "<AGGREGATE>",
+                                                "<AGGREGATE>",
+                                                "GetVehAvailRateRQ",
+                                                "<AGGREGATE>",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                            ],
+                                            "valueType": "CNT"
+                                        }
+                                    ],
+                                    "viewType": "CHART",
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            ],
+                            "defaultTimeSpan": 7200000,
+                            "editableOcmTags": [],
+                            "editableStdTags": [],
+                            "granularity": 1
+                        }
+                    },
+                    "transaction_count_distribution": {
+                        "alerting_enabled": "true",
+                        "display_state": "Active",
+                        "viz_view": {
+                            "charts": [
+                                {
+                                    "title": "transaction_count_distribution",
+                                    "tmMetrics": [
+                                        {
+                                            "bucket": 0,
+                                            "itemImpl": {
+                                                "name": "InMsgCnt",
+                                                "type": "COUNT"
+                                            },
+                                            "metricType": "OCM",
+                                            "tags": [
+                                                "NGCP-DISTRIBUTION",
+                                                "<AGGREGATE>",
+                                                "<AGGREGATE>",
+                                                "GetVehAvailRateRQ",
+                                                "<AGGREGATE>",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                            ],
+                                            "valueType": "CNT"
+                                        }
+                                    ],
+                                    "viewType": "CHART",
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            ],
+                            "defaultTimeSpan": 3600000,
+                            "editableOcmTags": [],
+                            "editableStdTags": [],
+                            "granularity": 1
+                        }
+                    }
+                },
+                "state": "staging-no-alerting"
+            },
+            "Sabre Web Services": {
+                "panels": {
+                    "AeroMexico_2SG_transaction_count": {
+                        "alerting_enabled": "true",
+                        "display_state": "Active",
+                        "viz_view": {
+                            "charts": [
+                                {
+                                    "title": "AeroMexico_2SG_transaction_count",
+                                    "tmMetrics": [
+                                        {
+                                            "bucket": 2049,
+                                            "itemImpl": {
+                                                "name": "ExistTime",
+                                                "type": "METRIC"
+                                            },
+                                            "metricType": "OCM",
+                                            "tags": [
+                                                "2SG",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                "<REGEX_AGGR>AM|AMO",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                            ],
+                                            "valueType": "CNT"
+                                        }
+                                    ],
+                                    "viewType": "CHART",
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            ],
+                            "defaultTimeSpan": 3600000,
+                            "editableOcmTags": [],
+                            "editableStdTags": [],
+                            "granularity": 1
+                        }
+                    },
+                    "AeroMexico_Transaction_Count": {
+                        "alerting_enabled": "true",
+                        "display_state": "Active",
+                        "viz_view": {
+                            "charts": [
+                                {
+                                    "title": "AeroMexico_Transaction_Count",
+                                    "tmMetrics": [
+                                        {
+                                            "bucket": 2049,
+                                            "itemImpl": {
+                                                "name": "TPS",
+                                                "type": "METRIC"
+                                            },
+                                            "metricType": "OCM",
+                                            "tags": [
+                                                "USG",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                "AM",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                            ],
+                                            "valueType": "SUM"
+                                        }
+                                    ],
+                                    "viewType": "CHART",
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            ],
+                            "defaultTimeSpan": 360000,
+                            "editableOcmTags": [],
+                            "editableStdTags": [],
+                            "granularity": 1
+                        }
+                    }
+                },
+                "state": "staging-alerting"
+            },
+            "Second Generation USG": {
+                "panels": {
+                    "az_rule0_transaction_count": {
+                        "alerting_enabled": "true",
+                        "display_state": "Active",
+                        "viz_view": {
+                            "charts": [
+                                {
+                                    "title": "az_rule0_transaction_count",
+                                    "tmMetrics": [
+                                        {
+                                            "bucket": 2049,
+                                            "itemImpl": {
+                                                "name": "ExistTime",
+                                                "type": "METRIC"
+                                            },
+                                            "metricType": "OCM",
+                                            "tags": [
+                                                "2SG",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                "<REGEX>AZ",
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                            ],
+                                            "valueType": "CNT"
+                                        }
+                                    ],
+                                    "viewType": null,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            ],
+                            "defaultTimeSpan": 360000,
+                            "editableOcmTags": [],
+                            "editableStdTags": [],
+                            "granularity": 1
+                        }
+                    }
+                },
+                "state": "staging-alerting"
+            }
+        }
+    }
+}

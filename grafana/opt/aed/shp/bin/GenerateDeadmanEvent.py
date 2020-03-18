@@ -3,18 +3,11 @@
 # This python script pulls values from the json sent by Kapacitor and then calls SnowEvent.py to generate an event in ServiceNow
 
 import json
-import os
 import sys
 
 sys.path.append('/opt/aed/shp/lib')
 
-import requests
-import shputil
-import collections
 import dateutil.parser
-import time
-import logging
-from time import strftime
 from subprocess import call
 from select import select
 from service_configuration import ServiceConfiguration
@@ -29,7 +22,6 @@ def processDeadmanAlert():
     alertData = ""
     # Defaulting fields so we don't have to keep checking in other functions
     singleAlert = {"alertSource": "kapacitor", "level": "", "id": "", "ci": "Service Health Portal", "panelKey": "", "details": ""}
-    kapacitorColumns = []
 
     # We don't want to block
     timeout = 0
@@ -45,22 +37,22 @@ def processDeadmanAlert():
     if "message" in kapacitorAlerts:
         singleAlert["message"] = str(kapacitorAlerts["message"])
     else:
-        raise KeyError("Unable to find alert message: " + str(kapacitorAlert))
+        raise KeyError("Unable to find alert message: " + str(kapacitorAlerts))
 
     if "time" in kapacitorAlerts:
         singleAlert["time"] = str(kapacitorAlerts["time"])
     else:
-        raise KeyError("Unable to find time of alert: " + str(kapacitorAlert))
+        raise KeyError("Unable to find time of alert: " + str(kapacitorAlerts))
 
     if "level" in kapacitorAlerts:
         singleAlert["level"] = str(kapacitorAlerts["level"])
     else:
-        raise KeyError("Unable to find alert level: " + str(kapacitorAlert))
+        raise KeyError("Unable to find alert level: " + str(kapacitorAlerts))
 
     if "id" in kapacitorAlerts:
         singleAlert["id"] = str(kapacitorAlerts["id"])
     else:
-        raise KeyError("Unable to find alert id: " + str(kapacitorAlert))
+        raise KeyError("Unable to find alert id: " + str(kapacitorAlerts))
 
     if "data" in kapacitorAlerts and "series" in kapacitorAlerts["data"]:
         if len(kapacitorAlerts["data"]["series"]) > 0:
@@ -75,7 +67,7 @@ def processDeadmanAlert():
     if "details" in kapacitorAlerts:
         singleAlert["details"] = str(kapacitorAlerts["details"])
 
-    logging.debug("SingleAlert: " + str(singleAlert))
+    logger.info("Deadman Alert: " + str(singleAlert))
     createServiceNowDeadmanEvent(singleAlert)
 
 
@@ -141,13 +133,12 @@ def createServiceNowDeadmanEvent(kapacitorAlert):
           "--type=%s" % alertMessage, "--resource=%s" % panelKey, "--severity=%s" % level,
           "--description=%s" % message, "--additionalInfo=%s" % kapacitorAlert])
 
+config = shputil.get_config()
+logger = shputil.get_logger('snow_events')
 
 try:
-    config = shputil.get_config()
-    shputil.configure_logging(config["logging_configuration_file"])
     service_config = ServiceConfiguration()
     global_source_deadman = True
-
     processDeadmanAlert()
-except Exception, e:
-    logging.error("Failure: Unable to process event", exc_info=True)
+except Exception as e:
+   logger.exception(e)

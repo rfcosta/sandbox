@@ -38,36 +38,19 @@ class Panel:
         self.metric_type = panel['metric_type']
         self.panelKey = panel_key
         self.kpi = panel['kpi']
-        self.panel_id = self.get_panel_id(panel)
+        self.panel_id = panel['panel_id']
         self.load_thresholds(panel)
         self.graph_panel_sys_id = panel["graph_panel_sys_id"] if "graph_panel_sys_id" in panel else ''
         self.customer_code = panel['customer_code']
         self.customer_name = panel['customer_name']
         self.customer_sys_id = panel.get('customer_sys_id')
 
-    def get_panel_id(self, panel):
-        if self.use_configured_panelIDs == 'true':
-            return panel['panel_id']
-        else:
-            return self.get_old_panel_id_for_metric()
-
-    # temporary until we figure out the SNOW/SHP mismatched versions problem
-
-    def get_old_panel_id_for_metric(self):
-        if self.metric_type == 'avg_processing_time':
-            return '3'
-        if self.metric_type == 'transaction_count':
-            return '4'
-        if self.metric_type == 'error_count':
-            return '5'
-        if self.metric_type == 'error_rate':
-            return '6'
-        print("Unable to determine panel id for metric type")
 
     def load_thresholds(self, panel):
         thresholds = panel['thresholds']
         my_threshold = Threshold(thresholds)
         self.thresholds = my_threshold
+
 
     def __str__(self):
         s = ("    panel: " + '\n' +

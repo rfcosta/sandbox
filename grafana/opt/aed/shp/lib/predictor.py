@@ -8,7 +8,6 @@ class Predictor:
     def __init__(self, metric, historical_values, seasonal_periods, deviations, minutes_to_predict):
         self.metric = metric
         self.historical_values = historical_values
-        print("Seasonal Periods: ", seasonal_periods)
         self.seasonal_periods = seasonal_periods
         self.deviations = deviations
         self.minutes_to_predict = minutes_to_predict

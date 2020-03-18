@@ -35,13 +35,12 @@ class Folders:
 
     def get_folder_id(self, title):
         try:
-            for id, folder_name in list(self.folders.items()):
+            for folder_id, folder_name in list(self.folders.items()):
                 if title == folder_name:
-                    return id
+                    return folder_id
         except:
             raise Exception("Failed to find folder: " + title)
 
-    def delete_folder(self, id):
-        print("Deleting folder: " + str(id))
-        uid = self.folder_uids[id]
+    def delete_folder(self, folder_id):
+        uid = self.folder_uids[folder_id]
         self.helper.api_delete('folders/' + str(uid))

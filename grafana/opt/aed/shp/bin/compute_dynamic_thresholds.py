@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 import collections
 import datetime
@@ -34,6 +34,7 @@ MAX_SEASONS_CACHE_AGE = ONE_WEEK_IN_SECONDS
 
 MAX_DEVIATIONS = 6
 MIN_DEVIATIONS = 1
+
 
 def get_db_connection():
     influx_host = config['influxdb_host']
@@ -72,15 +73,14 @@ def load_previous_thresholds(cache_id):
         with open(fname) as json_file:
             thresholds = json.load(json_file)
     else:
-        thresholds = {}
-        thresholds['thresholds'] = {}
+        thresholds = {'thresholds': {}}
 
     return thresholds['thresholds']
 
 
 def write_new_thresholds(cache_id, thresholds_json):
     fname = local_thresholds_data_dir + '/' + cache_id + '.json'
-    # print json.dumps(thresholds_json, indent=4, sort_keys=True)
+    # logger.debug(json.dumps(thresholds_json, indent=4, sort_keys=True))
     with open(fname, 'w') as outfile:
         outfile.write(json.dumps(thresholds_json, indent=4, sort_keys=True))
 
@@ -123,15 +123,9 @@ def process_thresholds(service_name, metric, key, thresholds, cache_id):
     previous_thresholds = load_previous_thresholds(cache_id)
     merged_thresholds = merge_thresholds(previous_thresholds, thresholds)
 
-    tags = {}
-    tags['ci'] = service_name
-    tags['metric'] = metric
-    tags['key'] = key
+    tags = {'ci': service_name, 'metric': metric, 'key': key}
 
-    my_json = {}
-    my_json['tags'] = tags
-    my_json['last_updated'] = get_formatted_timestamp(time.time())
-    my_json['thresholds'] = merged_thresholds
+    my_json = {'tags': tags, 'last_updated': get_formatted_timestamp(time.time()), 'thresholds': merged_thresholds}
 
     write_new_thresholds(cache_id, my_json)
 
@@ -144,7 +138,7 @@ def load_historical_data(key, metric, service_name, to_when):
     rs = db_connection.query(query)
     for item in rs.items():
         for point in item[1]:
-            if None == point[metric]:
+            if point[metric] is None:
                 continue
             time = point['time']
             value = point[metric]
@@ -152,7 +146,7 @@ def load_historical_data(key, metric, service_name, to_when):
             historical_data.append(single_tuple)
 
     if len(historical_data) < TWO_WEEKS:
-        raise Exception("Not enough data to analyze for: ", service_name, '-', key)
+        raise RuntimeWarning("Not enough data to analyze for: " + service_name + '-' + key)
 
     return historical_data
 
@@ -165,9 +159,7 @@ def get_predictor(service_name, metric, key, standard_deviations, seasonal_perio
 def save_seasons(cache_id, seasons):
     fname = local_thresholds_data_dir + '/' + cache_id + '-seasons.json'
 
-    season_json = {}
-    season_json['seasons'] = seasons
-    season_json['last_updated'] = get_formatted_timestamp(time.time())
+    season_json = {'seasons': seasons, 'last_updated': get_formatted_timestamp(time.time())}
 
     with open(fname, 'w') as outfile:
         outfile.write(json.dumps(season_json, indent=4, sort_keys=True))
@@ -182,37 +174,38 @@ def get_seasons(service_name, metric, key, when):
         with open(fname) as json_file:
             seasons = json.load(json_file)
             seasons = seasons['seasons']
-            print "Loaded Seasons From Cache: ", seasons
+            logger.debug(service_name + " - Loaded Seasons From Cache: " + str(seasons))
 
     if seasons is None:
-        print "Seasons not found in cache - recomputing"
+        logger.debug(service_name + " - Seasons not found in cache - recomputing")
         historical_data = load_historical_data(key, metric, service_name, when)
         seasons = Seasonality(historical_data).get_seasons()
+        logger.info(service_name + " - Seasonality: " + str(seasons))
         save_seasons(cache_id, seasons)
 
     return seasons
 
 
-def get_standard_deviations(service_config, configured_standard_deviations):
+def get_standard_deviations(service_config, service_name, configured_standard_deviations):
     try:
         deviations_adjustment = service_config.dynamic_alerting_deviations_adjustment
         standard_deviations = configured_standard_deviations + int(deviations_adjustment)
-    except Exception, e:
-        print "dynamic_alerting_deviations_adjustment is invalid: ", deviations_adjustment
+    except:
+        logger.debug(service_name + " - dynamic_alerting_deviations_adjustment is invalid: " + str(deviations_adjustment))
         standard_deviations = configured_standard_deviations
 
     if standard_deviations > MAX_DEVIATIONS:
-        print standard_deviations, "> MAX_DEVIATIONS - Using ", MAX_DEVIATIONS
+        logger.debug(service_name + " - " + str(standard_deviations) + "> MAX_DEVIATIONS - Using " + str(MAX_DEVIATIONS))
         standard_deviations = MAX_DEVIATIONS
 
     if standard_deviations < MIN_DEVIATIONS:
-        print standard_deviations, "<  MIN_DEVIATIONS - Using ", MIN_DEVIATIONS
+        logger.debug(service_name + " - " + str(standard_deviations) + "<  MIN_DEVIATIONS - Using " + str(MIN_DEVIATIONS))
         standard_deviations = MIN_DEVIATIONS
 
     if standard_deviations != configured_standard_deviations:
-        print "Using modified number of deviations:", standard_deviations, " was ", configured_standard_deviations
+        logger.debug(service_name + " - Using modified number of deviations:", standard_deviations, " was ", configured_standard_deviations)
     else:
-        print "Using configured number of deviations:", standard_deviations
+        logger.debug(service_name + " - Using configured number of deviations: " + str(standard_deviations))
 
     return standard_deviations
 
@@ -220,16 +213,15 @@ def get_standard_deviations(service_config, configured_standard_deviations):
 def calculate_dynamic_thresholds(service_config, service_name, when):
     service = service_config.get_service(service_name)
 
-    for panel in service.panels:
-        try:
+    try:
+        for panel in service.panels:
             metric = panel.metric_type
 
             key = panel.panelKey
 
             cache_id = get_cache_id(service_name, metric, key)
-            print "ID:", cache_id
 
-            standard_deviations = get_standard_deviations(service_config, panel.thresholds.standard_deviations)
+            standard_deviations = get_standard_deviations(service_config, service_name, panel.thresholds.standard_deviations)
             seasonal_periods = get_seasons(service_name, metric, key, when)
             predictor = get_predictor(service_name, metric, key, standard_deviations, seasonal_periods, when)
             dynamic_thresholds = predictor.predict()
@@ -238,18 +230,22 @@ def calculate_dynamic_thresholds(service_config, service_name, when):
             computed_thresholds = {}
 
             for thresholds in zip(dynamic_thresholds[0], dynamic_thresholds[1]):
-                limits = {}
-                limits['lower'] = round(thresholds[0], 2)
-                limits['upper'] = round(thresholds[1], 2)
+                limits = {
+                    'lower': round(thresholds[0], 2),
+                    'upper': round(thresholds[1], 2)
+                }
                 computed_thresholds[str(remove_seconds(when + i))] = limits
                 i += SECONDS_IN_MINUTE
 
             process_thresholds(service_name, metric, key, computed_thresholds, cache_id)
-        except Exception as e:
-            print str(e)
+    except RuntimeWarning as runtimeWarning:
+        logger.info(runtimeWarning)
+
+    except Exception as e:
+        logger.exception(e)
 
 
-#### Main
+# Main
 
 parser = OptionParser()
 parser.add_option("--service_name", dest="service_name", default="")
@@ -261,6 +257,8 @@ if not service_name:
     raise Exception("missing --service_name argument")
 
 config = shputil.get_config()
+
+logger = shputil.get_logger("dynamicThresholds")
 
 when = int(time.time())
 
@@ -274,10 +272,10 @@ local_data_dir = config['local_dynamic_thresholds_dir']
 local_thresholds_data_dir = local_data_dir + '/threshold_history'
 
 if not os.path.isdir(local_data_dir):
-    os.mkdir(local_data_dir, 0777)
+    os.mkdir(local_data_dir, 0o777)
 
 if not os.path.isdir(local_thresholds_data_dir):
-    os.mkdir(local_thresholds_data_dir, 0777)
+    os.mkdir(local_thresholds_data_dir, 0o777)
 
 calculate_dynamic_thresholds(service_config, service_name, when)
 

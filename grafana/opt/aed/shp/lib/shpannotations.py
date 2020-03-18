@@ -137,7 +137,7 @@ class ShpAnnotations():
     #===================================================================================================================
     def debug(self,msg):
         if (self.DEBUG):
-            print (time.strftime('%Y-%m-%d %H:%M:%S') + " " + msg)
+            print(time.strftime('%Y-%m-%d %H:%M:%S') + " " + msg)
 
 
     #===================================================================================================================
@@ -374,16 +374,15 @@ class ShpAnnotations():
 
             except requests.ConnectionError as CONERR:
                 print("**** TIMEOUT *****")
-                print ("CONN TRY #" + str(_try) + ": " + str(CONERR.message))
+                print("CONN TRY # {0} : {1}".format(_try, CONERR.message))
                 if _try == _maxTries:
                     raise
 
         if _search.status_code != 200:
             self.debug(
-                'Cannot %s %s: Status: %s Response: %r' % (OPTION, API, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r'.format(OPTION, API, _search.status_code, json.dumps(_search.json())))
             raise Exception(
-                'Cannot %s %s: Status: %s Response: %r' % (OPTION, API, _search.status_code, json.dumps(_search.json())))
-            exit()
+                'Cannot %s %s: Status: %s Response: %r'.format(OPTION, API, _search.status_code, json.dumps(_search.json())))
 
         # Decode the JSON response into a dictionary and use the changesInfo
         return _search.json()
@@ -405,7 +404,7 @@ class ShpAnnotations():
 
         if not _orgFound:
             _orgId   = 0
-            self.debug("#findOrg ORG=" + str(ORG) + " Was Not Found")
+            self.debug("#findOrg ORG={0} Was Not Found".format(ORG))
 
         return _orgId, _orgName
 
@@ -423,9 +422,9 @@ class ShpAnnotations():
         self.orgs = _search.json()
         if _search.status_code != 200:
             self.debug(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r'.format('GET', _search_url, _search.status_code, json.dumps(_search.json())))
             raise Exception(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r'.format('GET', _search_url, _search.status_code, json.dumps(_search.json())))
             exit()
 
         # Build the dictionary
@@ -464,9 +463,9 @@ class ShpAnnotations():
                            )
         if _search.status_code != 200:
             self.debug(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r'.format('GET', _search_url, _search.status_code, json.dumps(_search.json())))
             raise Exception(
-                'Cannot %s %s: Status: %s Response: %r' % ('GET', _search_url, _search.status_code, json.dumps(_search.json())))
+                'Cannot %s %s: Status: %s Response: %r'.format('GET', _search_url, _search.status_code, json.dumps(_search.json())))
             exit()
 
         self.current_org = _search.json()
@@ -495,7 +494,7 @@ class ShpAnnotations():
         _orgId, _orgName = self.findOrg(ORG)
         _orgFound = (_orgId > 0)
 
-        self.debug("#setOrg ID=" + str(_orgId) + ", NAME=" + _orgName)
+        self.debug("#setOrg ID={0} NAME={1}".format(_orgId, _orgName))
 
 
         #_orgObj   = {"name": _orgName}
@@ -512,7 +511,7 @@ class ShpAnnotations():
         _orgId, _orgName = self.findOrg(ORG)
         _orgFound = (_orgId > 0)
 
-        self.debug("#setOrg ID=" + str(_orgId) + ", NAME=" + _orgName)
+        self.debug("#setOrg ID={0} NAME={1}".format(_orgId, _orgName))
 
         if not _orgFound:
             _orgObj   = {"name": _orgName}
@@ -526,8 +525,8 @@ class ShpAnnotations():
             self.debug("#addOrg: CURRENT ORG AFTER ADD: " + json.dumps(self.current_org))
             self.debug("#addOrg:    ORG DICT AFTER ADD: " + json.dumps(self.orgs_dict))
         else:
-            self.debug("#addOrg: Grafana org already exists:" + str(_orgId) + ": " + _orgName)
-            raise Exception("#addOrg: Grafana org already exists:" + str(_orgId) + ": " + _orgName)
+            self.debug("#addOrg: Grafana org already exists: {0} : {1}".format(_orgId, _orgName))
+            raise Exception("#addOrg: Grafana org already exists: {0} : {1}".format(_orgId, _orgName))
 
         self.debug("#Grafana Current Org after setCurrentOrg: " + json.dumps(self.current_org))
         return self.current_org
@@ -539,26 +538,25 @@ class ShpAnnotations():
         _orgId, _orgName = self.findOrg(ORG)
         _orgFound = (_orgId > 0)
 
-        self.debug("#deleteOrg ID=" + str(_orgId) + ", NAME=" + _orgName)
+        self.debug("#deleteOrg ID={0} NAME={1}".format(_orgId, _orgName))
 
         if _orgId > 0:
             _response = self.grafanaAPI('delete','orgs/' + str(_orgId))
             self.orgs_dict = self.getOrgs() # Update orgs dictionary
             return _response
         else:
-            self.debug("#Organization %s \"%s\" not found: %s" % (str(_orgId), _orgName, json.dumps(self.orgs_dict)) )
+            self.debug("#Organization %s \"%s\" not found: %s".format(str(_orgId), _orgName, json.dumps(self.orgs_dict)) )
             return self.orgs_dict
 
 
     #---------------------------------------
     def invalidMethod(self,*args,**kwargs):
         self.debug(
-            'Invalid method name called on grafanaAPI: %s ' % (args[0])
+            'Invalid method name called on grafanaAPI: %s '.format(args[0])
         )
         raise Exception(
-            'Invalid method name called on grafanaAPI: %s ' % (args[0])
+            'Invalid method name called on grafanaAPI: %s '.format(args[0])
         )
-        exit()
 
     def getPanels(self, dashboardUid, _orgId):
         _dashboardItem = self.grafanaAPI('get', 'dashboards/uid/' + dashboardUid, ORGID=_orgId)
@@ -655,19 +653,19 @@ class ShpAnnotations():
         return _regionlist
 
     def printAnnotations(self,annotations):
-        for _homerange in annotations.keys():
+        for _homerange in list(annotations.keys()):
             print("#getAnnotations> _homerange=" + str(_homerange))
             d, p, h = _homerange
             _regionlist = [_region['regionId'] for _region in annotations[_homerange]]
 
-            print("Region list for " + str(_homerange) + " = " + str(_regionlist))
+            print("Region list for {0} = {1}".format(_homerange, _regionlist))
 
             for _region in annotations[(d, p, h)]:
                 _regionId  = _region['regionId']
                 _rangeList = _region['annotations']
                 _c = 0
                 for _ann in _rangeList:
-                    print("#    DASH=%d PANEL=%d HASH='%s' REGION=%s [%2d]: \t %s" %
+                    print("#    DASH=%d PANEL=%d HASH='%s' REGION=%s [%2d]: \t %s".format
                           (d, p, h, _region, _c, json.dumps(_ann))
                           )
                     _c = _c + 1
@@ -729,9 +727,9 @@ class ShpAnnotations():
         if newApiVersion:
             changedServicesList = [changesInfo['result']['services'][service]['name']
                                    for service in
-                                   changesInfo['result']['services'].keys()]
+                                   list(changesInfo['result']['services'].keys())]
         else:
-            changedServicesList = [service for service in changesInfo['result']['services'].keys()]
+            changedServicesList = [service for service in list(changesInfo['result']['services'].keys())]
 
         self.debug("#Changed Services List: " + str(changedServicesList))
 
@@ -743,15 +741,15 @@ class ShpAnnotations():
             if serviceEntry:
                 serviceUID = serviceEntry['uid']
                 # Look for the service UID on dashboards
-                if dashboardDict.has_key(serviceUID):
+                if serviceUID in dashboardDict:
                     dashboardID = dashboardDict[serviceUID]['id']
-                    self.debug("#Found on dict dashboard UID " + str(serviceUID) + " = " +  str(dashboardID))
+                    self.debug("#Found on dict dashboard UID {0} = {1}".format(serviceUID, dashboardID))
                 else:
                     dashboardID = 0
                     _curr = self.current_org
                     _orgId = _curr['id']
                     _orgName = _curr['name']
-                    self.debug("#No Dashboard UID " + str(serviceUID) + " found on ORG " +  str(_orgId) + " " + str(_orgName))
+                    self.debug("#No Dashboard UID {0} found on ORG {1} {2}".format(serviceUID, _orgId, _orgName))
 
                 if dashboardID > 0:
                     if not annotationsReqs.get(dashboardID):

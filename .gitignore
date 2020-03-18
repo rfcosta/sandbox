@@ -3,6 +3,9 @@ venv/
 grafana/home/.DS_Store
 .DS_Store
 # exclude data directories
- chronograf/data/
- influxdb/data/
- kapacitor/data/
+/influxdb/data
+/chronograf/datab
+/kapacitor/data
+/chronograf/data
+/.idea/influxdata.iml
+/.idea/misc.xml

@@ -1,4 +1,6 @@
-#!/bin/env python
+#!/bin/env python3
+
+import json
 
 import glob
 import sys
@@ -28,9 +30,10 @@ def task(service_name):
     log_file = log_file.replace(' ', '-')
     log_file = log_file.replace('/', '-')
 
-    cmd = "python /opt/aed/shp/bin/compute_dynamic_thresholds.py --service_name \"" + service_name + "\"" + " > \"" + log_dir + log_file + "\" 2>&1"
+    cmd = "python3" \
+          " /opt/aed/shp/bin/compute_dynamic_thresholds.py --service_name \"" + service_name + "\""
 
-#    print cmd
+#    logger.info("Spawn processor: " + cmd);
     os.system(cmd)
     return service_name
 
@@ -44,9 +47,9 @@ def spawn_threads():
 
     for service in service_config.get_services():
         state = service.state
-        service_name = service.name.encode('ascii','ignore')
+        service_name = service.name
 
-        print "Service:", service_name
+        logger.info("Service:" + service_name)
         executors.append(executor.submit(task, service_name))
 
     while True:
@@ -54,7 +57,8 @@ def spawn_threads():
          for  executor in executors:
              if not executor.done():
                  still_running += 1
-         print "Still running: ", still_running
+         # using print instead of logger to avoid buffering of the output
+         print("Still running: " + str(still_running))
 
          if still_running == 0:
              break
@@ -74,19 +78,19 @@ def cleanup_seasonality_cache(pattern):
             files[stat.st_mtime] = path_to_file
 
         cnt = 0
-
         for file in sorted(files):
             cnt += 1
             if cnt > FILES_TO_DELETE:
                 break
-#           print files[file]
             os.remove(files[file])
 
     except Exception as e:
-        print "Failed: ", e
+        logger.exception("Failed to cleanup seasonality cache")
 
 
 config = shputil.get_config()
+
+logger = shputil.get_logger("dynamicThresholds")
 
 s3_data_dir = config['s3_dynamic_thresholds_dir']
 s3_thresholds_data_dir = s3_data_dir + '/thresholds_history'
@@ -95,10 +99,10 @@ local_data_dir = config['local_dynamic_thresholds_dir']
 local_thresholds_data_dir = local_data_dir + '/threshold_history'
 
 if not os.path.isdir(local_data_dir):
-    os.mkdir(local_data_dir, 0777)
+    os.mkdir(local_data_dir, 0o777)
 
 if not os.path.isdir(local_thresholds_data_dir):
-    os.mkdir(local_thresholds_data_dir, 0777)
+    os.mkdir(local_thresholds_data_dir, 0o777)
 
 sync_from_s3_bucket(s3_thresholds_data_dir, local_thresholds_data_dir)
 

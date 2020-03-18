@@ -13,9 +13,6 @@ class Seasonality:
         is_daily = self.has_seasonality(historical_values, 1440)
         is_weekly = self.has_seasonality(historical_values, 10080)
 
-        print("Daily ?", is_daily)
-        print("Weekly ?", is_weekly)
-
         if is_weekly:
             self.seasons = DAILY_AND_WEEKLY
         elif is_daily:
@@ -115,5 +112,4 @@ class Seasonality:
         return ro.r('as.logical(ret)')
 
     def get_seasons(self):
-        print("Seasons:", self.seasons)
         return self.seasons

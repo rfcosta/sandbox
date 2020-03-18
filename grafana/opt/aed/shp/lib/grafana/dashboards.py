@@ -28,10 +28,7 @@ class Dashboards:
         return self.dashboards
 
     def create_dashboard(self, uid, json):
-        print("Creating dashboard: " + uid)
-        id = self.helper.api_post_with_data('dashboards/db', json)
-        return id
+        return self.helper.api_post_with_data('dashboards/db', json)
 
     def delete_dashboard(self, uid):
-        print("Deleting dashboard: " + uid)
-        resp = self.helper.api_delete('dashboards/uid/' + uid)
+        self.helper.api_delete('dashboards/uid/' + uid)

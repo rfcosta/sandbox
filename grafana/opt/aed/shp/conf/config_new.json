@@ -1,0 +1,25 @@
+{
+  "appdynamics_instance" : "sabre",
+  "appdynamics_user" : "Grafana_API",
+  "appdynamics_pass" : "",
+  "appdynamics_domain" : "sabre",
+  "servicenow_instance" : "sabredev2",
+  "servicenow_user" : "EVENT_QA_AUTOMATION",
+  "servicenow_pass" : "",
+  "base_dir" : "/opt/aed/shp/",
+  "data_dir" : "data/",
+  "log_dir" : "logs/",
+  "servicenow_services_file" : "servicenow_services.json",
+  "appdynamics_applications_file" : "appdynamics_applications.json",
+  "grafana_host" : "localhost:3000",
+  "grafana_user" : "admin",
+  "grafana_pass" : "",
+  "influxdb_host" : "",
+  "influxdb_port" : "8086",
+  "influxdb_db"   : "kpi",
+  "influxdb_metric_measure"   : "metric",
+  "influxdb_metric_policy"   : "days",
+  "influxdb_alert_measure"   : "alert",
+  "influxdb_alert_policy"   : "days"
+}
+

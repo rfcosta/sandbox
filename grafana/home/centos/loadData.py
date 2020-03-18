@@ -113,13 +113,19 @@ if __name__ == "__main__":
     # _service = '"{}"'.format(options.service)
     _type = str(options.metric)
     _source = _sources[options.source] if options.source in _sources else _sources['Service Supplied']
-    _key = str(options.key)
+
+    if isinstance(options.key, str):
+        _keys = [str(options.key)]
+    else:
+        _keys = options.key
+        pass
+    pass
 
     size = os.stat(options.csv).st_size
     print ("FILE: " + options.csv + ", Size: " + str(size))
 
     if (size > 100 and options.csvtype == 'export'):
-        with open(options.csv, 'rt')as f:
+        with open(options.csv, 'rt') as f:
             data = csv.reader(f, delimiter=';', doublequote=0, lineterminator='\n')
 
             for row in data:
@@ -144,22 +150,26 @@ if __name__ == "__main__":
                         cvalue = ''
                     thisRow[column_names[cindex]] = cvalue
 
-                print(json.dumps(thisRow, indent=4))
+                print(json.dumps(thisRow))
 
                 _count = thisRow[options.metrictitle]
                 if not _count.isdigit():
                     continue
 
                 when = str(convert_utc_to_epoch(thisRow["Time"]))
-                tags = "ci=" + _service + ",key=" + _key + ",source=" + _source + ",type=" + _type
-                values = _type + "=" + _count
-                data = "metric," + tags + " " + values + " " + when
 
-                print ("SERVICE: {}, Type: {}, DATA: {}".format(_service, _type, data))
+                for _key in _keys:
+                    print ("----- KEY: {} -----".format(_key))
 
-                command = "curl -s -i -XPOST " + influx_url + " --data-binary \"" + data + "\""
-                print (command)
-                os.system(command)
+                    tags = "ci=" + _service + ",key=" + _key + ",source=" + _source + ",type=" + _type
+                    values = _type + "=" + _count
+                    data = "metric," + tags + " " + values + " " + when
+
+                    print ("SERVICE: {}, Type: {}, DATA: {}".format(_service, _type, data))
+
+                    command = "curl -s -i -XPOST " + influx_url + " --data-binary \"" + data + "\""
+                    print (command)
+                    os.system(command)
                 pass
             pass
         pass
